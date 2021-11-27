@@ -16,3 +16,8 @@ jobs:
           for filename in src/*.lua; do
             echo $filename >> manifest.txt
           done
+
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: ./manifest.txt
