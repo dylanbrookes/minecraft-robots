@@ -10,7 +10,7 @@ function clearColumn()
     end
 
     -- return the turtle to ground level
-    while tempY != 0 do
+    while tempY > 0 do
         checkFuel()
         turtle.down()
         tempY = tempY - 1
