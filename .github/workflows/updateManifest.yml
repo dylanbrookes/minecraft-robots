@@ -6,13 +6,13 @@ on:
 
 jobs:
   update-manifest:
-  name: Update manifest file
-  runs-on: ubuntu-latest
+    name: Update manifest file
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: manifest update
-      run: |
-        echo "" > manifest.txt
-        for filename in src/*.lua; do
-          echo $filename >> manifest.txt
-        done
+    steps:
+      - name: manifest update
+        run: |
+          echo "" > manifest.txt
+          for filename in src/*.lua; do
+            echo $filename >> manifest.txt
+          done
