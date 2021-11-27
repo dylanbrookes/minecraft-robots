@@ -10,13 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: manifest update
+      - name: generate manifest
         run: |
           echo "" > manifest.txt
           for filename in src/*.lua; do
             echo $filename >> manifest.txt
           done
 
+      - name: publish manifest artifact
         uses: actions/upload-artifact@v2
         with:
           name: my-artifact
