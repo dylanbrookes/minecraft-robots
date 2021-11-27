@@ -15,7 +15,7 @@ jobs:
         run: |
           rm manifest.txt
           for filename in src/*.lua; do
-            echo $filename >> manifest.txt
+            echo "${filename##*/}" >> manifest.txt
           done
 
       - name: setup github commit
