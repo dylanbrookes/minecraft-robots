@@ -24,7 +24,7 @@ jobs:
           git config --global user.name "Dylan Brookes";
       - name: publish manifest artifact
         run: |
-          git pull --rebase;
           git add .;
           git commit -m "update manifest";
+          git pull --rebase;
           git push origin HEAD:main;
