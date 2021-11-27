@@ -2,7 +2,7 @@ name: Update file manifest for turtles
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
 
 jobs:
   update-manifest:
@@ -11,14 +11,16 @@ jobs:
 
     steps:
       - name: generate manifest
+        uses: actions/checkout@v2
         run: |
-          echo "" > manifest.txt
+          rm manifest.txt
           for filename in src/*.lua; do
             echo $filename >> manifest.txt
           done
 
       - name: publish manifest artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: my-artifact
-          path: manifest.txt
+        uses: actions/checkout@v2
+        run: |
+          git add .;
+          git commit -m "update manifest";
+          git push origin HEAD:master
