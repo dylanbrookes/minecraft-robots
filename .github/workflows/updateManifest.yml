@@ -18,8 +18,12 @@ jobs:
             echo $filename >> manifest.txt
           done
 
+      - name: setup github commit
+        run: |
+          git config --global user.email "dylan.brookes10@gmail.com";
+          git config --global user.name "Dylan Brookes";
       - name: publish manifest artifact
         run: |
           git add .;
           git commit -m "update manifest";
-          git push origin HEAD:master
+          git push origin HEAD:master;
