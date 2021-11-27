@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
       - name: generate manifest
-        uses: actions/checkout@v2
         run: |
           rm manifest.txt
           for filename in src/*.lua; do
@@ -19,7 +19,6 @@ jobs:
           done
 
       - name: publish manifest artifact
-        uses: actions/checkout@v2
         run: |
           git add .;
           git commit -m "update manifest";
