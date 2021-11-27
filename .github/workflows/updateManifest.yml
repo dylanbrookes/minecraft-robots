@@ -27,4 +27,4 @@ jobs:
           git add .;
           git commit -m "update manifest";
           git pull --rebase;
-          git push origin HEAD:main;
+          git push origin dev:main;
