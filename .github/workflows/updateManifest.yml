@@ -21,6 +21,7 @@ jobs:
 
       - name: build lua files from javascript
         run: |
+          rm -r build
           npm ci;
           npm run build;
 
