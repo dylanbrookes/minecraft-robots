@@ -5,6 +5,8 @@
 /old_lua/download.lua
 /old_lua/test.lua
 /old_lua/cube.lua
+/build/lualib_bundle.lua
+/build/chicken/cow.lua
 /build/testing.lua
 /src/floor.lua
 /src/lib/chicken.lua
