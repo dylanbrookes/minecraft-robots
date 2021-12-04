@@ -1,12 +1,10 @@
 /old_lua/floor.lua
 /old_lua/lib/chicken.lua
-/old_lua/woooooooo.lua
 /old_lua/classes/miner.lua
 /old_lua/clear.lua
 /old_lua/download.lua
 /old_lua/test.lua
 /old_lua/cube.lua
-/build/models/Miner.lua
 /src/floor.lua
 /src/lib/chicken.lua
 /src/clear.lua
