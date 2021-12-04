@@ -2,7 +2,7 @@ name: Update file manifest for turtles
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
 
 jobs:
   update-manifest:
