@@ -21,8 +21,8 @@ jobs:
 
       - name: build lua files from javascript
         run: |
-        npm ci;
-        npm run build
+          npm ci;
+          npm run build;
 
       - name: setup github commit
         run: |
