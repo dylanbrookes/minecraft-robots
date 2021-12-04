@@ -6,7 +6,7 @@ on:
 
 jobs:
   update-manifest:
-    name: Update manifest file
+    name: Update manifest file and publish transpiled lua
     runs-on: ubuntu-latest
 
     steps:
