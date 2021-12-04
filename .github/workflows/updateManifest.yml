@@ -19,6 +19,11 @@ jobs:
             echo "${FILE:1}" >> manifest.txt
           done
 
+      - name: build lua files from javascript
+        run: |
+        npm ci;
+        npm run build
+
       - name: setup github commit
         run: |
           git config --global user.email "dylan.brookes10@gmail.com";
