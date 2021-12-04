@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && bash ./compile.sh",
+    "build": "npx tstl",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
