@@ -1,3 +1,1 @@
-/build/lualib_bundle.lua
-/build/models/Miner.lua
-/build/chicken.lua
+/build/testing.lua
