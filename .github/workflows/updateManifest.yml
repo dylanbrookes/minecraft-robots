@@ -11,6 +11,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: build lua files from typescript
+        run: |
+          rm -r build
+          npm ci;
+          npm run build;
+
       - name: generate manifest
         run: |
           rm manifest.txt
@@ -18,12 +25,6 @@ jobs:
           do
             echo "${FILE:1}" >> manifest.txt
           done
-
-      - name: build lua files from javascript
-        run: |
-          rm -r build
-          npm ci;
-          npm run build;
 
       - name: setup github commit
         run: |
