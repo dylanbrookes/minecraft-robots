@@ -34,4 +34,5 @@ jobs:
         run: |
           git add .;
           git commit -m "update manifest";
+          git pull --rebase;
           git push -f origin;
