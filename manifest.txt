@@ -1,4 +1,0 @@
-uild/lualib_bundle.lua
-uild/models/Miner.lua
-uild/chicken.lua
-uild/testing.lua
