@@ -1,3 +1,4 @@
 /build/lualib_bundle.lua
 /build/models/Miner.lua
 /build/testing.lua
+/build/new.lua
