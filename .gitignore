@@ -1,2 +1,4 @@
 /node_modules
 *.js
+/local_computers/*.lua
+/lua

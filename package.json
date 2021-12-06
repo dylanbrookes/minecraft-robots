@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tstl",
+    "build:dev": "npx tstl && bash local-copy.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,6 +25,7 @@
     "typescript-to-lua": "^1.2.0"
   },
   "dependencies": {
-    "castl": "^1.2.4"
+    "castl": "^1.2.4",
+    "cc-tweaked-types": "github:ryanrossiter/cc-tweaked-types"
   }
 }
