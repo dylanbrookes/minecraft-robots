@@ -1,4 +1,4 @@
--- https://pastebin.com/QPC2FmL9
+-- https://pastebin.com/Vy7wBJB8
 shell.run("set motd.enable false")
 
 local ROOT_GITHUB_PATH = "https://raw.githubusercontent.com/dylanbrookes/minecraft-robots/main/"
@@ -55,7 +55,7 @@ local version = tonumber(table.remove(lines, 1))
 print("Downloaded manifest file (ver "..version..")")
 
 local latestManifestVersion = settings.get(MANIFEST_VERSION_SETTING)
-if latestManifestVersion ~= nil and version > tonumber(latestManifestVersion) then
+if latestManifestVersion == nil or version > tonumber(latestManifestVersion) then
     print("Manifest is newer, updating...")
 
     for i, v in pairs(lines) do
