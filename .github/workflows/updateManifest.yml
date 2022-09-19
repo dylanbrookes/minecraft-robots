@@ -21,6 +21,7 @@ jobs:
       - name: generate manifest
         run: |
           rm manifest.txt
+          echo $(date +%s) >> manifest.txt
           for FILE in $(find ./build -name "*.lua")
           do
             echo "${FILE:1}" >> manifest.txt

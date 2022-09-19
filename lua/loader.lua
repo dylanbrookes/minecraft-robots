@@ -1,9 +1,11 @@
--- https://pastebin.com/xNGb35ED
+-- https://pastebin.com/QPC2FmL9
 shell.run("set motd.enable false")
 
 local ROOT_GITHUB_PATH = "https://raw.githubusercontent.com/dylanbrookes/minecraft-robots/main/"
 local PROJECT_DIR = "/code"
 fs.delete(PROJECT_DIR)
+
+local MANIFEST_VERSION_SETTING = 'manifest_version'
 
 -- see if the file exists
 function file_exists(file)
@@ -35,36 +37,43 @@ local function get(paste)
         response.close()
         return sResponse
     else
-        print( "Failed." )
+        error( "Failed to get: "..paste )
     end
 end
 
 -- download file
 local sPath = shell.resolve(PROJECT_DIR.."/manifest.txt")
 local res = get(ROOT_GITHUB_PATH .. "manifest.txt?noCache=".. os.time(os.date("!*t")))
-if res then
-    local file = fs.open(sPath, "w")
-    file.write(res)
-    file.close()
+local file = fs.open(sPath, "w")
+file.write(res)
+file.close()
 
-    print("Successfully downloaded manifest file")
-end
-
-
+-- read manifest
 local file = PROJECT_DIR..'/manifest.txt'
 local lines = lines_from(file)
+local version = tonumber(table.remove(lines, 1))
+print("Downloaded manifest file (ver "..version..")")
 
-for k, v in pairs(lines) do
-    local sPath = shell.resolve(string.gsub(v, "/build", PROJECT_DIR))
-    local file = fs.open(sPath, "w")
-    res = get(ROOT_GITHUB_PATH .. v)
-    file.write(res)
-    file.close()
-    print("File updated: " .. sPath)
+local latestManifestVersion = settings.get(MANIFEST_VERSION_SETTING)
+if latestManifestVersion ~= nil and version > tonumber(latestManifestVersion) then
+    print("Manifest is newer, updating...")
+
+    for i, v in pairs(lines) do
+        local sPath = shell.resolve(string.gsub(v, "/build", PROJECT_DIR))
+        local file = fs.open(sPath, "w")
+        res = get(ROOT_GITHUB_PATH .. v)
+        file.write(res)
+        file.close()
+        print("File updated: " .. sPath)
+    end
+
+    fs.delete("/lualib_bundle.lua")
+    fs.delete("/require_stub.lua")
+    fs.move(PROJECT_DIR.."/lualib_bundle.lua", "/lualib_bundle.lua")
+    fs.move(PROJECT_DIR.."/require_stub.lua", "/require_stub.lua")
+    settings.set(MANIFEST_VERSION_SETTING, version)
+else
+    print("Already synced")
 end
 
-fs.delete("/lualib_bundle.lua")
-fs.delete("/require_stub.lua")
-fs.move(PROJECT_DIR.."/lualib_bundle.lua", "/lualib_bundle.lua")
-fs.move(PROJECT_DIR.."/require_stub.lua", "/require_stub.lua")
 shell.run("cd "..PROJECT_DIR.."/bin")
