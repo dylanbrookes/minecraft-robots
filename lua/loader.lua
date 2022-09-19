@@ -1,8 +1,9 @@
+-- https://pastebin.com/Z0bCQnAq
 shell.run("set motd.enable false")
 
-ROOT_GITHUB_PATH = "https://raw.githubusercontent.com/dylanbrookes/minecraft-robots/main/"
-PROJECT_DIR = "/code"
-os.makeDir(PROJECT_DIR)
+local ROOT_GITHUB_PATH = "https://raw.githubusercontent.com/dylanbrookes/minecraft-robots/main/"
+local PROJECT_DIR = "/code"
+fs.delete(PROJECT_DIR)
 
 -- see if the file exists
 function file_exists(file)
@@ -39,10 +40,8 @@ local function get(paste)
 end
 
 -- download file
-
 local sPath = shell.resolve(PROJECT_DIR.."/manifest.txt")
 local res = get(ROOT_GITHUB_PATH .. "manifest.txt?noCache=".. os.time(os.date("!*t")))
-print(res)
 if res then
     local file = fs.open(sPath, "w")
     file.write(res)
@@ -54,7 +53,7 @@ end
 
 local file = PROJECT_DIR..'/manifest.txt'
 local lines = lines_from(file)
-shell.run("rm bin")
+
 for k, v in pairs(lines) do
     local sPath = shell.resolve(string.gsub(v, "/build", PROJECT_DIR))
     local file = fs.open(sPath, "w")
@@ -65,4 +64,6 @@ for k, v in pairs(lines) do
 end
 
 
-shell.run("cd bin")
+fs.move(PROJECT_DIR.."/lualib_bundle.lua", "/lualib_bundle.lua")
+fs.move(PROJECT_DIR.."/require_stub.lua", "/require_stub.lua")
+shell.run("cd "..PROJECT_DIR)
