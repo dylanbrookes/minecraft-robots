@@ -1,4 +1,5 @@
---[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+local ____lualib = require("lualib_bundle")
+local __TS__ParseInt = ____lualib.__TS__ParseInt
 local ____exports = {}
 require("/require_stub")
 local function checkFuel(self)
