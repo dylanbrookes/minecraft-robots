@@ -14,8 +14,8 @@ jobs:
 
       - name: build lua files from typescript
         run: |
-          rm -r build
           npm ci;
+          npm run clean;
           npm run build;
 
       - name: generate manifest
