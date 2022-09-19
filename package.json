@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf build || true",
-    "build": "npx tstl && cp lua/require_stub.lua build/require_stub.lua",
+    "build": "npx tstl && cp lua/require_stub.lua build/require_stub.lua && cp lua/lualib_bundle.lua build/lualib_bundle.lua",
     "build:dev": "npx tstl && bash local-copy.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
