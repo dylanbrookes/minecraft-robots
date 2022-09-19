@@ -1,3 +1,3 @@
 /build/models/Miner.lua
-/build/chicken.lua
-/build/lualib_bundle.lua
+/build/bin/args.lua
+/build/require_stub.lua
