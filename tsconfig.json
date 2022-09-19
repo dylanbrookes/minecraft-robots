@@ -1,6 +1,5 @@
 {
   "tstl": {
-    "luaLibImport": "none",
     "noResolvePaths": ["/require_stub"]
   },
   "compilerOptions": {
