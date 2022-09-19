@@ -9,7 +9,7 @@ type Coordinates = {
   z: number;
 };
 
-class Miner {
+export default class Miner {
   coordinates: Coordinates;
 
   constructor() {
