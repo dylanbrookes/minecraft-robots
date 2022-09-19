@@ -66,4 +66,4 @@ end
 
 fs.move(PROJECT_DIR.."/lualib_bundle.lua", "/lualib_bundle.lua")
 fs.move(PROJECT_DIR.."/require_stub.lua", "/require_stub.lua")
-shell.run("cd "..PROJECT_DIR)
+shell.run("cd "..PROJECT_DIR.."/bin")
