@@ -10,7 +10,7 @@ local function checkFuel(self)
         while not refuelled do
             refuelled = turtle.refuel()
             if not refuelled then
-                turtle.select((turtle.getSelectedSlot() + 1) % 16)
+                turtle.select(turtle.getSelectedSlot() % 16 + 1)
                 tries = tries - 1
                 if tries == 0 then
                     print("ERROR: Ran out of fuel, will search again in 3 seconds")
@@ -94,6 +94,6 @@ clear(
     nil,
     __TS__ParseInt(args[1]),
     __TS__ParseInt(args[2]),
-    __TS__ParseInt(args[3])
+    args[3] and __TS__ParseInt(args[3]) or nil
 )
 return ____exports
