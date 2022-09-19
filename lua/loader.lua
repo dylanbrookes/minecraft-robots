@@ -1,11 +1,17 @@
--- https://pastebin.com/Vy7wBJB8
+-- https://pastebin.com/WnDg7xEw
 shell.run("set motd.enable false")
 
 local ROOT_GITHUB_PATH = "https://raw.githubusercontent.com/dylanbrookes/minecraft-robots/main/"
 local PROJECT_DIR = "/code"
-fs.delete(PROJECT_DIR)
 
 local MANIFEST_VERSION_SETTING = 'manifest_version'
+local latestManifestVersion = settings.get(MANIFEST_VERSION_SETTING)
+
+if latestManifestVersion ~= nil and not fs.exists(PROJECT_DIR) then
+    print("Resetting manifest version setting because "..PROJECT_DIR.." does not exist")
+    latestManifestVersion = nil
+    -- the upgrade code will set the setting
+end
 
 -- see if the file exists
 function file_exists(file)
@@ -54,9 +60,9 @@ local lines = lines_from(file)
 local version = tonumber(table.remove(lines, 1))
 print("Downloaded manifest file (ver "..version..")")
 
-local latestManifestVersion = settings.get(MANIFEST_VERSION_SETTING)
 if latestManifestVersion == nil or version > tonumber(latestManifestVersion) then
     print("Manifest is newer, updating...")
+    fs.delete(PROJECT_DIR)
 
     for i, v in pairs(lines) do
         local sPath = shell.resolve(string.gsub(v, "/build", PROJECT_DIR))
@@ -72,6 +78,7 @@ if latestManifestVersion == nil or version > tonumber(latestManifestVersion) the
     fs.move(PROJECT_DIR.."/lualib_bundle.lua", "/lualib_bundle.lua")
     fs.move(PROJECT_DIR.."/require_stub.lua", "/require_stub.lua")
     settings.set(MANIFEST_VERSION_SETTING, version)
+    settings.save()
 else
     print("Already synced")
 end
