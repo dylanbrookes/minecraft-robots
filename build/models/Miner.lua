@@ -1,9 +1,10 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
-require("lualib_bundle");
-Direction = Direction or ({})
+local ____exports = {}
+local Direction = Direction or ({})
 Direction.left = "left"
 Direction.right = "right"
-Miner = __TS__Class()
+____exports.default = __TS__Class()
+local Miner = ____exports.default
 Miner.name = "Miner"
 function Miner.prototype.____constructor(self)
     self.coordinates = {x = 0, y = 0, z = 0}
@@ -36,3 +37,5 @@ function Miner.prototype.turn(self, direction)
         turtle.turnRight()
     end
 end
+____exports.default = Miner
+return ____exports
