@@ -1,9 +1,3 @@
-<<<<<<< Updated upstream
-/build/lualib_bundle.lua
 /build/models/Miner.lua
 /build/chicken.lua
-=======
 /build/lualib_bundle.lua
-/build/models/Miner.lua
-/build/new.lua
->>>>>>> Stashed changes
