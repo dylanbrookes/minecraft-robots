@@ -1,4 +1,4 @@
--- https://pastebin.com/vmw6dGAY
+-- https://pastebin.com/xNGb35ED
 shell.run("set motd.enable false")
 
 local ROOT_GITHUB_PATH = "https://raw.githubusercontent.com/dylanbrookes/minecraft-robots/main/"
@@ -63,7 +63,8 @@ for k, v in pairs(lines) do
     print("File updated: " .. sPath)
 end
 
-
+fs.delete("/lualib_bundle.lua")
+fs.delete("/require_stub.lua")
 fs.move(PROJECT_DIR.."/lualib_bundle.lua", "/lualib_bundle.lua")
 fs.move(PROJECT_DIR.."/require_stub.lua", "/require_stub.lua")
 shell.run("cd "..PROJECT_DIR.."/bin")

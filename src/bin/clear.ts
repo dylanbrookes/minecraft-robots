@@ -1,3 +1,5 @@
+import "/require_stub";
+
 // find fuel in inv and restore current slot after
 // function checkFuel()
 //     if turtle.getFuelLevel() < 100 then
