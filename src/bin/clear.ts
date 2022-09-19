@@ -115,7 +115,7 @@ function clearCol(height?: number) {
     off++;
   }
 
-  if (!height) {
+  if (height) {
     // we skipped the last move up
     off--;
   }
