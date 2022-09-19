@@ -33,7 +33,7 @@ function checkFuel() {
     while (!refuelled) {
       refuelled = turtle.refuel();
       if (!refuelled) {
-        turtle.select((turtle.getSelectedSlot() + 1) % 16 as turtle.TurtleSlot);
+        turtle.select((turtle.getSelectedSlot() % 16) + 1 as turtle.TurtleSlot);
         tries--;
         if (tries === 0) {
           console.log("ERROR: Ran out of fuel, will search again in 3 seconds");
@@ -226,4 +226,4 @@ function clear(w: number, d: number, h?: number) {
 const args = [...$vararg];
 assert(args.length >= 2, "usage: clear <w> <d> [h]");
 console.log(textutils.serialize(args))
-clear(parseInt(args[0]), parseInt(args[1]), parseInt(args[2]))
+clear(parseInt(args[0]), parseInt(args[1]), args[2] ? parseInt(args[2]) : undefined)
