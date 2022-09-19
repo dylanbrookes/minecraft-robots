@@ -1,5 +1,7 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
-function checkFuel(self)
+local ____exports = {}
+require("/require_stub")
+local function checkFuel(self)
     if turtle.getFuelLevel() < 100 then
         print("Refuelling...")
         local startSlot = turtle.getSelectedSlot()
@@ -22,7 +24,7 @@ function checkFuel(self)
 end
 --- clears the col directly above
 -- optional height, otherwise it will dig up until there's no block
-function clearCol(self, height)
+local function clearCol(self, height)
     local off = 0
     while not height or off < height - 1 do
         if not height and not turtle.detectUp() then
@@ -43,14 +45,14 @@ function clearCol(self, height)
         off = off - 1
     end
 end
-function breakAndMove(self)
+local function breakAndMove(self)
     turtle.dig()
     while not ({turtle.forward()}) do
         print("Could not move, waiting 5 seconds...")
         sleep(5)
     end
 end
-function clear(self, w, d, h)
+local function clear(self, w, d, h)
     print((((("Clearing w=" .. tostring(w)) .. " d=") .. tostring(d)) .. " h=") .. tostring(h))
     checkFuel(nil)
     breakAndMove(nil)
@@ -85,7 +87,7 @@ function clear(self, w, d, h)
     end
     print("Done clearing")
 end
-args = {...}
+local args = {...}
 assert(#args >= 2, "usage: clear <w> <d> [h]")
 print(textutils.serialize(args))
 clear(
@@ -94,3 +96,4 @@ clear(
     __TS__ParseInt(args[2]),
     __TS__ParseInt(args[3])
 )
+return ____exports
