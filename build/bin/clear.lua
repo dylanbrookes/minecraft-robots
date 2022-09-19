@@ -36,7 +36,7 @@ local function clearCol(self, height)
         end
         off = off + 1
     end
-    if not height then
+    if height then
         off = off - 1
     end
     while off > 0 do
