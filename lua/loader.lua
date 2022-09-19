@@ -1,4 +1,4 @@
--- https://pastebin.com/Z0bCQnAq
+-- https://pastebin.com/vmw6dGAY
 shell.run("set motd.enable false")
 
 local ROOT_GITHUB_PATH = "https://raw.githubusercontent.com/dylanbrookes/minecraft-robots/main/"
