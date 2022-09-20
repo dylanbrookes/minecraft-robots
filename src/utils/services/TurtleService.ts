@@ -13,6 +13,9 @@ export enum TurtleServiceCommands {
   down = 'down',
   moveTo = 'moveTo',
   exec = 'exec',
+  dig = 'dig',
+  digUp = 'digUp',
+  digDown = 'digDown',
 }
 
 class __TurtleService__ {
@@ -43,6 +46,9 @@ class __TurtleService__ {
         case TurtleServiceCommands.turnRight:
         case TurtleServiceCommands.up:
         case TurtleServiceCommands.down:
+        case TurtleServiceCommands.dig:
+        case TurtleServiceCommands.digUp:
+        case TurtleServiceCommands.digDown:
           if (message.cmd in TurtleController
             // @ts-ignore
             && typeof TurtleController[message.cmd] === 'function') TurtleController[message.cmd](...(message.params || []));

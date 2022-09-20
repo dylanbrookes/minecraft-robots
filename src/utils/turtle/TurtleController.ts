@@ -19,6 +19,10 @@ export enum TurtleEvent {
   turned_right = 'turned:right',
   out_of_fuel = 'out_of_fuel',
   check_fuel = 'check_fuel',
+  dig = 'dig',
+  dig_forward = 'dig:forward',
+  dig_up = 'dig:up',
+  dig_down = 'dig:down',
 }
 
 EventLoop.on(TurtleEvent.out_of_fuel, () => {
@@ -94,6 +98,18 @@ class __TurtleController__ {
     return success;
   }
 
+  private _dig(direction: 'forward' | 'up' | 'down', assertSuccess: boolean = true): boolean {
+    const success = this.checkActionResult(
+      assertSuccess,
+      turtle[direction === 'forward' ? 'dig' : (direction === 'up' ? 'digUp' : 'digDown')](),
+    );
+    if (success) {
+      EventLoop.emit(TurtleEvent.dig, direction);
+      EventLoop.emit(`dig:${direction}`, direction);
+    }
+    return success;
+  }
+
   forward(n: number | string = 1, assertSuccess: boolean = true): boolean {
     if (typeof n === 'string') n = parseInt(n);
     return this.move("forward", n, assertSuccess);
@@ -116,6 +132,15 @@ class __TurtleController__ {
   }
   turnRight(assertSuccess: boolean = true): boolean {
     return this.turn("right", assertSuccess);
+  }
+  dig(assertSuccess: boolean = true): boolean {
+    return this._dig('forward', assertSuccess);
+  }
+  digUp(assertSuccess: boolean = true): boolean {
+    return this._dig('up', assertSuccess);
+  }
+  digDown(assertSuccess: boolean = true): boolean {
+    return this._dig('down', assertSuccess);
   }
 }
 

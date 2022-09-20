@@ -45,6 +45,9 @@ if (cmd === null) {
       case 'd': {
         sendCmd('turnRight', false);
       } break;
+      case ' ': {
+        sendCmd('dig', false);
+      } break;
       default:
         console.log("unknown char", char);
     }
