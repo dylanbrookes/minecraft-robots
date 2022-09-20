@@ -28,7 +28,6 @@ local cmd = ____temp_0[1]
 local params = __TS__ArraySlice(____temp_0, 1)
 local function sendCmd(____, cmd, ...)
     local params = {...}
-    print("Sending", cmd, "with params:", ...)
     rednet.send(hostId, {cmd = cmd, params = params}, TURTLE_PROTOCOL_NAME)
 end
 if cmd == nil then
@@ -41,28 +40,28 @@ if cmd == nil then
                 local ____cond7 = ____switch7 == "w"
                 if ____cond7 then
                     do
-                        sendCmd(nil, "forward")
+                        sendCmd(nil, "forward", 1, false)
                     end
                     break
                 end
                 ____cond7 = ____cond7 or ____switch7 == "s"
                 if ____cond7 then
                     do
-                        sendCmd(nil, "back")
+                        sendCmd(nil, "back", 1, false)
                     end
                     break
                 end
                 ____cond7 = ____cond7 or ____switch7 == "a"
                 if ____cond7 then
                     do
-                        sendCmd(nil, "turnLeft")
+                        sendCmd(nil, "turnLeft", false)
                     end
                     break
                 end
                 ____cond7 = ____cond7 or ____switch7 == "d"
                 if ____cond7 then
                     do
-                        sendCmd(nil, "turnRight")
+                        sendCmd(nil, "turnRight", false)
                     end
                     break
                 end
@@ -91,6 +90,12 @@ elseif cmd == "." then
         math.floor(pos[3])
     )
 else
+    print(
+        "Sending",
+        cmd,
+        "with params:",
+        __TS__Unpack(params)
+    )
     sendCmd(
         nil,
         cmd,
