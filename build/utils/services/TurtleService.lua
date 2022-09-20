@@ -19,6 +19,7 @@ ____exports.TurtleServiceCommands.turnRight = "turnRight"
 ____exports.TurtleServiceCommands.up = "up"
 ____exports.TurtleServiceCommands.down = "down"
 ____exports.TurtleServiceCommands.moveTo = "moveTo"
+____exports.TurtleServiceCommands.exec = "exec"
 local __TurtleService__ = __TS__Class()
 __TurtleService__.name = "__TurtleService__"
 function __TurtleService__.prototype.____constructor(self)
@@ -73,6 +74,15 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
                     __TS__Spread(message.params)
                 )
                 BehaviourStack:push(__TS__New(PathfinderBehaviour, message.params))
+                break
+            end
+            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleServiceCommands.exec
+            if ____cond9 then
+                print(
+                    "Running command:",
+                    __TS__Spread(message.params)
+                )
+                shell.run(__TS__Spread(message.params))
                 break
             end
             do
