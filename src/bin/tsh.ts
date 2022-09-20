@@ -24,7 +24,6 @@ if (!hostId) {
 const [cmd, ...params] = [...$vararg];
 
 const sendCmd = (cmd: string, ...params: any[]) => {
-  console.log("Sending", cmd, "with params:", ...params);
   rednet.send(hostId, {
     cmd, params,
   }, TURTLE_PROTOCOL_NAME);
@@ -35,16 +34,16 @@ if (cmd === null) {
   EventLoop.on('char', (char: string) => {
     switch (char) {
       case 'w': {
-        sendCmd('forward');
+        sendCmd('forward', 1, false);
       } break;
       case 's': {
-        sendCmd('back');
+        sendCmd('back', 1, false);
       } break;
       case 'a': {
-        sendCmd('turnLeft');
+        sendCmd('turnLeft', false);
       } break;
       case 'd': {
-        sendCmd('turnRight');
+        sendCmd('turnRight', false);
       } break;
       default:
         console.log("unknown char", char);
@@ -64,5 +63,6 @@ if (cmd === null) {
     Math.floor(pos[2]),
   );
 } else {
+  console.log("Sending", cmd, "with params:", ...params);
   sendCmd(cmd, ...params);
 }
