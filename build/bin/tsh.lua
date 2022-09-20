@@ -65,6 +65,20 @@ if cmd == nil then
                     end
                     break
                 end
+                ____cond7 = ____cond7 or ____switch7 == "q"
+                if ____cond7 then
+                    do
+                        sendCmd(nil, "up", 1, false)
+                    end
+                    break
+                end
+                ____cond7 = ____cond7 or ____switch7 == "e"
+                if ____cond7 then
+                    do
+                        sendCmd(nil, "down", 1, false)
+                    end
+                    break
+                end
                 ____cond7 = ____cond7 or ____switch7 == " "
                 if ____cond7 then
                     do
