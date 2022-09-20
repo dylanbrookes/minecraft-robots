@@ -45,6 +45,12 @@ if (cmd === null) {
       case 'd': {
         sendCmd('turnRight', false);
       } break;
+      case 'q': {
+        sendCmd('up', 1, false);
+      } break;
+      case 'e': {
+        sendCmd('down', 1, false);
+      } break;
       case ' ': {
         sendCmd('dig', false);
       } break;
