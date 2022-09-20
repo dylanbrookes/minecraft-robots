@@ -65,6 +65,13 @@ if cmd == nil then
                     end
                     break
                 end
+                ____cond7 = ____cond7 or ____switch7 == " "
+                if ____cond7 then
+                    do
+                        sendCmd(nil, "dig", false)
+                    end
+                    break
+                end
                 do
                     print("unknown char", char)
                 end

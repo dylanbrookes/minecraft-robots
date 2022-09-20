@@ -19,6 +19,10 @@ ____exports.TurtleEvent.turned_left = "turned:left"
 ____exports.TurtleEvent.turned_right = "turned:right"
 ____exports.TurtleEvent.out_of_fuel = "out_of_fuel"
 ____exports.TurtleEvent.check_fuel = "check_fuel"
+____exports.TurtleEvent.dig = "dig"
+____exports.TurtleEvent.dig_forward = "dig:forward"
+____exports.TurtleEvent.dig_up = "dig:up"
+____exports.TurtleEvent.dig_down = "dig:down"
 EventLoop:on(
     ____exports.TurtleEvent.out_of_fuel,
     function()
@@ -122,6 +126,20 @@ function __TurtleController__.prototype.turn(self, direction, assertSuccess)
     end
     return success
 end
+function __TurtleController__.prototype._dig(self, direction, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    local success = self:checkActionResult(
+        assertSuccess,
+        {turtle[direction == "forward" and "dig" or (direction == "up" and "digUp" or "digDown")]()}
+    )
+    if success then
+        EventLoop:emit(____exports.TurtleEvent.dig, direction)
+        EventLoop:emit("dig:" .. direction, direction)
+    end
+    return success
+end
 function __TurtleController__.prototype.forward(self, n, assertSuccess)
     if n == nil then
         n = 1
@@ -181,6 +199,24 @@ function __TurtleController__.prototype.turnRight(self, assertSuccess)
         assertSuccess = true
     end
     return self:turn("right", assertSuccess)
+end
+function __TurtleController__.prototype.dig(self, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    return self:_dig("forward", assertSuccess)
+end
+function __TurtleController__.prototype.digUp(self, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    return self:_dig("up", assertSuccess)
+end
+function __TurtleController__.prototype.digDown(self, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    return self:_dig("down", assertSuccess)
 end
 ____exports.TurtleController = __TS__New(__TurtleController__)
 return ____exports

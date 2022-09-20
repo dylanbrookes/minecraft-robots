@@ -20,6 +20,9 @@ ____exports.TurtleServiceCommands.up = "up"
 ____exports.TurtleServiceCommands.down = "down"
 ____exports.TurtleServiceCommands.moveTo = "moveTo"
 ____exports.TurtleServiceCommands.exec = "exec"
+____exports.TurtleServiceCommands.dig = "dig"
+____exports.TurtleServiceCommands.digUp = "digUp"
+____exports.TurtleServiceCommands.digDown = "digDown"
 local __TurtleService__ = __TS__Class()
 __TurtleService__.name = "__TurtleService__"
 function __TurtleService__.prototype.____constructor(self)
@@ -49,7 +52,7 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
     if message.cmd ~= nil then
         repeat
             local ____switch9 = message.cmd
-            local ____cond9 = ____switch9 == ____exports.TurtleServiceCommands.forward or ____switch9 == ____exports.TurtleServiceCommands.back or ____switch9 == ____exports.TurtleServiceCommands.turnLeft or ____switch9 == ____exports.TurtleServiceCommands.turnRight or ____switch9 == ____exports.TurtleServiceCommands.up or ____switch9 == ____exports.TurtleServiceCommands.down
+            local ____cond9 = ____switch9 == ____exports.TurtleServiceCommands.forward or ____switch9 == ____exports.TurtleServiceCommands.back or ____switch9 == ____exports.TurtleServiceCommands.turnLeft or ____switch9 == ____exports.TurtleServiceCommands.turnRight or ____switch9 == ____exports.TurtleServiceCommands.up or ____switch9 == ____exports.TurtleServiceCommands.down or ____switch9 == ____exports.TurtleServiceCommands.dig or ____switch9 == ____exports.TurtleServiceCommands.digUp or ____switch9 == ____exports.TurtleServiceCommands.digDown
             if ____cond9 then
                 if TurtleController[message.cmd] ~= nil and type(TurtleController[message.cmd]) == "function" then
                     TurtleController[message.cmd](
