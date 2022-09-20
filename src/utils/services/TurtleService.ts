@@ -12,6 +12,7 @@ export enum TurtleServiceCommands {
   up = 'up',
   down = 'down',
   moveTo = 'moveTo',
+  exec = 'exec',
 }
 
 class __TurtleService__ {
@@ -50,6 +51,10 @@ class __TurtleService__ {
         case TurtleServiceCommands.moveTo:
           console.log("Adding pathfinder to", ...message.params);
           BehaviourStack.push(new PathfinderBehaviour(message.params));
+          break;
+        case TurtleServiceCommands.exec:
+          console.log("Running command:", ...message.params);
+          shell.run(...message.params);
           break;
         default:
           console.log("invalid command", message.cmd);
