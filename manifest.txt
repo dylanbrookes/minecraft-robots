@@ -1,5 +1,6 @@
-1663639793
+1663640748
 /build/models/Miner.lua
+/build/bin/tsh.lua
 /build/bin/turtle.lua
 /build/bin/args.lua
 /build/bin/clear.lua
