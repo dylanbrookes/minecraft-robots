@@ -16,8 +16,8 @@ if (!modem) throw new Error('Could not find modem');
 const modemName = peripheral.getName(modem);
 rednet.open(modemName);
 
-const hostId = findProtocolHostId(TURTLE_REGISTRY_PROTOCOL_NAME);
-if (!hostId) throw new Error("Could not find turtle registry host");
+// const hostId = findProtocolHostId(TURTLE_REGISTRY_PROTOCOL_NAME);
+// if (!hostId) throw new Error("Could not find turtle registry host");
 
 // it sets up events in the constructor
 // const turtleRegistryClient = new TurtleRegistryClient(hostId);
