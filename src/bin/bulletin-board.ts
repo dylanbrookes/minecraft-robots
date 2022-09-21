@@ -37,6 +37,9 @@ function handleCommand(cmd: string, ...params: string[]) {
       taskStore.update(parseInt(params[0]), { status });
       console.log("Updated task");
       break;
+    case 'list':
+      console.log(taskStore.toString());
+      break;
     default:
       console.log(`Unknown command "${cmd}"`);
       return;
@@ -70,12 +73,13 @@ EventLoop.on('key', (key: string) => {
 });
 
 term.clear();
-term.setCursorPos(0, 1);
+term.setCursorPos(1, 1);
 console.log([
   'Commands:',
   'add <description>',
   'remove <id>',
-  'update <id> <status>'
+  'update <id> <status>',
+  'list',
 ].join('\n'));
 printPrompt();
 
