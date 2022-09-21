@@ -14,7 +14,7 @@ if (!monitor) {
 }
 
 const VALID_STATUSES = [TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO];
-const printPrompt = () => term.write('>');
+const printPrompt = () => term.write('> ');
 
 function handleCommand(cmd: string, ...params: string[]) {
   switch (cmd) {
@@ -23,9 +23,11 @@ function handleCommand(cmd: string, ...params: string[]) {
         description: params[0],
         status: TaskStatus.TODO,
       });
+      console.log("Added new task");
       break;
     case 'remove':
       taskStore.remove(parseInt(params[0]));
+      console.log("Removed task");
       break;
     case 'update':
       const status = params[1] as TaskStatus;
@@ -33,6 +35,7 @@ function handleCommand(cmd: string, ...params: string[]) {
         console.log(`Invalid status ${status}, must be one of ${textutils.serialize(VALID_STATUSES)}`);
       }
       taskStore.update(parseInt(params[0]), { status });
+      console.log("Updated task");
       break;
     default:
       console.log(`Unknown command "${cmd}"`);

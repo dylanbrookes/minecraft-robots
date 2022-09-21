@@ -65,6 +65,9 @@ export default class BulletinBoardUI {
       this.monitor.write(task.status);
       this.monitor.setTextColor(colors.white);
       this.monitor.write(` ${task.description}\n`);
+
+      const [_, y] = this.monitor.getCursorPos();
+      this.monitor.setCursorPos(2, y + 1);
     }
     // this.monitor.setCursorPos(1, 3);
     // this.monitor.write("Hello from monitor " + this.id);
