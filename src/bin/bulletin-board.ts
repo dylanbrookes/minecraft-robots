@@ -55,12 +55,18 @@ EventLoop.on('char', (char: string) => {
 EventLoop.on('key', (key: string) => {
   // @ts-ignore
   if (key === keys.enter) {
-    term.write('\n');
+    print(); // newline
     const [cmd, ...params] = line.split(' ');
     handleCommand(cmd, ...params);
     printPrompt();
     line = '';
-    return;
+    // @ts-ignore
+  } else if (key === keys.backspace) {
+    if (line.length === 0) return;
+    const [x, y] = term.getCursorPos();
+    term.setCursorPos(x - 1, y);
+    term.write(' ');
+    term.setCursorPos(x - 1, y);
   }
 });
 
