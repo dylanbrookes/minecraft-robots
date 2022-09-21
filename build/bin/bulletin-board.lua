@@ -58,12 +58,20 @@ local function handleCommand(self, cmd, ...)
     taskStore:save()
 end
 term.clear()
+term.setCursorPos(0, 0)
 local line = ""
 EventLoop:on(
     "char",
     function(____, char)
         term.write(char)
-        if char == "\n" then
+        line = line .. char
+    end
+)
+EventLoop:on(
+    "key",
+    function(____, key)
+        if key == keys.enter then
+            term.write("\n")
             local ____TS__StringSplit_result_0 = __TS__StringSplit(line, " ")
             local cmd = ____TS__StringSplit_result_0[1]
             local params = __TS__ArraySlice(____TS__StringSplit_result_0, 1)
@@ -76,7 +84,6 @@ EventLoop:on(
             line = ""
             return
         end
-        line = line .. char
     end
 )
 print(table.concat({"Commands:", "add <description>", "remove <id>", "update <id> <status>"}, "\n"))
