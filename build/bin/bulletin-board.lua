@@ -71,7 +71,7 @@ EventLoop:on(
     "key",
     function(____, key)
         if key == keys.enter then
-            term.write("\n")
+            print()
             local ____TS__StringSplit_result_0 = __TS__StringSplit(line, " ")
             local cmd = ____TS__StringSplit_result_0[1]
             local params = __TS__ArraySlice(____TS__StringSplit_result_0, 1)
@@ -82,7 +82,14 @@ EventLoop:on(
             )
             printPrompt(nil)
             line = ""
-            return
+        elseif key == keys.backspace then
+            if #line == 0 then
+                return
+            end
+            local x, y = term.getCursorPos()
+            term.setCursorPos(x - 1, y)
+            term.write(" ")
+            term.setCursorPos(x - 1, y)
         end
     end
 )
