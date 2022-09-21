@@ -18,7 +18,7 @@ else
 end
 local VALID_STATUSES = {TaskStatus.DONE, TaskStatus.IN_PROGRESS, TaskStatus.TODO}
 local function printPrompt()
-    return term.write(">")
+    return term.write("> ")
 end
 local function handleCommand(self, cmd, ...)
     local params = {...}
@@ -28,11 +28,13 @@ local function handleCommand(self, cmd, ...)
         local ____cond6 = ____switch6 == "add"
         if ____cond6 then
             taskStore:add({description = params[1], status = TaskStatus.TODO})
+            print("Added new task")
             break
         end
         ____cond6 = ____cond6 or ____switch6 == "remove"
         if ____cond6 then
             taskStore:remove(__TS__ParseInt(params[1]))
+            print("Removed task")
             break
         end
         ____cond6 = ____cond6 or ____switch6 == "update"
@@ -45,6 +47,7 @@ local function handleCommand(self, cmd, ...)
                 __TS__ParseInt(params[1]),
                 {status = status}
             )
+            print("Updated task")
             break
         end
         do

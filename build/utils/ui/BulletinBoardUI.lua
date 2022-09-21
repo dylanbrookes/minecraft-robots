@@ -89,6 +89,8 @@ function BulletinBoardUI.prototype.render(self)
         self.monitor.write(task.status)
         self.monitor.setTextColor(colors.white)
         self.monitor.write((" " .. task.description) .. "\n")
+        local _, y = self.monitor.getCursorPos()
+        self.monitor.setCursorPos(2, y + 1)
     end
     term.redirect(oldterm)
 end
