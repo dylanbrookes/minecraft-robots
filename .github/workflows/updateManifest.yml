@@ -22,7 +22,7 @@ jobs:
         run: |
           rm manifest.txt
           echo $(date +%s) >> manifest.txt
-          for FILE in $(find ./build -name "*.lua")
+          for FILE in $(find ./build -type f \( -iname \*.lua -o -iname \*.nfp \))
           do
             echo "${FILE:1}" >> manifest.txt
           done
