@@ -1,5 +1,17 @@
 import { EventLoop } from "../EventLoop";
-import TaskStore from "../stores/TaskStore";
+import TaskStore, { TaskStatus } from "../stores/TaskStore";
+
+const getColorForTaskStatus = (status: TaskStatus): number => {
+  switch (status) {
+    case TaskStatus.DONE:
+      return colors.green;
+    case TaskStatus.IN_PROGRESS:
+      return colors.yellow;
+    case TaskStatus.TODO:
+    default:
+      return colors.white;
+  }
+}
 
 export default class BulletinBoardUI {
   private static ID_COUNTER: number = 0;
@@ -46,14 +58,13 @@ export default class BulletinBoardUI {
     this.monitor.setCursorPos(2, 2);
     this.monitor.write("Hey there!!!!! " + this.frameNum);
 
-    const text: string[] = [];
-    this.taskStore.getAll().forEach(({ id, description, status }, i) => text.push(
-      `[${id}] ${description}`,
-      `    status: ${status}`,
-    ));
-    for (const [i, t] of text.entries()) {
-      this.monitor.setCursorPos(2, 3 + i);
-      this.monitor.write(t);
+    this.monitor.setCursorPos(2, 3);
+    for (const task of this.taskStore.getAll()) {
+      this.monitor.write(`${task.id}: `);
+      this.monitor.setTextColor(getColorForTaskStatus(task.status));
+      this.monitor.write(task.status);
+      this.monitor.setTextColor(colors.white);
+      this.monitor.write(` ${task.description}\n`);
     }
     // this.monitor.setCursorPos(1, 3);
     // this.monitor.write("Hello from monitor " + this.id);

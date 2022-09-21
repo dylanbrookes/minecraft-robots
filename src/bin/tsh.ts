@@ -2,6 +2,8 @@ import '/require_stub';
 import { TURTLE_PROTOCOL_NAME } from '../utils/Consts';
 import { EventLoop } from '../utils/EventLoop';
 import { findProtocolHostId } from '../utils/findProtocolHostId';
+import { TurtleRegistryCommand } from '../utils/services/TurtleRegistryService';
+import { TurtleServiceCommands } from '../utils/services/TurtleService';
 
 // const pos = gps.locate();
 // if (!pos) {
@@ -23,7 +25,7 @@ if (!hostId) {
 
 const [cmd, ...params] = [...$vararg];
 
-const sendCmd = (cmd: string, ...params: any[]) => {
+const sendCmd = (cmd: TurtleServiceCommands, ...params: any[]) => {
   rednet.send(hostId, {
     cmd, params,
   }, TURTLE_PROTOCOL_NAME);
@@ -34,25 +36,25 @@ if (cmd === null) {
   EventLoop.on('char', (char: string) => {
     switch (char) {
       case 'w': {
-        sendCmd('forward', 1, false);
+        sendCmd(TurtleServiceCommands.forward, 1, false);
       } break;
       case 's': {
-        sendCmd('back', 1, false);
+        sendCmd(TurtleServiceCommands.back, 1, false);
       } break;
       case 'a': {
-        sendCmd('turnLeft', false);
+        sendCmd(TurtleServiceCommands.turnLeft, false);
       } break;
       case 'd': {
-        sendCmd('turnRight', false);
+        sendCmd(TurtleServiceCommands.turnRight, false);
       } break;
       case 'q': {
-        sendCmd('up', 1, false);
+        sendCmd(TurtleServiceCommands.up, 1, false);
       } break;
       case 'e': {
-        sendCmd('down', 1, false);
+        sendCmd(TurtleServiceCommands.down, 1, false);
       } break;
       case ' ': {
-        sendCmd('dig', false);
+        sendCmd(TurtleServiceCommands.dig, false);
       } break;
       default:
         console.log("unknown char", char);
@@ -66,7 +68,7 @@ if (cmd === null) {
   const pos = gps.locate(3);
   if (!pos || !pos[0]) throw new Error("Failed to geolocate");
   sendCmd(
-    'moveTo',
+    TurtleServiceCommands.moveTo,
     Math.floor(pos[0]),
     Math.floor(pos[1]) - 1, // player's feet
     Math.floor(pos[2]),

@@ -11,7 +11,7 @@ export type TaskRecord = {
   status: TaskStatus,
 }
 
-// Keeps track of turtle statuses
+// Keeps track of tasks for the bulletin board
 // TODO: Not very DRY a lot of logic copied from JobStore
 export default class TaskStore {
   static DEFAULT_STORE_FILE = '/.tasks';
@@ -44,23 +44,19 @@ export default class TaskStore {
     if (!handle) {
       throw new Error("Failed to open storeFile " + storeFile + " error: " + err);
     }
-
-    const firstLine = handle.readLine();
-    const nextTaskId = firstLine && parseInt(firstLine);
-    if (!nextTaskId) {
-      throw new Error('Missing nextTaskId');
-    }
     
+    let maxId = 0;
     let line: string | undefined;
     while (line = handle.readLine()) {
       const task = textutils.unserialize(line) as TaskRecord;
-      if (typeof task.id !== 'number') throw new Error("Invalid turtle parsed from: " + line);
+      if (typeof task.id !== 'number') throw new Error("Invalid task parsed from: " + line);
 
       tasks.set(task.id, task);
+      if (task.id > maxId) maxId = task.id;
     }
 
     return {
-      nextTaskId,
+      nextTaskId: maxId + 1,
       tasks,
     };
   }
@@ -75,7 +71,6 @@ export default class TaskStore {
       throw new Error("Failed to open storeFile " + this.storeFile + " for writing, error: " + err);
     }
 
-    handle.writeLine(textutils.serialize(this.nextTaskId));
     for (const task of this.tasks.values()) {
       handle.writeLine(textutils.serialize(task, { compact: true }));
     }
@@ -123,5 +118,9 @@ export default class TaskStore {
     };
     this.tasks.set(id, newRecord);
     return newRecord;
+  }
+
+  remove(id: number): void {
+    this.tasks.delete(id);
   }
 }
