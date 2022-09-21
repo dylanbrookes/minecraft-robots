@@ -20,7 +20,7 @@ function handleCommand(cmd: string, ...params: string[]) {
   switch (cmd) {
     case 'add':
       taskStore.add({
-        description: params[0],
+        description: params.join(' '),
         status: TaskStatus.TODO,
       });
       console.log("Added new task");
@@ -44,8 +44,6 @@ function handleCommand(cmd: string, ...params: string[]) {
   taskStore.save();
 }
 
-term.clear();
-term.setCursorPos(0, 0);
 let line = '';
 EventLoop.on('char', (char: string) => {
   term.write(char);
@@ -71,6 +69,8 @@ EventLoop.on('key', (key: string) => {
   }
 });
 
+term.clear();
+term.setCursorPos(0, 1);
 console.log([
   'Commands:',
   'add <description>',
