@@ -90,6 +90,7 @@ EventLoop:on(
             term.setCursorPos(x - 1, y)
             term.write(" ")
             term.setCursorPos(x - 1, y)
+            line = __TS__StringSlice(line, 0, #line - 1)
         end
     end
 )
