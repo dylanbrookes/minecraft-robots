@@ -53,6 +53,11 @@ local function handleCommand(self, cmd, ...)
             print("Updated task")
             break
         end
+        ____cond6 = ____cond6 or ____switch6 == "list"
+        if ____cond6 then
+            print(tostring(taskStore))
+            break
+        end
         do
             print(("Unknown command \"" .. cmd) .. "\"")
             return
@@ -96,8 +101,14 @@ EventLoop:on(
     end
 )
 term.clear()
-term.setCursorPos(0, 1)
-print(table.concat({"Commands:", "add <description>", "remove <id>", "update <id> <status>"}, "\n"))
+term.setCursorPos(1, 1)
+print(table.concat({
+    "Commands:",
+    "add <description>",
+    "remove <id>",
+    "update <id> <status>",
+    "list"
+}, "\n"))
 printPrompt(nil)
 EventLoop:run()
 return ____exports
