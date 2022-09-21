@@ -75,5 +75,5 @@ if (cmd === null) {
   );
 } else {
   console.log("Sending", cmd, "with params:", ...params);
-  sendCmd(cmd, ...params);
+  sendCmd(cmd as TurtleServiceCommands, ...params);
 }
