@@ -45,17 +45,23 @@ function handleCommand(cmd: string, ...params: string[]) {
 }
 
 term.clear();
+term.setCursorPos(0, 0);
 let line = '';
 EventLoop.on('char', (char: string) => {
   term.write(char);
-  if (char === '\n') {
+  line += char;
+});
+
+EventLoop.on('key', (key: string) => {
+  // @ts-ignore
+  if (key === keys.enter) {
+    term.write('\n');
     const [cmd, ...params] = line.split(' ');
     handleCommand(cmd, ...params);
     printPrompt();
     line = '';
     return;
   }
-  line += char;
 });
 
 console.log([
