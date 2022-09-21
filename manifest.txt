@@ -1,8 +1,9 @@
-1663642706
+1663726132
 /build/models/Miner.lua
 /build/bin/tsh.lua
 /build/bin/turtle.lua
 /build/bin/args.lua
+/build/bin/bulletin-board.lua
 /build/bin/clear.lua
 /build/lualib_bundle.lua
 /build/require_stub.lua
@@ -13,10 +14,13 @@
 /build/utils/generateName.lua
 /build/utils/stores/JobStore.lua
 /build/utils/stores/TurtleStore.lua
+/build/utils/stores/TaskStore.lua
 /build/utils/EventLoop.lua
 /build/utils/LocationMonitor.lua
 /build/utils/services/TurtleService.lua
 /build/utils/services/TurtleRegistryService.lua
+/build/utils/ui/BulletinBoardUI.lua
+/build/utils/ui/GifUI.lua
 /build/utils/turtle/TurtleController.lua
 /build/utils/turtle/BehaviourStack.lua
 /build/utils/turtle/routines/refuel.lua
