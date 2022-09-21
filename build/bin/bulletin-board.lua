@@ -27,7 +27,10 @@ local function handleCommand(self, cmd, ...)
         local status
         local ____cond6 = ____switch6 == "add"
         if ____cond6 then
-            taskStore:add({description = params[1], status = TaskStatus.TODO})
+            taskStore:add({
+                description = table.concat(params, " "),
+                status = TaskStatus.TODO
+            })
             print("Added new task")
             break
         end
@@ -57,8 +60,6 @@ local function handleCommand(self, cmd, ...)
     until true
     taskStore:save()
 end
-term.clear()
-term.setCursorPos(0, 0)
 local line = ""
 EventLoop:on(
     "char",
@@ -94,6 +95,8 @@ EventLoop:on(
         end
     end
 )
+term.clear()
+term.setCursorPos(0, 1)
 print(table.concat({"Commands:", "add <description>", "remove <id>", "update <id> <status>"}, "\n"))
 printPrompt(nil)
 EventLoop:run()
