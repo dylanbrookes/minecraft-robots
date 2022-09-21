@@ -2,6 +2,25 @@
 local ____exports = {}
 local ____EventLoop = require("utils.EventLoop")
 local EventLoop = ____EventLoop.EventLoop
+local ____TaskStore = require("utils.stores.TaskStore")
+local TaskStatus = ____TaskStore.TaskStatus
+local function getColorForTaskStatus(____, status)
+    repeat
+        local ____switch3 = status
+        local ____cond3 = ____switch3 == TaskStatus.DONE
+        if ____cond3 then
+            return colors.green
+        end
+        ____cond3 = ____cond3 or ____switch3 == TaskStatus.IN_PROGRESS
+        if ____cond3 then
+            return colors.yellow
+        end
+        ____cond3 = ____cond3 or ____switch3 == TaskStatus.TODO
+        do
+            return colors.white
+        end
+    until true
+end
 ____exports.default = __TS__Class()
 local BulletinBoardUI = ____exports.default
 BulletinBoardUI.name = "BulletinBoardUI"
@@ -63,28 +82,13 @@ function BulletinBoardUI.prototype.render(self)
     self.monitor.setBackgroundColor(32768)
     self.monitor.setCursorPos(2, 2)
     self.monitor.write("Hey there!!!!! " .. tostring(self.frameNum))
-    local text = {}
-    __TS__ArrayForEach(
-        self.taskStore:getAll(),
-        function(____, ____bindingPattern0, i)
-            local status
-            local description
-            local id
-            id = ____bindingPattern0.id
-            description = ____bindingPattern0.description
-            status = ____bindingPattern0.status
-            return __TS__ArrayPush(
-                text,
-                (("[" .. tostring(id)) .. "] ") .. description,
-                "    status: " .. status
-            )
-        end
-    )
-    for ____, ____value in __TS__Iterator(__TS__ArrayEntries(text)) do
-        local i = ____value[1]
-        local t = ____value[2]
-        self.monitor.setCursorPos(2, 3 + i)
-        self.monitor.write(t)
+    self.monitor.setCursorPos(2, 3)
+    for ____, task in ipairs(self.taskStore:getAll()) do
+        self.monitor.write(tostring(task.id) .. ": ")
+        self.monitor.setTextColor(getColorForTaskStatus(nil, task.status))
+        self.monitor.write(task.status)
+        self.monitor.setTextColor(colors.white)
+        self.monitor.write((" " .. task.description) .. "\n")
     end
     term.redirect(oldterm)
 end

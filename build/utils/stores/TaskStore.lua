@@ -35,14 +35,7 @@ function TaskStore.LoadStoreFile(self, storeFile)
             0
         )
     end
-    local firstLine = handle.readLine()
-    local nextTaskId = firstLine and __TS__ParseInt(firstLine)
-    if not nextTaskId then
-        error(
-            __TS__New(Error, "Missing nextTaskId"),
-            0
-        )
-    end
+    local maxId = 0
     local line
     while true do
         line = handle.readLine()
@@ -52,13 +45,16 @@ function TaskStore.LoadStoreFile(self, storeFile)
         local task = textutils.unserialize(line)
         if type(task.id) ~= "number" then
             error(
-                __TS__New(Error, "Invalid turtle parsed from: " .. line),
+                __TS__New(Error, "Invalid task parsed from: " .. line),
                 0
             )
         end
         tasks:set(task.id, task)
+        if task.id > maxId then
+            maxId = task.id
+        end
     end
-    return {nextTaskId = nextTaskId, tasks = tasks}
+    return {nextTaskId = maxId + 1, tasks = tasks}
 end
 function TaskStore.prototype.save(self)
     if fs.exists(self.storeFile) then
@@ -74,7 +70,6 @@ function TaskStore.prototype.save(self)
             0
         )
     end
-    handle.writeLine(textutils.serialize(self.nextTaskId))
     for ____, task in __TS__Iterator(self.tasks:values()) do
         handle.writeLine(textutils.serialize(task, {compact = true}))
     end
@@ -125,6 +120,9 @@ function TaskStore.prototype.update(self, id, record)
     local newRecord = __TS__ObjectAssign({}, og, record)
     self.tasks:set(id, newRecord)
     return newRecord
+end
+function TaskStore.prototype.remove(self, id)
+    self.tasks:delete(id)
 end
 TaskStore.DEFAULT_STORE_FILE = "/.tasks"
 ____exports.default = TaskStore
