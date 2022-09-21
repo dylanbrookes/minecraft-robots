@@ -67,6 +67,7 @@ EventLoop.on('key', (key: string) => {
     term.setCursorPos(x - 1, y);
     term.write(' ');
     term.setCursorPos(x - 1, y);
+    line = line.slice(0, line.length - 1);
   }
 });
 
