@@ -65,7 +65,7 @@ if latestManifestVersion == nil or version > tonumber(latestManifestVersion) the
     fs.delete(PROJECT_DIR)
 
     for i, v in pairs(lines) do
-        local sPath = shell.resolve(string.gsub(v, "/build", PROJECT_DIR))
+        local sPath = shell.resolve(string.gsub(v, "/build", PROJECT_DIR, 1))
         local file = fs.open(sPath, "w")
         res = get(ROOT_GITHUB_PATH .. v)
         file.write(res)
