@@ -35,7 +35,7 @@ function clearCol(breakForward: boolean, height?: number) {
     }
 
     turtle.digUp();
-    if (breakForward && (!height || off < height - 2)) {
+    if (breakForward || !height || off < height - 2) {
       // skip going up one last time if we're using height
       turtle.up();
     }
