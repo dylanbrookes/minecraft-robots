@@ -1,5 +1,6 @@
 {
   "tstl": {
+    "luaTarget": "5.2",
     "luaLibImport": "none",
     "noResolvePaths": ["/require_stub"]
   },
