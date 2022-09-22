@@ -45,6 +45,7 @@ local function handleCommand(self, cmd, ...)
             status = params[2]
             if not __TS__ArrayIncludes(VALID_STATUSES, status) then
                 print((("Invalid status " .. status) .. ", must be one of ") .. textutils.serialize(VALID_STATUSES))
+                return
             end
             taskStore:update(
                 __TS__ParseInt(params[1]),

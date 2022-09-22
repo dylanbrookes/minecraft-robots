@@ -140,6 +140,20 @@ function __TurtleController__.prototype._dig(self, direction, assertSuccess)
     end
     return success
 end
+function __TurtleController__.prototype._place(self, direction, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    local success = self:checkActionResult(
+        assertSuccess,
+        {turtle[direction == "forward" and "place" or (direction == "up" and "placeUp" or "placeDown")]()}
+    )
+    if success then
+        EventLoop:emit(____exports.TurtleEvent.dig, direction)
+        EventLoop:emit("dig:" .. direction, direction)
+    end
+    return success
+end
 function __TurtleController__.prototype.forward(self, n, assertSuccess)
     if n == nil then
         n = 1
@@ -217,6 +231,24 @@ function __TurtleController__.prototype.digDown(self, assertSuccess)
         assertSuccess = true
     end
     return self:_dig("down", assertSuccess)
+end
+function __TurtleController__.prototype.place(self, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    return self:_place("forward", assertSuccess)
+end
+function __TurtleController__.prototype.placeUp(self, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    return self:_place("up", assertSuccess)
+end
+function __TurtleController__.prototype.placeDown(self, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    return self:_place("down", assertSuccess)
 end
 ____exports.TurtleController = __TS__New(__TurtleController__)
 return ____exports
