@@ -35,19 +35,22 @@ function clearCol(breakForward: boolean, height?: number) {
     }
 
     turtle.digUp();
-    if (!height || off < height - 2) {
+    if (breakForward && (!height || off < height - 2)) {
       // skip going up one last time if we're using height
       turtle.up();
     }
     off++;
   }
 
-  if (height) {
+  if (height && !breakForward) {
     // we skipped the last move up
     off--;
   }
 
   while (off > 0) {
+    if (breakForward) {
+      turtle.dig();
+    }
     turtle.digDown(); // in case a block was accidentally placed below
     turtle.down();
     off--;
