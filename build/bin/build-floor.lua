@@ -33,6 +33,9 @@ local function locateItemInInv(self, itemId)
     local currentItem = turtle.getItemDetail(currentSlot)
     local tries = 16
     while not currentItem or currentItem.name ~= itemId do
+        if currentItem then
+            print(currentItem.name)
+        end
         currentSlot = turtle.getSelectedSlot() % 16 + 1
         turtle.select(currentSlot)
         currentItem = turtle.getItemDetail(currentSlot)
