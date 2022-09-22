@@ -30,12 +30,12 @@ function checkFuel() {
 function clearCol(breakForward: boolean, height?: number) {
   let off = 0;
   while (!height || off < height - 1) {
-    if (!height && !turtle.detectUp()) {
+    if (!height && !turtle.detectUp() && !breakForward) {
       break;
     }
 
     turtle.digUp();
-    if (breakForward || !height || off < height - 2) {
+    if (!height || off < height - 2 || breakForward) {
       // skip going up one last time if we're using height
       turtle.up();
     }
@@ -77,7 +77,8 @@ function clear(w: number, d: number, h?: number) {
       const lastCol = y + 1 === d;
       if (y % 2 === 0) {
         // clears above and forward, skip breaking forward on last col
-        clearCol(!lastCol, h);
+        // only break forward if using height
+        clearCol(!lastCol && Boolean(h), h);
       }
 
       if (!lastCol) { // skip on last col
