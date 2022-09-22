@@ -25,19 +25,37 @@ function checkFuel() {
 
 /**
  * clears the col directly above
- * optional height, otherwise it will dig up until there's no block
+ * will dig up until there's no block
  */
-function clearCol(breakForward: boolean, height?: number) {
+function clearColSimple() {
+  let off = 0;
+  while (turtle.detectUp()) {
+    turtle.digUp();
+    turtle.up();
+    off++;
+  }
+
+  while (off > 0) {
+    turtle.digDown(); // in case a block was accidentally placed below
+    turtle.down();
+    off--;
+  }
+}
+
+/**
+ * clears a col
+ */
+ function clearCol(breakForward: boolean, height: number, up: boolean = true) {
   let off = 0;
   while (!height || off < height - 1) {
     if (!height && !turtle.detectUp() && !breakForward) {
       break;
     }
 
-    turtle.digUp();
+    turtle[up ? 'digUp' : 'digDown']();
     if (!height || off < height - 2 || breakForward) {
       // skip going up one last time if we're using height
-      turtle.up();
+      turtle[up ? 'up' : 'down']();
     }
     off++;
   }
@@ -51,8 +69,8 @@ function clearCol(breakForward: boolean, height?: number) {
     if (breakForward) {
       turtle.dig();
     }
-    turtle.digDown(); // in case a block was accidentally placed below
-    turtle.down();
+    turtle[!up ? 'digUp' : 'digDown'](); // in case a block was accidentally placed below
+    turtle[!up ? 'up' : 'down']();
     off--;
   }
 }
@@ -75,10 +93,12 @@ function clear(w: number, d: number, h?: number) {
       checkFuel();
       console.log(`Clearing column ${x},${y}`);
       const lastCol = y + 1 === d;
-      if (y % 2 === 0) {
+      if (!h) {
+        clearColSimple();
+      } else if (y % 2 === 0) {
         // clears above and forward, skip breaking forward on last col
         // only break forward if using height
-        clearCol(!!(!lastCol && h), h);
+        clearCol(!lastCol, h, (x + y) % 2 === 0);
       }
 
       if (!lastCol) { // skip on last col
