@@ -78,7 +78,7 @@ function clear(w: number, d: number, h?: number) {
       if (y % 2 === 0) {
         // clears above and forward, skip breaking forward on last col
         // only break forward if using height
-        clearCol(!lastCol && Boolean(h), h);
+        clearCol(!!(!lastCol && h), h);
       }
 
       if (!lastCol) { // skip on last col
