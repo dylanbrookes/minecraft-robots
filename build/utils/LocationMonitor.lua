@@ -115,7 +115,7 @@ function __LocationMonitor__.prototype.checkPosition(self)
         else
             print(
                 "Retrieved location:",
-                __TS__Unpack(pos)
+                table.unpack(pos)
             )
             self.pos = pos
             self._status = ____exports.LocationMonitorStatus.POS_ONLY
@@ -157,18 +157,18 @@ function __LocationMonitor__.prototype.checkPosition(self)
             print("acquired location and heading")
             print(
                 "location:",
-                __TS__Unpack(self.pos)
+                table.unpack(self.pos)
             )
             print("heading:", self._heading)
         else
             print("Could not determine heading, pos diff is not 1 (maybe we moved backwards? I didn't implement heading calculation for that 🙂):")
             print(
                 "oldPos:",
-                __TS__Unpack(oldPos)
+                table.unpack(oldPos)
             )
             print(
                 "pos:",
-                __TS__Unpack(pos)
+                table.unpack(pos)
             )
             self._heading = ____exports.Heading.UNKNOWN
             self.pos = pos
@@ -178,11 +178,11 @@ function __LocationMonitor__.prototype.checkPosition(self)
         print("GPS POSITION MISMATCH, will update")
         print(
             "Our position:",
-            __TS__Unpack(self.pos)
+            table.unpack(self.pos)
         )
         print(
             "GPS pos:",
-            __TS__Unpack(pos)
+            table.unpack(pos)
         )
         self.pos = pos
     end

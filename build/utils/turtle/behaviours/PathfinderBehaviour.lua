@@ -43,7 +43,7 @@ function PathfinderBehaviour.prototype.step(self)
             end
             return
         end
-        local xx, zz = __TS__Unpack(HEADING_TO_XZ_VEC[LocationMonitor.heading])
+        local xx, zz = table.unpack(HEADING_TO_XZ_VEC[LocationMonitor.heading])
         local xOk = xx * dx > 0
         local zOk = zz * dz > 0
         if xOk then

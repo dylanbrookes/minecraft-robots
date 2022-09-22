@@ -117,12 +117,12 @@ else
         "Sending",
         cmd,
         "with params:",
-        __TS__Unpack(params)
+        table.unpack(params)
     )
     sendCmd(
         nil,
         cmd,
-        __TS__Unpack(params)
+        table.unpack(params)
     )
 end
 return ____exports

@@ -85,7 +85,7 @@ EventLoop:on(
             handleCommand(
                 nil,
                 cmd,
-                __TS__Unpack(params)
+                table.unpack(params)
             )
             printPrompt(nil)
             line = ""

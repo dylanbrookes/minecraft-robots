@@ -100,7 +100,7 @@ function __EventLoop__.prototype.emit(self, name, ...)
                 Routine,
                 function() return cb(
                     nil,
-                    __TS__Unpack(params)
+                    table.unpack(params)
                 ) end
             )
             if routine:isDead() then
@@ -110,7 +110,7 @@ function __EventLoop__.prototype.emit(self, name, ...)
         else
             remove = not not cb(
                 nil,
-                __TS__Unpack(params)
+                table.unpack(params)
             )
         end
         if not remove then
@@ -122,7 +122,7 @@ function __EventLoop__.prototype.emit(self, name, ...)
     if #self.events[name] > startLen then
         local newCbs = __TS__ArraySlice(self.events[name], startLen)
         print("Added", #newCbs, "events that would have been missed", name)
-        cbsLeft[#cbsLeft + 1] = __TS__Unpack(newCbs)
+        __TS__ArrayPushArray(cbsLeft, newCbs)
     end
     self.events[name] = cbsLeft
 end
@@ -137,7 +137,7 @@ function __EventLoop__.prototype.emitRepeat(self, name, interval, ...)
             end
             self:emit(
                 name,
-                __TS__Unpack(ev)
+                table.unpack(ev)
             )
             evTimer = os.startTimer(interval)
             return false
@@ -190,12 +190,12 @@ function __EventLoop__.prototype.run(self, tick)
         end
         self:emit(
             event,
-            __TS__Unpack(params)
+            table.unpack(params)
         )
         for ____, routine in __TS__Iterator(self.routines:values()) do
             local finished = routine:resume(
                 event,
-                __TS__Unpack(params)
+                table.unpack(params)
             )
             if finished then
                 self.routines:delete(routine.id)

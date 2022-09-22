@@ -130,10 +130,10 @@ local args = {...}
 assert(#args == 1 or #args == 3)
 print(textutils.serialize(args))
 if #args == 1 then
-    local itemId = __TS__Unpack(args)
+    local itemId = table.unpack(args)
     buildFloor(nil, itemId)
 elseif #args == 3 then
-    local itemId, w, d = __TS__Unpack(args)
+    local itemId, w, d = table.unpack(args)
     buildFloor(
         nil,
         itemId,

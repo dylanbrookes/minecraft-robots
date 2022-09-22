@@ -77,7 +77,12 @@ local function clear(self, w, d, h)
                     if not h then
                         clearColSimple(nil)
                     elseif y % 2 == 0 then
-                        clearCol(nil, not lastCol, h, (x * d + y) % 2 == 0)
+                        clearCol(
+                            nil,
+                            not lastCol,
+                            h,
+                            bit32.arshift(x * d + y, 1) % 2 == 0
+                        )
                     end
                     if not lastCol then
                         breakAndMove(nil)
