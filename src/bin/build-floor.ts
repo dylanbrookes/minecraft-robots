@@ -34,6 +34,10 @@ function locateItemInInv(itemId: string) {
   let currentItem = turtle.getItemDetail(currentSlot);
   let tries = 16;
   while (!currentItem || currentItem.name != itemId) {
+    if (currentItem) {
+      console.log(currentItem.name);
+    }
+
     currentSlot = (turtle.getSelectedSlot() % 16) + 1 as turtle.TurtleSlot;
     turtle.select(currentSlot);
     currentItem = turtle.getItemDetail(currentSlot);
