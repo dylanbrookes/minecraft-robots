@@ -42,27 +42,16 @@ local function clearCol(self, breakForward, height, up)
     if up == nil then
         up = true
     end
-    local off = 0
-    while not height or off < height - 1 do
-        if not height and not turtle.detectUp() and not breakForward then
-            break
-        end
-        turtle[up and "digUp" or "digDown"]()
-        if not height or off < height - 2 or breakForward then
+    do
+        local i = 0
+        while i < height - 1 do
+            if breakForward then
+                turtle.dig()
+            end
+            turtle[up and "digUp" or "digDown"]()
             turtle[up and "up" or "down"]()
+            i = i + 1
         end
-        off = off + 1
-    end
-    if height and not breakForward then
-        off = off - 1
-    end
-    while off > 0 do
-        if breakForward then
-            turtle.dig()
-        end
-        turtle[not up and "digUp" or "digDown"]()
-        turtle[not up and "up" or "down"]()
-        off = off - 1
     end
 end
 local function breakAndMove(self)
@@ -88,7 +77,7 @@ local function clear(self, w, d, h)
                     if not h then
                         clearColSimple(nil)
                     elseif y % 2 == 0 then
-                        clearCol(nil, not lastCol, h, (x + y) % 2 == 0)
+                        clearCol(nil, not lastCol, h, (x * d + y) % 2 == 0)
                     end
                     if not lastCol then
                         breakAndMove(nil)
