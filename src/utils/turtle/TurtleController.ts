@@ -110,6 +110,18 @@ class __TurtleController__ {
     return success;
   }
 
+  private _place(direction: 'forward' | 'up' | 'down', assertSuccess: boolean = true): boolean {
+    const success = this.checkActionResult(
+      assertSuccess,
+      turtle[direction === 'forward' ? 'place' : (direction === 'up' ? 'placeUp' : 'placeDown')](),
+    );
+    if (success) {
+      EventLoop.emit(TurtleEvent.dig, direction);
+      EventLoop.emit(`dig:${direction}`, direction);
+    }
+    return success;
+  }
+
   forward(n: number | string = 1, assertSuccess: boolean = true): boolean {
     if (typeof n === 'string') n = parseInt(n);
     return this.move("forward", n, assertSuccess);
@@ -141,6 +153,15 @@ class __TurtleController__ {
   }
   digDown(assertSuccess: boolean = true): boolean {
     return this._dig('down', assertSuccess);
+  }
+  place(assertSuccess: boolean = true): boolean {
+    return this._place('forward', assertSuccess);
+  }
+  placeUp(assertSuccess: boolean = true): boolean {
+    return this._place('up', assertSuccess);
+  }
+  placeDown(assertSuccess: boolean = true): boolean {
+    return this._place('down', assertSuccess);
   }
 }
 

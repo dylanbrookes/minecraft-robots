@@ -33,6 +33,7 @@ function handleCommand(cmd: string, ...params: string[]) {
       const status = params[1] as TaskStatus;
       if (!VALID_STATUSES.includes(status)) {
         console.log(`Invalid status ${status}, must be one of ${textutils.serialize(VALID_STATUSES)}`);
+        return;
       }
       taskStore.update(parseInt(params[0]), { status });
       console.log("Updated task");
