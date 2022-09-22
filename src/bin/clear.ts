@@ -85,7 +85,7 @@ function clear(w: number, d: number, h?: number) {
         clearColSimple();
       } else if (y % 2 === 0) {
         // clears above and forward, skip breaking forward on last col
-        clearCol(!(lastCol && lastRow), h, (x * (d >> 1) + y >> 1) % 2 === 0);
+        clearCol(!(lastCol && lastRow), h, (y >> 1) % 2 === 0);
       }
 
       if (!(lastCol && lastRow)) {
