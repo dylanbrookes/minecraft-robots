@@ -31,7 +31,7 @@ local function clearCol(self, breakForward, height)
             break
         end
         turtle.digUp()
-        if breakForward and (not height or off < height - 2) then
+        if breakForward or not height or off < height - 2 then
             turtle.up()
         end
         off = off + 1
