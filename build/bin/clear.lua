@@ -68,36 +68,43 @@ local function clear(self, w, d, h)
     do
         local x = 0
         while x < w do
+            local lastRow = x + 1 == w
             do
                 local y = 0
                 while y < d do
                     checkFuel(nil)
                     print((("Clearing column " .. tostring(x)) .. ",") .. tostring(y))
                     local lastCol = y + 1 == d
+                    if lastCol then
+                        if x % 2 == 0 then
+                            turtle.turnRight()
+                        else
+                            turtle.turnLeft()
+                        end
+                    end
                     if not h then
                         clearColSimple(nil)
                     elseif y % 2 == 0 then
                         clearCol(
                             nil,
-                            not lastCol,
+                            not (lastCol and lastRow),
                             h,
-                            bit32.arshift(x * d + y, 1) % 2 == 0
+                            bit32.arshift(
+                                x * bit32.arshift(d, 1) + y,
+                                1
+                            ) % 2 == 0
                         )
                     end
-                    if not lastCol then
+                    if not (lastCol and lastRow) then
                         breakAndMove(nil)
                     end
                     y = y + 1
                 end
             end
-            if w - x > 1 then
+            if not lastRow then
                 if x % 2 == 0 then
                     turtle.turnRight()
-                    breakAndMove(nil)
-                    turtle.turnRight()
                 else
-                    turtle.turnLeft()
-                    breakAndMove(nil)
                     turtle.turnLeft()
                 end
             end
