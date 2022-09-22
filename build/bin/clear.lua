@@ -89,10 +89,7 @@ local function clear(self, w, d, h)
                             nil,
                             not (lastCol and lastRow),
                             h,
-                            bit32.arshift(
-                                x * bit32.arshift(d, 1) + y,
-                                1
-                            ) % 2 == 0
+                            bit32.arshift(y, 1) % 2 == 0
                         )
                     end
                     if not (lastCol and lastRow) then
