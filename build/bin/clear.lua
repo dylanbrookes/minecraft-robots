@@ -69,11 +69,7 @@ local function clear(self, w, d, h)
                     print((("Clearing column " .. tostring(x)) .. ",") .. tostring(y))
                     local lastCol = y + 1 == d
                     if y % 2 == 0 then
-                        clearCol(
-                            nil,
-                            not lastCol and Boolean(nil, h),
-                            h
-                        )
+                        clearCol(nil, not not (not lastCol and h), h)
                     end
                     if not lastCol then
                         breakAndMove(nil)
