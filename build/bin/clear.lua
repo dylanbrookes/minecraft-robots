@@ -24,7 +24,7 @@ local function checkFuel(self)
 end
 --- clears the col directly above
 -- optional height, otherwise it will dig up until there's no block
-local function clearCol(self, height)
+local function clearCol(self, breakForward, height)
     local off = 0
     while not height or off < height - 1 do
         if not height and not turtle.detectUp() then
@@ -64,8 +64,11 @@ local function clear(self, w, d, h)
                 while y < d do
                     checkFuel(nil)
                     print((("Clearing column " .. tostring(x)) .. ",") .. tostring(y))
-                    clearCol(nil, h)
-                    if d - y > 1 then
+                    local lastCol = y + 1 == d
+                    if y % 2 == 0 then
+                        clearCol(nil, not lastCol, h)
+                    end
+                    if not lastCol then
                         breakAndMove(nil)
                     end
                     y = y + 1

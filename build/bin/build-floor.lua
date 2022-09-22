@@ -77,7 +77,7 @@ local function buildFloor(self, itemId, w, d)
                     checkFuel(nil)
                     print((tostring(x) .. ",") .. tostring(y))
                     locateItemInInv(nil, itemId)
-                    turtle.placeDown()
+                    turtle.placeUp()
                     if d then
                         if d - y > 1 then
                             forceMoveForward(nil)
