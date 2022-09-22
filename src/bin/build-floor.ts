@@ -60,7 +60,7 @@ function buildFloor(itemId: string, w?: number, d?: number) {
       checkFuel();
       console.log(`${x},${y}`);
       locateItemInInv(itemId);
-      turtle.placeDown();
+      turtle.placeUp();
 
       if (d) {
         if (d - y > 1) { // skip moving forward on the last col
