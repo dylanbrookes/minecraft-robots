@@ -67,31 +67,36 @@ function clear(w: number, d: number, h?: number) {
   breakAndMove();
 
   for (let x = 0; x < w; x++) {
+    const lastRow = x + 1 === w;
     for (let y = 0; y < d; y++) {
       checkFuel();
       console.log(`Clearing column ${x},${y}`);
+
       const lastCol = y + 1 === d;
+      if (lastCol) {
+        if (x % 2 === 0) {
+          turtle.turnRight();
+        } else {
+          turtle.turnLeft();
+        }
+      }
+
       if (!h) {
         clearColSimple();
       } else if (y % 2 === 0) {
         // clears above and forward, skip breaking forward on last col
-        // only break forward if using height
-        clearCol(!lastCol, h, (x * d + y >> 1) % 2 === 0);
+        clearCol(!(lastCol && lastRow), h, (x * (d >> 1) + y >> 1) % 2 === 0);
       }
 
-      if (!lastCol) { // skip on last col
-        breakAndMove()
+      if (!(lastCol && lastRow)) {
+        breakAndMove();
       }
     }
 
-    if (w - x > 1) { // skip on last row
-      if (x % 2 == 0) {
-          turtle.turnRight();
-          breakAndMove();
+    if (!lastRow) {
+      if (x % 2 === 0) {
           turtle.turnRight();
       } else {
-          turtle.turnLeft();
-          breakAndMove();
           turtle.turnLeft();
       }
     }
