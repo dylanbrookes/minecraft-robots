@@ -46,32 +46,10 @@ function clearColSimple() {
  * clears a col
  */
  function clearCol(breakForward: boolean, height: number, up: boolean = true) {
-  let off = 0;
-  while (!height || off < height - 1) {
-    if (!height && !turtle.detectUp() && !breakForward) {
-      break;
-    }
-
+  for (let i = 0; i < height - 1; i++) {
+    if (breakForward) turtle.dig();
     turtle[up ? 'digUp' : 'digDown']();
-    if (!height || off < height - 2 || breakForward) {
-      // skip going up one last time if we're using height
-      turtle[up ? 'up' : 'down']();
-    }
-    off++;
-  }
-
-  if (height && !breakForward) {
-    // we skipped the last move up
-    off--;
-  }
-
-  while (off > 0) {
-    if (breakForward) {
-      turtle.dig();
-    }
-    turtle[!up ? 'digUp' : 'digDown'](); // in case a block was accidentally placed below
-    turtle[!up ? 'up' : 'down']();
-    off--;
+    turtle[up ? 'up' : 'down']();
   }
 }
 
@@ -98,7 +76,7 @@ function clear(w: number, d: number, h?: number) {
       } else if (y % 2 === 0) {
         // clears above and forward, skip breaking forward on last col
         // only break forward if using height
-        clearCol(!lastCol, h, (x + y) % 2 === 0);
+        clearCol(!lastCol, h, (x * d + y) % 2 === 0);
       }
 
       if (!lastCol) { // skip on last col
