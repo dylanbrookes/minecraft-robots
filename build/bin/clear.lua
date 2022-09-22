@@ -27,11 +27,11 @@ end
 local function clearCol(self, breakForward, height)
     local off = 0
     while not height or off < height - 1 do
-        if not height and not turtle.detectUp() then
+        if not height and not turtle.detectUp() and not breakForward then
             break
         end
         turtle.digUp()
-        if breakForward or not height or off < height - 2 then
+        if not height or off < height - 2 or breakForward then
             turtle.up()
         end
         off = off + 1
@@ -69,7 +69,11 @@ local function clear(self, w, d, h)
                     print((("Clearing column " .. tostring(x)) .. ",") .. tostring(y))
                     local lastCol = y + 1 == d
                     if y % 2 == 0 then
-                        clearCol(nil, not lastCol, h)
+                        clearCol(
+                            nil,
+                            not lastCol and Boolean(nil, h),
+                            h
+                        )
                     end
                     if not lastCol then
                         breakAndMove(nil)
