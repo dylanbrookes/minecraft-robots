@@ -62,7 +62,7 @@ function FloorMonitorUI.prototype.render(self)
     self.frame = self.frame + 1
     local oldterm = term.redirect(self.monitor)
     repeat
-        local ____switch9 = bit32.arshift(self.frame, 2 % 2)
+        local ____switch9 = bit32.arshift(self.frame, 2) % 2
         local ____cond9 = ____switch9 == 0
         if ____cond9 then
             do
