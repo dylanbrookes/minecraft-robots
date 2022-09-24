@@ -39,7 +39,7 @@ export default class FloorMonitorUI {
     this.frame++;
     const oldterm = term.redirect(this.monitor);
   
-    switch (this.frame >> 2 % 2) {
+    switch ((this.frame >> 2) % 2) {
       case 0: {
         const wu = this.width >> 2;
         const hu = this.height >> 2;
