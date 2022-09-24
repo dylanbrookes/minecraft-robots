@@ -58,14 +58,14 @@ function FloorMonitorUI.prototype.register(self)
 end
 function FloorMonitorUI.prototype.render(self)
     local oldterm = term.redirect(self.monitor)
-    local wu = bit32.arshift(self.height, 2)
+    local wu = bit32.arshift(self.width, 2)
     local hu = bit32.arshift(self.height, 2)
     do
         local x = 0
-        while x < wu do
+        while x < self.width / wu do
             do
                 local y = 0
-                while y < hu do
+                while y < self.height / hu do
                     paintutils.drawFilledBox(
                         x * wu,
                         y * hu,
