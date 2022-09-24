@@ -1,7 +1,8 @@
-1663878692
+1663984611
 /build/models/Miner.lua
 /build/bin/tsh.lua
 /build/bin/turtle.lua
+/build/bin/floor-monitor.lua
 /build/bin/gif.lua
 /build/bin/args.lua
 /build/bin/build-floor.lua
@@ -21,6 +22,7 @@
 /build/utils/LocationMonitor.lua
 /build/utils/services/TurtleService.lua
 /build/utils/services/TurtleRegistryService.lua
+/build/utils/ui/FloorMonitorUI.lua
 /build/utils/ui/BulletinBoardUI.lua
 /build/utils/ui/GifUI.lua
 /build/utils/turtle/TurtleController.lua
