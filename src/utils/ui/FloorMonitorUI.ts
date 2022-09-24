@@ -9,7 +9,7 @@ export default class FloorMonitorUI {
   private height: number;
   private registered: boolean = false;
 
-  constructor(private monitor: peripheral.Monitor, private fps: number = 0.1) {
+  constructor(private monitor: peripheral.Monitor, private fps: number = 0.5) {
     this.id = FloorMonitorUI.ID_COUNTER++;
     monitor.setTextScale(0.5);
     monitor.clear();
@@ -34,15 +34,28 @@ export default class FloorMonitorUI {
     });
   }
 
+  private frame = 0;
   render() {
+    this.frame++;
     const oldterm = term.redirect(this.monitor);
   
-    const wu = this.width >> 2;
-    const hu = this.height >> 2;
-    for (let x = 0; x < this.width / wu; x++) {
-      for (let y = 0; y < this.height / hu; y++) {
-        paintutils.drawFilledBox(x * wu, y * hu, (x + 1) * wu, (y + 1) * hu, randomColor());
-      }
+    switch (this.frame >> 2 % 2) {
+      case 0: {
+        const wu = this.width >> 2;
+        const hu = this.height >> 2;
+        for (let x = 0; x < this.width / wu; x++) {
+          for (let y = 0; y < this.height / hu; y++) {
+            paintutils.drawFilledBox(x * wu, y * hu, (x + 1) * wu, (y + 1) * hu, randomColor());
+          }
+        }
+      } break;
+      case 1: {
+        this.monitor.setBackgroundColor(randomColor());
+        this.monitor.clear();
+      } break;
+      case 2: {
+
+      } break;
     }
 
     term.redirect(oldterm);
