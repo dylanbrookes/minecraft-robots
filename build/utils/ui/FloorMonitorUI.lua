@@ -24,6 +24,7 @@ function FloorMonitorUI.prototype.____constructor(self, monitor, fps)
     ____exports_default_0[____ID_COUNTER_1] = ____exports_default_ID_COUNTER_2 + 1
     self.id = ____exports_default_ID_COUNTER_2
     monitor.setTextScale(0.5)
+    monitor.clear()
     local size = {monitor.getSize()}
     self.width = size[1]
     self.height = size[2]
