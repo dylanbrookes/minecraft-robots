@@ -36,10 +36,10 @@ export default class FloorMonitorUI {
   render() {
     const oldterm = term.redirect(this.monitor);
   
-    const wu = this.height >> 2;
+    const wu = this.width >> 2;
     const hu = this.height >> 2;
-    for (let x = 0; x < wu; x++) {
-      for (let y = 0; y < hu; y++) {
+    for (let x = 0; x < this.width / wu; x++) {
+      for (let y = 0; y < this.height / hu; y++) {
         paintutils.drawFilledBox(x * wu, y * hu, (x + 1) * wu, (y + 1) * hu, randomColor());
       }
     }
