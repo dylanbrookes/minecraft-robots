@@ -12,6 +12,7 @@ export default class FloorMonitorUI {
   constructor(private monitor: peripheral.Monitor, private fps: number = 0.1) {
     this.id = FloorMonitorUI.ID_COUNTER++;
     monitor.setTextScale(0.5);
+    monitor.clear();
     const size = monitor.getSize();
     this.width = size[0];
     this.height = size[1];
