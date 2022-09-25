@@ -1,6 +1,6 @@
 import { TURTLE_REGISTRY_PROTOCOL_NAME } from "../Consts";
 import { EventLoop } from "../EventLoop";
-import { LocationMonitor, TurtlePosition } from "../LocationMonitor";
+import { LocationMonitor } from "../LocationMonitor";
 import { TurtleRegistryCommand } from "../services/TurtleRegistryService";
 import { BehaviourStack } from "../turtle/BehaviourStack";
 import { TurtleRecord, TurtleStatus } from "../stores/TurtleStore";

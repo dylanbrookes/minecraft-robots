@@ -1,7 +1,6 @@
 import { EventLoop } from "./EventLoop";
-import { TurtleEvent } from "./turtle/TurtleController";
-
-export type TurtlePosition = [x: number, y: number, z: number];
+import Logger from "./Logger";
+import { TurtleEvent, TurtlePosition } from "./turtle/Consts";
 
 export enum LocationMonitorStatus {
   UNKNOWN = 'UNKNOWN',
@@ -59,7 +58,7 @@ class __LocationMonitor__ {
     if (!this.hasPosition) {
       return null;
     }
-    return this.pos;
+    return [...this.pos]; // clone because we mutate internally
   }
 
   get heading(): Heading {
@@ -91,26 +90,26 @@ class __LocationMonitor__ {
    */
   private checkPosition() {
     if (this._status === LocationMonitorStatus.UNKNOWN) {
-      console.log("Retrieving location...");
+      Logger.info("Retrieving location...");
       const pos = gps.locate(3);
       if (!pos || pos[0] === null) {
-        console.log("Failed to retrieve location");
+        Logger.warn("Failed to retrieve location");
         this._status = LocationMonitorStatus.ERROR;
       } else {
-        console.log("Retrieved location:", ...pos);
+        Logger.info("Retrieved location:", ...pos);
         this.pos = pos;
         this._status = LocationMonitorStatus.POS_ONLY; // heading is still required
       }
       return;
     } else if (!([LocationMonitorStatus.POS_ONLY, LocationMonitorStatus.ACQUIRED].includes(this._status))) {
-      console.log("Skipping gps check, status is", this._status);
+      Logger.debug("Skipping gps check, status is", this._status);
       return;
     }
 
-    // console.log("Checking gps position...");
+    Logger.debug("Checking gps position...");
     const pos = gps.locate(3);
     if (!pos || pos[0] === null) {
-      console.log("FAILED: could not retrieve gps position for check");
+      Logger.error("Could not retrieve gps position for check");
       return;
     }
 
@@ -130,13 +129,13 @@ class __LocationMonitor__ {
 
         this.pos = pos;
         this._status = LocationMonitorStatus.ACQUIRED;
-        console.log("acquired location and heading");
-        console.log("location:", ...this.pos);
-        console.log("heading:", this._heading);
+        Logger.debug("acquired location and heading");
+        Logger.debug("location:", ...this.pos);
+        Logger.debug("heading:", this._heading);
       } else {
-        console.log("Could not determine heading, pos diff is not 1 (maybe we moved backwards? I didn't implement heading calculation for that 🙂):");
-        console.log("oldPos:", ...oldPos);
-        console.log("pos:", ...pos);
+        Logger.warn("Could not determine heading, pos diff is not 1 (maybe we moved backwards? I didn't implement heading calculation for that 🙂):");
+        Logger.debug("oldPos:", ...oldPos);
+        Logger.debug("pos:", ...pos);
         this._heading = Heading.UNKNOWN;
         this.pos = pos;
       }
@@ -145,9 +144,9 @@ class __LocationMonitor__ {
     if (pos[0] !== this.pos[0]
       || pos[1] !== this.pos[1]
       || pos[2] !== this.pos[2]) {
-      console.log("GPS POSITION MISMATCH, will update");
-      console.log("Our position:", ...this.pos);
-      console.log("GPS pos:", ...pos);
+      Logger.warn("GPS POSITION MISMATCH, will update");
+      Logger.warn("Our position:", ...this.pos);
+      Logger.warn("GPS pos:", ...pos);
       this.pos = pos;
     }
   }

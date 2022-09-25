@@ -4,7 +4,7 @@ import '/require_stub';
 import { EventLoop } from '../utils/EventLoop';
 import { TurtleController } from '../utils/turtle/TurtleController';
 import { TurtleService } from '../utils/services/TurtleService';
-// import { LocationMonitor } from '../utils/LocationMonitor';
+import { LocationMonitor } from '../utils/LocationMonitor';
 import { BehaviourStack } from '../utils/turtle/BehaviourStack';
 import { findProtocolHostId } from '../utils/findProtocolHostId';
 import { TURTLE_REGISTRY_PROTOCOL_NAME } from '../utils/Consts';
@@ -49,7 +49,7 @@ rednet.open(modemName);
 
 TurtleController.register();
 TurtleService.register();
-// LocationMonitor.register();
+LocationMonitor.register();
 
 // EventLoop.setTimeout(() => {
 //   console.log("Timeout called, pushing behaviour");
@@ -62,5 +62,5 @@ EventLoop.run(() => {
   // the important part is that only one bit of code is trying to do something at once,
   // this is where sequenced async/movement work will go
   
-  // BehaviourStack.step();
+  BehaviourStack.step();
 });

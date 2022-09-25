@@ -1,32 +1,14 @@
 import { EventLoop } from "../EventLoop";
+import { Heading, HEADING_ORDER, LocationMonitor, LocationMonitorStatus } from "../LocationMonitor";
+import Logger from "../Logger";
+import { TurtleEvent, TurtleReason } from "./Consts";
 import { refuel } from "./routines/refuel";
 
 const CHECK_FUEL_INTERVAL = 10; // seconds
 const MIN_FUEL_RATIO = 0.2;
 
-enum TurtleReason {
-  OUT_OF_FUEL = 'Out of fuel',
-}
-
-export enum TurtleEvent {
-  moved = 'moved',
-  moved_up = 'moved:up',
-  moved_down = 'moved:down',
-  moved_back = 'moved:back',
-  moved_forward = 'moved:forward',
-  turned = 'turned',
-  turned_left = 'turned:left',
-  turned_right = 'turned:right',
-  out_of_fuel = 'out_of_fuel',
-  check_fuel = 'check_fuel',
-  dig = 'dig',
-  dig_forward = 'dig:forward',
-  dig_up = 'dig:up',
-  dig_down = 'dig:down',
-}
-
 EventLoop.on(TurtleEvent.out_of_fuel, () => {
-  console.log("OH NO WE ARE OUT OF FUEL. THIS IS FROM AN EVENT.");
+  Logger.error("OH NO WE ARE OUT OF FUEL. THIS IS FROM AN EVENT.");
   return false;
 });
 
@@ -48,16 +30,16 @@ class __TurtleController__ {
   }
 
   checkFuel() {
-    console.log("Check fuel called");
+    Logger.debug("Check fuel called");
     const fuelLevel = turtle.getFuelLevel();
     const fuelLimit = turtle.getFuelLimit();
     if (fuelLevel === 'unlimited' || fuelLimit === 'unlimited') return;
     if (fuelLevel / fuelLimit < MIN_FUEL_RATIO) {
       const success = refuel();
       if (!success) {
-        console.log ("Failed to refuel");
+        Logger.error("Failed to refuel");
         // this is where we would switch to finding fuel
-        // EventLoop.emit(TurtleEvent.out_of_fuel); // might still have some fuel left
+        EventLoop.emit(TurtleEvent.out_of_fuel); // might still have some fuel left
       }
     }
   }
@@ -162,6 +144,24 @@ class __TurtleController__ {
   }
   placeDown(assertSuccess: boolean = true): boolean {
     return this._place('down', assertSuccess);
+  }
+
+  rotate(heading: Heading, assertSuccess: boolean = true): boolean {
+    if (LocationMonitor.status !== LocationMonitorStatus.ACQUIRED) {
+      if (assertSuccess) throw new Error(`Unable to rotate towards heading ${heading}, LocationMonitorStatus is ${LocationMonitor.status}`);
+      return false;
+    }
+    if (LocationMonitor.heading === heading) return true;
+
+    const currentHeadingIdx = HEADING_ORDER.indexOf(LocationMonitor.heading);
+    const targetHeadingIdx = HEADING_ORDER.indexOf(heading);
+    if ((currentHeadingIdx - 1 + HEADING_ORDER.length) % HEADING_ORDER.length === targetHeadingIdx) {
+      return this.turnLeft(assertSuccess);
+    } else if ((currentHeadingIdx + 1) % HEADING_ORDER.length === targetHeadingIdx) {
+      return this.turnRight(assertSuccess);
+    } else {
+      return this.turnRight(assertSuccess) && this.turnRight(assertSuccess);
+    }
   }
 }
 

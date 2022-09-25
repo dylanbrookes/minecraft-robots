@@ -1,5 +1,5 @@
-import { TurtlePosition } from "../../LocationMonitor";
-import { PathfinderBehaviour } from "./PathfinderBehaviour";
+import { TurtlePosition } from "../Consts";
+import { NaivePathfinderBehaviour } from "./NaivePathfinderBehaviour";
 import { TurtleBehaviour } from "./TurtleBehaviour";
 
 export class RefuelBehaviour implements TurtleBehaviour {
@@ -11,7 +11,7 @@ export class RefuelBehaviour implements TurtleBehaviour {
     //  - broadcast a lookup for fuel resources?
     const targetPos: TurtlePosition = [0,0,0];
     // pathfind to it
-    const arrived = (new PathfinderBehaviour(targetPos)).step();
+    const arrived = (new NaivePathfinderBehaviour(targetPos)).step();
     if (arrived) {
       // take fuel
       // refuel

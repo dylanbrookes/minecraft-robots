@@ -19,7 +19,7 @@ export default class PriorityQueue<T> {
   isEmpty(): boolean {
     return this.size() === 0;
   }
-  peek(): T {
+  peek(): T | undefined {
     return this.heap[top];
   }
   push(...values: T[]): number {
@@ -29,7 +29,7 @@ export default class PriorityQueue<T> {
     });
     return this.size();
   }
-  pop(): T {
+  pop(): T | undefined {
     const poppedValue = this.peek();
     const bottom = this.size() - 1;
     if (bottom > top) {
@@ -39,7 +39,7 @@ export default class PriorityQueue<T> {
     this._siftDown();
     return poppedValue;
   }
-  replace(value: T): T {
+  replace(value: T): T | undefined {
     const replacedValue = this.peek();
     this.heap[top] = value;
     this._siftDown();

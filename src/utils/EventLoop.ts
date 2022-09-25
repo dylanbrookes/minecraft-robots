@@ -1,3 +1,5 @@
+import Logger from "./Logger";
+
 type EventCallback = (...ev: any[]) => boolean | void; // return true to be removed
 
 type EventOptions = {
@@ -55,7 +57,7 @@ class Routine {
 }
 
 class __EventLoop__ {
-  private static TICK_TIMEOUT = 1; // 0.01;
+  private static TICK_TIMEOUT = 0.01; // 0.01;
   private running: boolean = false;
   private events: {
     [name: string]: EventRecord[];
@@ -179,7 +181,12 @@ class __EventLoop__ {
     // do it this way to wait for async ticks to finish before starting the next
     os.queueEvent('_tick', 0);
     this.on('_tick', (n: number) => {
-      tick?.();
+      try {
+        tick?.();
+      } catch (e) {
+        Logger.error('Error in EventLoop tick:', e);
+        throw e;
+      }
       // might want to sleep here
       sleep(__EventLoop__.TICK_TIMEOUT);
       os.queueEvent('_tick', n + 1);

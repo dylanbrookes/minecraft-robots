@@ -1,3 +1,4 @@
+import Logger from "../Logger";
 import PriorityQueue from "../PriorityQueue";
 import { TurtleBehaviour } from "./behaviours/TurtleBehaviour";
 
@@ -18,10 +19,9 @@ class __BehaviourStack__ {
   }
 
   step() {
-    // console.log("BehaviourStack step...", this.priorityQueue.size());
     const currentBehaviour = this.priorityQueue.peek();
     if (!this.lastBehaviour && currentBehaviour) {
-      console.log("Found something to do!");
+      Logger.info("Found something to do!");
     } else if (currentBehaviour !== this.lastBehaviour) {
       // this happens when a new behaviour is added that takes priority
       // do the behaviour switching things ...
@@ -44,7 +44,7 @@ class __BehaviourStack__ {
       this.priorityQueue.pop();
 
       if (this.priorityQueue.size() === 0) {
-        console.log("Nothing to do...");
+        Logger.info("Nothing to do...");
       }
     }
   }

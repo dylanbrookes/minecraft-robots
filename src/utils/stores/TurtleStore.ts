@@ -1,4 +1,4 @@
-import { TurtlePosition } from "../LocationMonitor";
+import { TurtlePosition } from "../turtle/Consts";
 
 export enum TurtleStatus {
   OFFLINE = 'OFFLINE',
