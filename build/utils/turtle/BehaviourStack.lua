@@ -1,5 +1,7 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
 local ____PriorityQueue = require("utils.PriorityQueue")
 local PriorityQueue = ____PriorityQueue.default
 local __BehaviourStack__ = __TS__Class()
@@ -19,7 +21,7 @@ end
 function __BehaviourStack__.prototype.step(self)
     local currentBehaviour = self.priorityQueue:peek()
     if not self.lastBehaviour and currentBehaviour then
-        print("Found something to do!")
+        Logger:info("Found something to do!")
     elseif currentBehaviour ~= self.lastBehaviour then
     end
     self.lastBehaviour = currentBehaviour
@@ -37,7 +39,7 @@ function __BehaviourStack__.prototype.step(self)
         end
         self.priorityQueue:pop()
         if self.priorityQueue:size() == 0 then
-            print("Nothing to do...")
+            Logger:info("Nothing to do...")
         end
     end
 end

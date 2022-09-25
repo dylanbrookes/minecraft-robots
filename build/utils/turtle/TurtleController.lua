@@ -2,31 +2,23 @@
 local ____exports = {}
 local ____EventLoop = require("utils.EventLoop")
 local EventLoop = ____EventLoop.EventLoop
+local ____LocationMonitor = require("utils.LocationMonitor")
+local HEADING_ORDER = ____LocationMonitor.HEADING_ORDER
+local LocationMonitor = ____LocationMonitor.LocationMonitor
+local LocationMonitorStatus = ____LocationMonitor.LocationMonitorStatus
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
+local ____Consts = require("utils.turtle.Consts")
+local TurtleEvent = ____Consts.TurtleEvent
+local TurtleReason = ____Consts.TurtleReason
 local ____refuel = require("utils.turtle.routines.refuel")
 local refuel = ____refuel.refuel
 local CHECK_FUEL_INTERVAL = 10
 local MIN_FUEL_RATIO = 0.2
-local TurtleReason = TurtleReason or ({})
-TurtleReason.OUT_OF_FUEL = "Out of fuel"
-____exports.TurtleEvent = TurtleEvent or ({})
-____exports.TurtleEvent.moved = "moved"
-____exports.TurtleEvent.moved_up = "moved:up"
-____exports.TurtleEvent.moved_down = "moved:down"
-____exports.TurtleEvent.moved_back = "moved:back"
-____exports.TurtleEvent.moved_forward = "moved:forward"
-____exports.TurtleEvent.turned = "turned"
-____exports.TurtleEvent.turned_left = "turned:left"
-____exports.TurtleEvent.turned_right = "turned:right"
-____exports.TurtleEvent.out_of_fuel = "out_of_fuel"
-____exports.TurtleEvent.check_fuel = "check_fuel"
-____exports.TurtleEvent.dig = "dig"
-____exports.TurtleEvent.dig_forward = "dig:forward"
-____exports.TurtleEvent.dig_up = "dig:up"
-____exports.TurtleEvent.dig_down = "dig:down"
 EventLoop:on(
-    ____exports.TurtleEvent.out_of_fuel,
+    TurtleEvent.out_of_fuel,
     function()
-        print("OH NO WE ARE OUT OF FUEL. THIS IS FROM AN EVENT.")
+        Logger:error("OH NO WE ARE OUT OF FUEL. THIS IS FROM AN EVENT.")
         return false
     end
 )
@@ -43,9 +35,9 @@ function __TurtleController__.prototype.register(self)
         )
     end
     self.registered = true
-    EventLoop:emitRepeat(____exports.TurtleEvent.check_fuel, CHECK_FUEL_INTERVAL)
+    EventLoop:emitRepeat(TurtleEvent.check_fuel, CHECK_FUEL_INTERVAL)
     EventLoop:on(
-        ____exports.TurtleEvent.check_fuel,
+        TurtleEvent.check_fuel,
         function()
             self:checkFuel()
             return false
@@ -54,7 +46,7 @@ function __TurtleController__.prototype.register(self)
     self:checkFuel()
 end
 function __TurtleController__.prototype.checkFuel(self)
-    print("Check fuel called")
+    Logger:debug("Check fuel called")
     local fuelLevel = turtle.getFuelLevel()
     local fuelLimit = turtle.getFuelLimit()
     if fuelLevel == "unlimited" or fuelLimit == "unlimited" then
@@ -63,7 +55,8 @@ function __TurtleController__.prototype.checkFuel(self)
     if fuelLevel / fuelLimit < MIN_FUEL_RATIO then
         local success = refuel(nil)
         if not success then
-            print("Failed to refuel")
+            Logger:error("Failed to refuel")
+            EventLoop:emit(TurtleEvent.out_of_fuel)
         end
     end
 end
@@ -74,7 +67,7 @@ function __TurtleController__.prototype.checkActionResult(self, assertSuccess, _
     reason = ____bindingPattern0[2]
     if not success then
         if reason == TurtleReason.OUT_OF_FUEL then
-            EventLoop:emit(____exports.TurtleEvent.out_of_fuel)
+            EventLoop:emit(TurtleEvent.out_of_fuel)
         end
         if assertSuccess then
             error(
@@ -104,7 +97,7 @@ function __TurtleController__.prototype.move(self, direction, n, assertSuccess)
             if not success then
                 break
             else
-                EventLoop:emit(____exports.TurtleEvent.moved, direction)
+                EventLoop:emit(TurtleEvent.moved, direction)
                 EventLoop:emit("moved:" .. direction, direction)
             end
             i = i + 1
@@ -121,7 +114,7 @@ function __TurtleController__.prototype.turn(self, direction, assertSuccess)
         {turtle[direction == "left" and "turnLeft" or "turnRight"]()}
     )
     if success then
-        EventLoop:emit(____exports.TurtleEvent.turned, direction)
+        EventLoop:emit(TurtleEvent.turned, direction)
         EventLoop:emit("turned:" .. direction, direction)
     end
     return success
@@ -135,7 +128,7 @@ function __TurtleController__.prototype._dig(self, direction, assertSuccess)
         {turtle[direction == "forward" and "dig" or (direction == "up" and "digUp" or "digDown")]()}
     )
     if success then
-        EventLoop:emit(____exports.TurtleEvent.dig, direction)
+        EventLoop:emit(TurtleEvent.dig, direction)
         EventLoop:emit("dig:" .. direction, direction)
     end
     return success
@@ -149,7 +142,7 @@ function __TurtleController__.prototype._place(self, direction, assertSuccess)
         {turtle[direction == "forward" and "place" or (direction == "up" and "placeUp" or "placeDown")]()}
     )
     if success then
-        EventLoop:emit(____exports.TurtleEvent.dig, direction)
+        EventLoop:emit(TurtleEvent.dig, direction)
         EventLoop:emit("dig:" .. direction, direction)
     end
     return success
@@ -249,6 +242,35 @@ function __TurtleController__.prototype.placeDown(self, assertSuccess)
         assertSuccess = true
     end
     return self:_place("down", assertSuccess)
+end
+function __TurtleController__.prototype.rotate(self, heading, assertSuccess)
+    if assertSuccess == nil then
+        assertSuccess = true
+    end
+    if LocationMonitor.status ~= LocationMonitorStatus.ACQUIRED then
+        if assertSuccess then
+            error(
+                __TS__New(
+                    Error,
+                    (("Unable to rotate towards heading " .. tostring(heading)) .. ", LocationMonitorStatus is ") .. LocationMonitor.status
+                ),
+                0
+            )
+        end
+        return false
+    end
+    if LocationMonitor.heading == heading then
+        return true
+    end
+    local currentHeadingIdx = __TS__ArrayIndexOf(HEADING_ORDER, LocationMonitor.heading)
+    local targetHeadingIdx = __TS__ArrayIndexOf(HEADING_ORDER, heading)
+    if (currentHeadingIdx - 1 + #HEADING_ORDER) % #HEADING_ORDER == targetHeadingIdx then
+        return self:turnLeft(assertSuccess)
+    elseif (currentHeadingIdx + 1) % #HEADING_ORDER == targetHeadingIdx then
+        return self:turnRight(assertSuccess)
+    else
+        return self:turnRight(assertSuccess) and self:turnRight(assertSuccess)
+    end
 end
 ____exports.TurtleController = __TS__New(__TurtleController__)
 return ____exports

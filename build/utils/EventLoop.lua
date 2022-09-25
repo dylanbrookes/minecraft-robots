@@ -1,5 +1,7 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
 local Routine = __TS__Class()
 Routine.name = "Routine"
 function Routine.prototype.____constructor(self, fn)
@@ -169,9 +171,20 @@ function __EventLoop__.prototype.run(self, tick)
     self:on(
         "_tick",
         function(____, n)
-            local ____tick_result_4 = tick
-            if ____tick_result_4 ~= nil then
-                ____tick_result_4 = ____tick_result_4(nil)
+            do
+                local function ____catch(e)
+                    Logger:error("Error in EventLoop tick:", e)
+                    error(e, 0)
+                end
+                local ____try, ____hasReturned = pcall(function()
+                    local ____tick_result_4 = tick
+                    if ____tick_result_4 ~= nil then
+                        ____tick_result_4 = ____tick_result_4(nil)
+                    end
+                end)
+                if not ____try then
+                    ____catch(____hasReturned)
+                end
             end
             sleep(__EventLoop__.TICK_TIMEOUT)
             os.queueEvent("_tick", n + 1)
@@ -203,6 +216,6 @@ function __EventLoop__.prototype.run(self, tick)
         end
     end
 end
-__EventLoop__.TICK_TIMEOUT = 1
+__EventLoop__.TICK_TIMEOUT = 0.01
 ____exports.EventLoop = __TS__New(__EventLoop__)
 return ____exports

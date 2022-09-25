@@ -2,8 +2,10 @@
 local ____exports = {}
 local ____EventLoop = require("utils.EventLoop")
 local EventLoop = ____EventLoop.EventLoop
-local ____TurtleController = require("utils.turtle.TurtleController")
-local TurtleEvent = ____TurtleController.TurtleEvent
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
+local ____Consts = require("utils.turtle.Consts")
+local TurtleEvent = ____Consts.TurtleEvent
 ____exports.LocationMonitorStatus = LocationMonitorStatus or ({})
 ____exports.LocationMonitorStatus.UNKNOWN = "UNKNOWN"
 ____exports.LocationMonitorStatus.POS_ONLY = "POS_ONLY"
@@ -62,7 +64,7 @@ __TS__SetDescriptor(
         if not self.hasPosition then
             return nil
         end
-        return self.pos
+        return {table.unpack(self.pos)}
     end},
     true
 )
@@ -107,13 +109,13 @@ function __LocationMonitor__.prototype.register(self)
 end
 function __LocationMonitor__.prototype.checkPosition(self)
     if self._status == ____exports.LocationMonitorStatus.UNKNOWN then
-        print("Retrieving location...")
+        Logger:info("Retrieving location...")
         local pos = {gps.locate(3)}
         if not pos or pos[1] == nil then
-            print("Failed to retrieve location")
+            Logger:warn("Failed to retrieve location")
             self._status = ____exports.LocationMonitorStatus.ERROR
         else
-            print(
+            Logger:info(
                 "Retrieved location:",
                 table.unpack(pos)
             )
@@ -122,12 +124,13 @@ function __LocationMonitor__.prototype.checkPosition(self)
         end
         return
     elseif not __TS__ArrayIncludes({____exports.LocationMonitorStatus.POS_ONLY, ____exports.LocationMonitorStatus.ACQUIRED}, self._status) then
-        print("Skipping gps check, status is", self._status)
+        Logger:debug("Skipping gps check, status is", self._status)
         return
     end
+    Logger:debug("Checking gps position...")
     local pos = {gps.locate(3)}
     if not pos or pos[1] == nil then
-        print("FAILED: could not retrieve gps position for check")
+        Logger:error("Could not retrieve gps position for check")
         return
     end
     if self._heading == ____exports.Heading.SYNCING then
@@ -154,19 +157,19 @@ function __LocationMonitor__.prototype.checkPosition(self)
             end
             self.pos = pos
             self._status = ____exports.LocationMonitorStatus.ACQUIRED
-            print("acquired location and heading")
-            print(
+            Logger:debug("acquired location and heading")
+            Logger:debug(
                 "location:",
                 table.unpack(self.pos)
             )
-            print("heading:", self._heading)
+            Logger:debug("heading:", self._heading)
         else
-            print("Could not determine heading, pos diff is not 1 (maybe we moved backwards? I didn't implement heading calculation for that 🙂):")
-            print(
+            Logger:warn("Could not determine heading, pos diff is not 1 (maybe we moved backwards? I didn't implement heading calculation for that 🙂):")
+            Logger:debug(
                 "oldPos:",
                 table.unpack(oldPos)
             )
-            print(
+            Logger:debug(
                 "pos:",
                 table.unpack(pos)
             )
@@ -175,12 +178,12 @@ function __LocationMonitor__.prototype.checkPosition(self)
         end
     end
     if pos[1] ~= self.pos[1] or pos[2] ~= self.pos[2] or pos[3] ~= self.pos[3] then
-        print("GPS POSITION MISMATCH, will update")
-        print(
+        Logger:warn("GPS POSITION MISMATCH, will update")
+        Logger:warn(
             "Our position:",
             table.unpack(self.pos)
         )
-        print(
+        Logger:warn(
             "GPS pos:",
             table.unpack(pos)
         )

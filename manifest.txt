@@ -1,4 +1,4 @@
-1663985686
+1664065145
 /build/models/Miner.lua
 /build/bin/tsh.lua
 /build/bin/turtle.lua
@@ -11,6 +11,7 @@
 /build/lualib_bundle.lua
 /build/require_stub.lua
 /build/utils/Consts.lua
+/build/utils/Logger.lua
 /build/utils/PriorityQueue.lua
 /build/utils/clients/JobServerClient.lua
 /build/utils/clients/TurtleRegistryClient.lua
@@ -25,10 +26,12 @@
 /build/utils/ui/FloorMonitorUI.lua
 /build/utils/ui/BulletinBoardUI.lua
 /build/utils/ui/GifUI.lua
+/build/utils/turtle/Consts.lua
 /build/utils/turtle/TurtleController.lua
 /build/utils/turtle/BehaviourStack.lua
 /build/utils/turtle/routines/refuel.lua
 /build/utils/turtle/behaviours/TurtleBehaviour.lua
+/build/utils/turtle/behaviours/NaivePathfinderBehaviour.lua
 /build/utils/turtle/behaviours/PathfinderBehaviour.lua
 /build/utils/turtle/behaviours/RefuelBehaviour.lua
 /build/utils/findProtocolHostId.lua

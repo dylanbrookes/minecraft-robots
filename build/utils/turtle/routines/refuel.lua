@@ -1,7 +1,9 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
 function ____exports.refuel(self)
-    print("Refueling")
+    Logger:info("Refueling")
     local startSlot = turtle.getSelectedSlot()
     local tries = 16
     local refuelled = false
@@ -13,7 +15,7 @@ function ____exports.refuel(self)
                 tries = tries - 1
             end
         end
-    until not (not refuelled and tries > 16)
+    until not (not refuelled and tries > 0)
     turtle.select(startSlot)
     return refuelled
 end

@@ -7,6 +7,10 @@ local ____TurtleController = require("utils.turtle.TurtleController")
 local TurtleController = ____TurtleController.TurtleController
 local ____TurtleService = require("utils.services.TurtleService")
 local TurtleService = ____TurtleService.TurtleService
+local ____LocationMonitor = require("utils.LocationMonitor")
+local LocationMonitor = ____LocationMonitor.LocationMonitor
+local ____BehaviourStack = require("utils.turtle.BehaviourStack")
+local BehaviourStack = ____BehaviourStack.BehaviourStack
 local modem = peripheral.find("modem")
 if not modem then
     error(
@@ -18,6 +22,8 @@ local modemName = peripheral.getName(modem)
 rednet.open(modemName)
 TurtleController:register()
 TurtleService:register()
+LocationMonitor:register()
 EventLoop:run(function()
+    BehaviourStack:step()
 end)
 return ____exports
