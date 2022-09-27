@@ -1,10 +1,14 @@
 import { HOSTNAME, TURTLE_PROTOCOL_NAME } from "../Consts";
 import { EventLoop } from "../EventLoop";
+import Logger from "../Logger";
+import { TurtleStatusUpdate } from "../stores/TurtleStore";
 import { PathfinderBehaviour } from "../turtle/behaviours/PathfinderBehaviour";
 import { BehaviourStack } from "../turtle/BehaviourStack";
+import getStatusUpdate from "../turtle/getStatusUpdate";
+import JobProcessor from "../turtle/JobProcessor";
 import { TurtleController } from "../turtle/TurtleController";
 
-export enum TurtleServiceCommands {
+export enum TurtleCommands {
   forward = 'forward',
   back = 'back',
   turnLeft = 'turnLeft',
@@ -16,6 +20,9 @@ export enum TurtleServiceCommands {
   dig = 'dig',
   digUp = 'digUp',
   digDown = 'digDown',
+  addJob = 'addJob',
+  status = 'status',
+  inspect = 'inspect',
 }
 
 class __TurtleService__ {
@@ -26,7 +33,7 @@ class __TurtleService__ {
     if (this.registered) throw new Error("TurtleService is already registered");
     this.registered = true;
 
-    console.log("Registering Turtle Service");
+    Logger.info("Registering Turtle Service");
     rednet.host(TURTLE_PROTOCOL_NAME, HOSTNAME);
     EventLoop.on('rednet_message', (sender: number, message: any, protocol: string | null) => {
       if (protocol === TURTLE_PROTOCOL_NAME) {
@@ -37,36 +44,50 @@ class __TurtleService__ {
   }
 
   onMessage(message: any, sender: number) {
-    // console.log("GOT MESSAGE", "from sender", sender, textutils.serialize(message));
+    Logger.debug("GOT MESSAGE from sender", sender, message);
     if ('cmd' in message) {
       switch (message.cmd) {
-        case TurtleServiceCommands.forward:
-        case TurtleServiceCommands.back:
-        case TurtleServiceCommands.turnLeft:
-        case TurtleServiceCommands.turnRight:
-        case TurtleServiceCommands.up:
-        case TurtleServiceCommands.down:
-        case TurtleServiceCommands.dig:
-        case TurtleServiceCommands.digUp:
-        case TurtleServiceCommands.digDown:
+        case TurtleCommands.forward:
+        case TurtleCommands.back:
+        case TurtleCommands.turnLeft:
+        case TurtleCommands.turnRight:
+        case TurtleCommands.up:
+        case TurtleCommands.down:
+        case TurtleCommands.dig:
+        case TurtleCommands.digUp:
+        case TurtleCommands.digDown:
           if (message.cmd in TurtleController
             // @ts-ignore
             && typeof TurtleController[message.cmd] === 'function') TurtleController[message.cmd](...(message.params || []));
           else throw new Error(`Method ${message.cmd} does not exist on TurtleController`);
           break;
-        case TurtleServiceCommands.moveTo:
-          console.log("Adding pathfinder to", ...message.params);
+        case TurtleCommands.inspect:
+          rednet.send(sender, { result: turtle.inspect() }, TURTLE_PROTOCOL_NAME);
+          break;
+        case TurtleCommands.moveTo:
+          Logger.info("Adding pathfinder to", ...message.params);
           BehaviourStack.push(new PathfinderBehaviour(message.params));
           break;
-        case TurtleServiceCommands.exec:
-          console.log("Running command:", ...message.params);
+        case TurtleCommands.exec:
+          Logger.info("Running command:", ...message.params);
           shell.run(...message.params);
           break;
+        case TurtleCommands.addJob:
+          const job = message.params;
+          Logger.info("Adding job with params:", job);
+          JobProcessor.add(job);
+          rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
+          break;
+        case TurtleCommands.status:
+          const status = getStatusUpdate();
+          Logger.info("Received status request, sending:", status);
+          rednet.send(sender, { ok: true, status }, TURTLE_PROTOCOL_NAME);
+          break;
         default:
-          console.log("invalid command", message.cmd);
+          Logger.error("invalid command", message.cmd);
       }
     } else {
-      console.log("idk what to do with this", textutils.serialize(message));
+      Logger.error("idk what to do with this", textutils.serialize(message));
     }
   }
 }

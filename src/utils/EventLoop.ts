@@ -46,7 +46,11 @@ class Routine {
     if (!this.co) throw new Error('Cannot resume a dead routine ' + this.id);
     const result = coroutine.resume(this.co, event, ...params);
     if (result[0] === false) {
-      throw new Error(`Error in routine ${this.id}: ${textutils.serialize(result[1])}`);
+      if (result[1] === "Terminated") {
+        Logger.error(`Routine ${this.id} terminated`);
+      } else {
+        throw new Error(`Error in routine ${this.id}: ${textutils.serialize(result[1])}`);
+      }
     }
 
     if (coroutine.status(this.co) === 'dead') {
@@ -64,7 +68,7 @@ class __EventLoop__ {
   } = {};
   private routines = new Map<number, Routine>();
 
-  on(name: string, cb: EventCallback, options: EventOptions = {}) {
+  on(name: string, cb: EventCallback, options: EventOptions = {}): () => boolean {
     if (!(name in this.events)) {
       this.events[name] = [];
     }
@@ -74,18 +78,22 @@ class __EventLoop__ {
       name,
       ...options,
     });
+
+    return this.off.bind(this, name, cb);
   }
 
   // idk if this works
   off(name: string, cb: EventCallback): boolean {
+    // Logger.info("Removing cb for", name);
     if (!(name in this.events)) return false;
     const idx = this.events[name].findIndex((ev) => ev.cb === cb);
     if (idx === -1) return false;
-    this.events[name].splice(idx, 1);
+    this.events[name][idx].cb = () => true; // will be reaped on the next event emission
     return true;
   }
 
   emit(name: string, ...params: any[]) {
+    if (!this.running) throw new Error("Cannot emit events before starting event loop");
     if (!(name in this.events)) return;
 
     const cbsLeft: EventRecord[] = [];
@@ -141,14 +149,14 @@ class __EventLoop__ {
 
       if (!remove) cbsLeft.push(ev);
       else {
-        console.log("REMOVED EVENT LISTENER", name);
+        // console.log("REMOVED EVENT LISTENER", name);
       }
     }
-    if (this.events[name].length > startLen) {
-      const newCbs = this.events[name].slice(startLen);
-      console.log("Added", newCbs.length, "events that would have been missed", name);
-      cbsLeft.push(...newCbs);
-    }
+    // if (this.events[name].length > startLen) {
+    //   const newCbs = this.events[name].slice(startLen);
+    //   console.log("Added", newCbs.length, "events that would have been missed", name);
+    //   cbsLeft.push(...newCbs);
+    // }
     this.events[name] = cbsLeft;
   }
 
@@ -163,7 +171,7 @@ class __EventLoop__ {
     });
   }
 
-  setTimeout(cb: () => void, interval: number) {
+  setTimeout(cb: () => void, interval: number = 0) {
     let evTimer = os.startTimer(interval);
     this.on('timer', (id: number) => {
       if (id !== evTimer) return false;
@@ -196,8 +204,12 @@ class __EventLoop__ {
     }, { async: true });
 
     while (this.running) {
-      const [event, ...params] = os.pullEvent();
+      const [event, ...params] = os.pullEventRaw();
       if (!event) throw new Error("wtf why isn't there an event");
+      if (event === 'terminate') {
+        Logger.info('Terminate event received, shutting down in 1 second...');
+        this.setTimeout(() => this.running = false, 1);
+      }
       this.emit(event, ...params);
 
       // pass the event to routines

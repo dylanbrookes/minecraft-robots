@@ -1,7 +1,12 @@
 
+export enum TurtleBehaviourStatus {
+  INIT = 'INIT',
+  RUNNING = 'RUNNING',
+  PAUSED = 'PAUSED',
+  DONE = 'DONE',
+}
+
 export interface TurtleBehaviour {
-  // might also want to add some way for the behaviour to
-  // relay its state back to the control server (status string, behaviour name, progress, etc)
 
   /**
    * Used to prioritize behaviours.
@@ -13,9 +18,12 @@ export interface TurtleBehaviour {
    */
   readonly name: string;
 
+  status: TurtleBehaviourStatus;
+
   /**
    * Called for each step of the behaviour, should perform a single operation.
-   * @returns if the behaviour has completed
+   * @returns {true} if the behaviour has completed
+   * @returns {true} if the behaviour was skipped
    */
   step(): boolean | void;
 
@@ -38,4 +46,43 @@ export interface TurtleBehaviour {
    */
   onPause?(): any;
 
+  /**
+   * Called when the behaviour is completed (returns true from step)
+   */
+  onEnd?(): void;
+}
+
+export type TurtleBehaviourConstructor = {
+  new (...args: any[]): TurtleBehaviour;
+}
+
+export class TurtleBehaviourBase {
+  private _status: TurtleBehaviourStatus = TurtleBehaviourStatus.INIT;
+
+  get status(): TurtleBehaviourStatus {
+    return this._status;
+  }
+
+  set status(status: TurtleBehaviourStatus) {
+    switch (status) {
+      case TurtleBehaviourStatus.INIT:
+        throw new Error('Cannot transition to TurtleBehaviourStatus.INIT');
+      case TurtleBehaviourStatus.RUNNING:
+        switch (this._status) {
+          case TurtleBehaviourStatus.INIT:
+          case TurtleBehaviourStatus.PAUSED:
+            this._status = status;
+            break;
+          default:
+            throw new Error(`Cannot transition from ${this._status} to ${status}`);
+        } break;
+      case TurtleBehaviourStatus.PAUSED:
+      case TurtleBehaviourStatus.DONE:
+        if (this._status !== TurtleBehaviourStatus.RUNNING) {
+          throw new Error(`Cannot transition from ${this._status} to ${status}`);
+        }
+        this._status = status;
+        break;
+    }
+  }
 }

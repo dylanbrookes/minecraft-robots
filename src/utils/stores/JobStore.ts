@@ -1,3 +1,6 @@
+import Logger from "../Logger";
+import { JobType } from "../turtle/Consts";
+
 export enum JobStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -5,20 +8,22 @@ export enum JobStatus {
   HALTED = 'HALTED',
   DONE = 'DONE',
   CANCELLED = 'CANCELLED',
+  FAILED = 'FAILED',
 }
 
 export type JobRecord = {
   id: number,
-  type: string,
-  turtle_id?: Number,
-  params: string,
+  type: JobType,
+  turtle_id?: number,
+  args: any,
   resume_state?: string,
   resume_counter: number,
-  error?: string,
+  error?: any,
   status: JobStatus,
+  issuer_id: number, // host id which created the job
 }
 
-export class JobStore {
+export class JobStore implements Iterable<JobRecord> {
   static DEFAULT_STORE_FILE = '/.jobstore';
 
   private maxId: number = -1;
@@ -26,8 +31,15 @@ export class JobStore {
 
   constructor(private storeFile: string = JobStore.DEFAULT_STORE_FILE) {
     [this.jobs, this.maxId] = JobStore.LoadStoreFile(this.storeFile);
-    console.log("N jobs:", this.jobs.size);
-    console.log("Max ID:", this.maxId);
+    Logger.info("N jobs:", this.jobs.size);
+    Logger.info("Max ID:", this.maxId);
+  }
+
+  [Symbol.iterator](): IterableIterator<JobRecord> {
+    return this.jobs.values();
+  }
+  select(filter: (v: JobRecord) => boolean = () => true): JobRecord[] {
+    return [...this.jobs.values()].filter(filter);
   }
 
   // Returns jobs and the max job id
@@ -36,7 +48,7 @@ export class JobStore {
     let maxId = 0;
 
     if (!fs.exists(storeFile)) {
-      console.log("Starting without store file");
+      Logger.debug("Starting without store file");
       return [jobs, maxId];
     }
 
@@ -65,36 +77,32 @@ export class JobStore {
     return this.jobs.delete(id);
   }
 
-  updateById(id: number, changes: Partial<JobRecord>): JobRecord | undefined {
+  updateById(id: number, changes: Omit<Partial<JobRecord>, 'id'>): JobRecord | undefined {
     const job = this.jobs.get(id);
     if (!job) return undefined;
 
-    const newJob = {
-      ...job,
-      ...changes,
-    };
-    this.jobs.set(id, newJob);
+    Object.assign(job, changes);
 
-    return newJob;
+    return job;
   }
 
   list() {
-    console.log("Jobs:")
+    Logger.info("Jobs:")
     for (const job of this.jobs.values()) {
-      console.log(textutils.serializeJSON(job, true));
+      Logger.info(textutils.serializeJSON(job, true));
     }
   }
 
-  add() {
+  add(jobRecord: Pick<JobRecord, 'type' | 'args'>) {
     const job: JobRecord = {
       id: ++this.maxId,
-      params: '',
       resume_counter: 0,
       status: JobStatus.PENDING,
-      type: 'job_type',
       error: undefined,
       resume_state: undefined,
       turtle_id: undefined,
+      issuer_id: os.computerID(),
+      ...jobRecord,
     };
     this.jobs.set(job.id, job);
 
@@ -103,7 +111,7 @@ export class JobStore {
 
   save() {
     if (fs.exists(this.storeFile)) {
-      console.log("Overwriting store file", this.storeFile);
+      Logger.debug("Overwriting store file", this.storeFile);
     }
 
     const [handle, err] = fs.open(this.storeFile, 'w');
@@ -116,7 +124,7 @@ export class JobStore {
     }
     handle.flush();
     handle.close();
-    console.log("Saved to storefile", this.storeFile);
+    Logger.debug("Saved to storefile", this.storeFile);
   }
 
   toString(): string {

@@ -13,6 +13,9 @@ export default class PriorityQueue<T> {
 
   constructor(private comparator = (a: T, b: T) => a > b) { }
 
+  clear() {
+    this.heap = [];
+  }
   size(): number {
     return this.heap.length;
   }

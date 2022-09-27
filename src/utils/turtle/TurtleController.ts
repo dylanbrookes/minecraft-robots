@@ -1,49 +1,8 @@
 import { EventLoop } from "../EventLoop";
 import { Heading, HEADING_ORDER, LocationMonitor, LocationMonitorStatus } from "../LocationMonitor";
-import Logger from "../Logger";
 import { TurtleEvent, TurtleReason } from "./Consts";
-import { refuel } from "./routines/refuel";
-
-const CHECK_FUEL_INTERVAL = 10; // seconds
-const MIN_FUEL_RATIO = 0.2;
-
-EventLoop.on(TurtleEvent.out_of_fuel, () => {
-  Logger.error("OH NO WE ARE OUT OF FUEL. THIS IS FROM AN EVENT.");
-  return false;
-});
 
 class __TurtleController__ {
-  private registered = false;
-
-  register() {
-    if (this.registered) throw new Error("TurtleController is already registered");
-    this.registered = true;
-
-    EventLoop.emitRepeat(TurtleEvent.check_fuel, CHECK_FUEL_INTERVAL);
-    EventLoop.on(TurtleEvent.check_fuel, () => {
-      this.checkFuel();
-      return false;
-    });
-
-    // do it now
-    this.checkFuel();
-  }
-
-  checkFuel() {
-    Logger.debug("Check fuel called");
-    const fuelLevel = turtle.getFuelLevel();
-    const fuelLimit = turtle.getFuelLimit();
-    if (fuelLevel === 'unlimited' || fuelLimit === 'unlimited') return;
-    if (fuelLevel / fuelLimit < MIN_FUEL_RATIO) {
-      const success = refuel();
-      if (!success) {
-        Logger.error("Failed to refuel");
-        // this is where we would switch to finding fuel
-        EventLoop.emit(TurtleEvent.out_of_fuel); // might still have some fuel left
-      }
-    }
-  }
-
   private checkActionResult(assertSuccess: boolean, [success, reason]: [boolean, string | null]): boolean {
     if (!success) {
       if (reason === TurtleReason.OUT_OF_FUEL) {

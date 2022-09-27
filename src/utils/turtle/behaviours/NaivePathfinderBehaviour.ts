@@ -1,15 +1,17 @@
 import { Heading, HEADING_TO_XZ_VEC, LocationMonitor } from "../../LocationMonitor";
 import { TurtlePosition } from "../Consts";
 import { TurtleController } from "../TurtleController";
-import { TurtleBehaviour } from "./TurtleBehaviour";
+import { TurtleBehaviour, TurtleBehaviourBase } from "./TurtleBehaviour";
 
-export class NaivePathfinderBehaviour implements TurtleBehaviour {
+export class NaivePathfinderBehaviour extends TurtleBehaviourBase implements TurtleBehaviour {
   readonly name = 'pathfinding_naive';
 
   constructor(
     private targetPos: TurtlePosition,
     readonly priority = 1,
-  ) {}
+  ) {
+    super();
+  }
   
 
   step(): boolean | void {

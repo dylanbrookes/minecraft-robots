@@ -1,5 +1,8 @@
 import Logger from "../../Logger";
 
+/**
+ * Must be run async
+ */
 export function refuel(): boolean {
   Logger.info("Refueling");
   const startSlot = turtle.getSelectedSlot() as turtle.TurtleSlot;

@@ -1,11 +1,11 @@
+import { inspectHasTag, ItemTags } from "../../itemTags";
 import { Heading, HEADING_ORDER, HEADING_TO_XZ_VEC, LocationMonitor, LocationMonitorStatus } from "../../LocationMonitor";
 import Logger from "../../Logger";
 import PriorityQueue from "../../PriorityQueue";
-import { TurtlePosition } from "../Consts";
+import { cartesianDistance, positionsEqual, serializePosition, TurtlePosition } from "../Consts";
 import { TurtleController } from "../TurtleController";
-import { TurtleBehaviour } from "./TurtleBehaviour";
+import { TurtleBehaviour, TurtleBehaviourBase } from "./TurtleBehaviour";
 
-const positionsEqual = (a: TurtlePosition, b: TurtlePosition) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 const neighbors = (p: TurtlePosition): TurtlePosition[] => [
   ...HEADING_ORDER.map<TurtlePosition>((h) => [
     p[0] + HEADING_TO_XZ_VEC[h][0],
@@ -15,7 +15,7 @@ const neighbors = (p: TurtlePosition): TurtlePosition[] => [
   [p[0], p[1] + 1, p[2]],
   [p[0], p[1] - 1, p[2]],
 ];
-const serializePosition = (p: TurtlePosition) => p.join('-');
+
 const buildPathFromNode = (p: TurtlePosition, cameFrom: LuaMap<string, TurtlePosition>): TurtlePosition[] => {
   const path: TurtlePosition[] = [p];
   while (true) {
@@ -27,8 +27,6 @@ const buildPathFromNode = (p: TurtlePosition, cameFrom: LuaMap<string, TurtlePos
   }
   return path;
 }
-const cartesianDistance = (a: TurtlePosition, b: TurtlePosition): number => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
-const distance = (a: TurtlePosition, b: TurtlePosition): number => Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2);
 // sorta brute force but it works
 const getTargetHeading = (a: TurtlePosition, b: TurtlePosition): Heading => {
   for (const heading of HEADING_ORDER) {
@@ -42,7 +40,7 @@ const getTargetHeading = (a: TurtlePosition, b: TurtlePosition): Heading => {
   throw new Error(`Failed to get target heading from ${serializePosition(a)} to ${serializePosition(b)}`);
 }
 
-export class PathfinderBehaviour implements TurtleBehaviour {
+export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBehaviour {
   private static EPSILON = 5; // cost heuristic multiplier, incentivizes nearest points first to prevent backtracking
 
   readonly name = 'pathfinding';
@@ -55,12 +53,25 @@ export class PathfinderBehaviour implements TurtleBehaviour {
     private targetPos: TurtlePosition,
     readonly priority = 1,
   ) {
+    super();
     this.nodeQueue = new PriorityQueue((a, b) => PathfinderBehaviour.costHeuristic(b, targetPos) > PathfinderBehaviour.costHeuristic(a, targetPos));
   }
 
   private static costHeuristic(pos: TurtlePosition, target: TurtlePosition) {
     // return distance(pos, target) * PathfinderBehaviour.EPSILON;
     return cartesianDistance(pos, target);
+  }
+
+  onStart() {
+    Logger.info("pathfinder onStart")
+  }
+
+  onResume() {
+    Logger.info("Restarting pathfinder");
+    this.initialized = false;
+    this.nodeQueue.clear();
+    this.cameFrom = new LuaMap<string, TurtlePosition>();
+    this.gScore = new LuaMap<string, number>();
   }
 
   step(): boolean | void {
@@ -141,7 +152,9 @@ export class PathfinderBehaviour implements TurtleBehaviour {
       // move to next pos
       if (cartesianDistance(currentPos, nextPos) !== 1) throw new Error(`Next pos ${serializePosition(nextPos)} is not adjacent to current pos ${serializePosition(currentPos)}`);
       if (nextPos[1] > currentPos[1]) {
-        if (nextPosIsBestNode && turtle.inspectUp()[0]) {
+        const [occupied, info] = turtle.inspectUp();
+        // just wait if occupied by another turtle
+        if (nextPosIsBestNode && occupied && !inspectHasTag(info, ItemTags.turtle)) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
           return;
@@ -151,7 +164,8 @@ export class PathfinderBehaviour implements TurtleBehaviour {
           sleep(5);
         }
       } else if (nextPos[1] < currentPos[1]) {
-        if (nextPosIsBestNode && turtle.inspectDown()[0]) {
+        const [occupied, info] = turtle.inspectDown();
+        if (nextPosIsBestNode && occupied && !inspectHasTag(info, ItemTags.turtle)) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
           return;
@@ -164,7 +178,8 @@ export class PathfinderBehaviour implements TurtleBehaviour {
         const targetHeading = getTargetHeading(currentPos, nextPos);
         Logger.debug(`moving ${targetHeading}`);
         TurtleController.rotate(targetHeading);
-        if (nextPosIsBestNode && turtle.inspect()[0]) {
+        const [occupied, info] = turtle.inspect();
+        if (nextPosIsBestNode && occupied && !inspectHasTag(info, ItemTags.turtle)) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
           return;

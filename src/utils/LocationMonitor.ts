@@ -73,14 +73,14 @@ class __LocationMonitor__ {
     if (this.registered) throw new Error("LocationMonitor is already registered");
     this.registered = true;
 
-    console.log("Registering Location Monitor");
+    Logger.info("Registering Location Monitor");
     for (const event of RELEVANT_EVENTS) {
       EventLoop.on(event, () => this.onMove(event));
     }
 
     EventLoop.on('check_position', () => this.checkPosition(), { async: true });
     EventLoop.emitRepeat('check_position', 10);
-    EventLoop.emit('check_position');
+    EventLoop.setTimeout(() => EventLoop.emit('check_position'));
   }
 
   /**

@@ -1,6 +1,6 @@
 import Logger from "../Logger";
 import PriorityQueue from "../PriorityQueue";
-import { TurtleBehaviour } from "./behaviours/TurtleBehaviour";
+import { TurtleBehaviour, TurtleBehaviourStatus } from "./behaviours/TurtleBehaviour";
 
 class __BehaviourStack__ {
   private priorityQueue = new PriorityQueue<TurtleBehaviour>(__BehaviourStack__.CompareBehaviourPriority);
@@ -22,11 +22,22 @@ class __BehaviourStack__ {
     const currentBehaviour = this.priorityQueue.peek();
     if (!this.lastBehaviour && currentBehaviour) {
       Logger.info("Found something to do!");
-    } else if (currentBehaviour !== this.lastBehaviour) {
+    }
+
+    if (currentBehaviour && currentBehaviour !== this.lastBehaviour) {
+      if (currentBehaviour.status === TurtleBehaviourStatus.INIT) {
+        currentBehaviour.onStart?.();
+      } else {
+        currentBehaviour.onResume?.();
+      }
+      currentBehaviour.status = TurtleBehaviourStatus.RUNNING;
+    }
+    
+    if (this.lastBehaviour && currentBehaviour !== this.lastBehaviour) {
       // this happens when a new behaviour is added that takes priority
       // do the behaviour switching things ...
-      // pause last behaviour
-      // start current behaviour
+      this.lastBehaviour.onPause?.();
+      this.lastBehaviour.status = TurtleBehaviourStatus.PAUSED;
     }
 
     this.lastBehaviour = currentBehaviour;
@@ -37,6 +48,9 @@ class __BehaviourStack__ {
     const done = currentBehaviour.step();
 
     if (done) {
+      currentBehaviour.status = TurtleBehaviourStatus.DONE;
+      currentBehaviour.onEnd?.();
+
       this.lastBehaviour = undefined;
       if (this.priorityQueue.peek() !== currentBehaviour) {
         throw new Error("Failed to finish behaviour, priority queue behaviour is not the current behaviour and idk how to remove any element :(");

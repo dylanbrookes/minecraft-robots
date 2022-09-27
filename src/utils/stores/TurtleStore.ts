@@ -1,3 +1,4 @@
+import Logger from "../Logger";
 import { TurtlePosition } from "../turtle/Consts";
 
 export enum TurtleStatus {
@@ -6,33 +7,40 @@ export enum TurtleStatus {
   BUSY = 'BUSY',
 }
 
+export type TurtleStatusUpdate = {
+  status: TurtleStatus,
+  location?: TurtlePosition,
+  currentBehaviour?: string,
+}
+
 export type TurtleRecord = {
   id: number, // the actual computer ID
   label: string,
-  status: TurtleStatus,
-  currentBehaviour?: string,
-  location?: TurtlePosition,
   registeredAt: number, // epoch
+  lastKnownLocation?: TurtlePosition,
   lastSeen: number,
-}
+} & TurtleStatusUpdate;
 
 // Keeps track of turtle statuses
 // TODO: Not very DRY a lot of logic copied from JobStore
-export default class TurtleStore {
+export default class TurtleStore implements Iterable<TurtleRecord> {
   static DEFAULT_STORE_FILE = '/.turtlestore';
 
   private turtles: Map<number, TurtleRecord>;
 
   constructor(private storeFile: string = TurtleStore.DEFAULT_STORE_FILE) {
     this.turtles = TurtleStore.LoadStoreFile(storeFile);
-    console.log("TurtleStore loaded with", this.turtles.size, "turtles");
+    Logger.info("TurtleStore loaded with", this.turtles.size, "turtles");
+  }
+  [Symbol.iterator](): IterableIterator<TurtleRecord> {
+    return this.turtles.values();
   }
 
   private static LoadStoreFile(storeFile: string): Map<number, TurtleRecord> {
     const turtles = new Map<number, TurtleRecord>();
 
     if (!fs.exists(storeFile)) {
-      console.log("Starting without turtle store file");
+      Logger.info("Starting without turtle store file");
       return turtles;
     }
 
@@ -55,7 +63,7 @@ export default class TurtleStore {
 
   save() {
     if (fs.exists(this.storeFile)) {
-      console.log("Overwriting store file", this.storeFile);
+      Logger.debug("Overwriting store file", this.storeFile);
     }
 
     const [handle, err] = fs.open(this.storeFile, 'w');
@@ -68,7 +76,7 @@ export default class TurtleStore {
     }
     handle.flush();
     handle.close();
-    console.log("Saved to storefile", this.storeFile);
+    Logger.debug("Saved to storefile", this.storeFile);
   }
 
   toString(): string {
@@ -85,8 +93,8 @@ export default class TurtleStore {
     return this.turtles.get(id);
   }
 
-  getAll(): TurtleRecord[] {
-    return [...this.turtles.values()];
+  select(filter: (v: TurtleRecord) => boolean = () => true): TurtleRecord[] {
+    return [...this.turtles.values ()].filter(filter);
   }
 
   count(): number {
@@ -102,16 +110,12 @@ export default class TurtleStore {
   }
 
   update(id: number, record: Partial<TurtleRecord>): TurtleRecord {
-    const og = this.turtles.get(id);
-    if (!og) {
+    const turtleRecord = this.turtles.get(id);
+    if (!turtleRecord) {
       throw new Error(`Can't update: TurtleRecord doesn't exist for id ${id}`);
     }
 
-    const newRecord = {
-      ...og,
-      ...record,
-    };
-    this.turtles.set(id, newRecord);
-    return newRecord;
+    Object.assign(turtleRecord, record);
+    return turtleRecord;
   }
 }
