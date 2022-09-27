@@ -1,4 +1,4 @@
-import { inspectHasTag, ItemTags } from "../../itemTags";
+import { inspectHasTag, ItemTags } from "../../ItemTags";
 import { Heading, HEADING_ORDER, HEADING_TO_XZ_VEC, LocationMonitor, LocationMonitorStatus } from "../../LocationMonitor";
 import Logger from "../../Logger";
 import PriorityQueue from "../../PriorityQueue";
