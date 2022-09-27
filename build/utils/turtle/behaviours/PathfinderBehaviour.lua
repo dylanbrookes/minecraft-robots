@@ -1,5 +1,8 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+local ____ItemTags = require("utils.ItemTags")
+local inspectHasTag = ____ItemTags.inspectHasTag
+local ItemTags = ____ItemTags.ItemTags
 local ____LocationMonitor = require("utils.LocationMonitor")
 local HEADING_ORDER = ____LocationMonitor.HEADING_ORDER
 local HEADING_TO_XZ_VEC = ____LocationMonitor.HEADING_TO_XZ_VEC
@@ -9,11 +12,14 @@ local ____Logger = require("utils.Logger")
 local Logger = ____Logger.default
 local ____PriorityQueue = require("utils.PriorityQueue")
 local PriorityQueue = ____PriorityQueue.default
+local ____Consts = require("utils.turtle.Consts")
+local cartesianDistance = ____Consts.cartesianDistance
+local positionsEqual = ____Consts.positionsEqual
+local serializePosition = ____Consts.serializePosition
 local ____TurtleController = require("utils.turtle.TurtleController")
 local TurtleController = ____TurtleController.TurtleController
-local function positionsEqual(____, a, b)
-    return a[1] == b[1] and a[2] == b[2] and a[3] == b[3]
-end
+local ____TurtleBehaviour = require("utils.turtle.behaviours.TurtleBehaviour")
+local TurtleBehaviourBase = ____TurtleBehaviour.TurtleBehaviourBase
 local function neighbors(____, p)
     local ____array_0 = __TS__SparseArrayNew(table.unpack(__TS__ArrayMap(
         HEADING_ORDER,
@@ -21,9 +27,6 @@ local function neighbors(____, p)
     )))
     __TS__SparseArrayPush(____array_0, {p[1], p[2] + 1, p[3]}, {p[1], p[2] - 1, p[3]})
     return {__TS__SparseArraySpread(____array_0)}
-end
-local function serializePosition(____, p)
-    return __TS__ArrayJoin(p, "-")
 end
 local function buildPathFromNode(____, p, cameFrom)
     local path = {p}
@@ -36,12 +39,6 @@ local function buildPathFromNode(____, p, cameFrom)
         path[#path + 1] = pp
     end
     return path
-end
-local function cartesianDistance(____, a, b)
-    return math.abs(a[1] - b[1]) + math.abs(a[2] - b[2]) + math.abs(a[3] - b[3])
-end
-local function distance(____, a, b)
-    return math.sqrt((a[1] - b[1]) ^ 2 + (a[2] - b[2]) ^ 2 + (a[3] - b[3]) ^ 2)
 end
 local function getTargetHeading(____, a, b)
     for ____, heading in ipairs(HEADING_ORDER) do
@@ -61,10 +58,12 @@ end
 ____exports.PathfinderBehaviour = __TS__Class()
 local PathfinderBehaviour = ____exports.PathfinderBehaviour
 PathfinderBehaviour.name = "PathfinderBehaviour"
+__TS__ClassExtends(PathfinderBehaviour, TurtleBehaviourBase)
 function PathfinderBehaviour.prototype.____constructor(self, targetPos, priority)
     if priority == nil then
         priority = 1
     end
+    TurtleBehaviourBase.prototype.____constructor(self)
     self.targetPos = targetPos
     self.priority = priority
     self.name = "pathfinding"
@@ -78,6 +77,16 @@ function PathfinderBehaviour.prototype.____constructor(self, targetPos, priority
 end
 function PathfinderBehaviour.costHeuristic(self, pos, target)
     return cartesianDistance(nil, pos, target)
+end
+function PathfinderBehaviour.prototype.onStart(self)
+    Logger:info("pathfinder onStart")
+end
+function PathfinderBehaviour.prototype.onResume(self)
+    Logger:info("Restarting pathfinder")
+    self.initialized = false
+    self.nodeQueue:clear()
+    self.cameFrom = {}
+    self.gScore = {}
 end
 function PathfinderBehaviour.prototype.step(self)
     local currentPos = LocationMonitor.position
@@ -169,7 +178,8 @@ function PathfinderBehaviour.prototype.step(self)
             )
         end
         if nextPos[2] > currentPos[2] then
-            if nextPosIsBestNode and turtle.inspectUp() then
+            local occupied, info = turtle.inspectUp()
+            if nextPosIsBestNode and occupied and not inspectHasTag(nil, info, ItemTags.turtle) then
                 self.nodeQueue:pop()
                 return
             end
@@ -178,7 +188,8 @@ function PathfinderBehaviour.prototype.step(self)
                 sleep(5)
             end
         elseif nextPos[2] < currentPos[2] then
-            if nextPosIsBestNode and turtle.inspectDown() then
+            local occupied, info = turtle.inspectDown()
+            if nextPosIsBestNode and occupied and not inspectHasTag(nil, info, ItemTags.turtle) then
                 self.nodeQueue:pop()
                 return
             end
@@ -190,7 +201,8 @@ function PathfinderBehaviour.prototype.step(self)
             local targetHeading = getTargetHeading(nil, currentPos, nextPos)
             Logger:debug("moving " .. tostring(targetHeading))
             TurtleController:rotate(targetHeading)
-            if nextPosIsBestNode and turtle.inspect() then
+            local occupied, info = turtle.inspect()
+            if nextPosIsBestNode and occupied and not inspectHasTag(nil, info, ItemTags.turtle) then
                 self.nodeQueue:pop()
                 return
             end

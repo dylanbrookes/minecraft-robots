@@ -6,59 +6,12 @@ local ____LocationMonitor = require("utils.LocationMonitor")
 local HEADING_ORDER = ____LocationMonitor.HEADING_ORDER
 local LocationMonitor = ____LocationMonitor.LocationMonitor
 local LocationMonitorStatus = ____LocationMonitor.LocationMonitorStatus
-local ____Logger = require("utils.Logger")
-local Logger = ____Logger.default
 local ____Consts = require("utils.turtle.Consts")
 local TurtleEvent = ____Consts.TurtleEvent
 local TurtleReason = ____Consts.TurtleReason
-local ____refuel = require("utils.turtle.routines.refuel")
-local refuel = ____refuel.refuel
-local CHECK_FUEL_INTERVAL = 10
-local MIN_FUEL_RATIO = 0.2
-EventLoop:on(
-    TurtleEvent.out_of_fuel,
-    function()
-        Logger:error("OH NO WE ARE OUT OF FUEL. THIS IS FROM AN EVENT.")
-        return false
-    end
-)
 local __TurtleController__ = __TS__Class()
 __TurtleController__.name = "__TurtleController__"
 function __TurtleController__.prototype.____constructor(self)
-    self.registered = false
-end
-function __TurtleController__.prototype.register(self)
-    if self.registered then
-        error(
-            __TS__New(Error, "TurtleController is already registered"),
-            0
-        )
-    end
-    self.registered = true
-    EventLoop:emitRepeat(TurtleEvent.check_fuel, CHECK_FUEL_INTERVAL)
-    EventLoop:on(
-        TurtleEvent.check_fuel,
-        function()
-            self:checkFuel()
-            return false
-        end
-    )
-    self:checkFuel()
-end
-function __TurtleController__.prototype.checkFuel(self)
-    Logger:debug("Check fuel called")
-    local fuelLevel = turtle.getFuelLevel()
-    local fuelLimit = turtle.getFuelLimit()
-    if fuelLevel == "unlimited" or fuelLimit == "unlimited" then
-        return
-    end
-    if fuelLevel / fuelLimit < MIN_FUEL_RATIO then
-        local success = refuel(nil)
-        if not success then
-            Logger:error("Failed to refuel")
-            EventLoop:emit(TurtleEvent.out_of_fuel)
-        end
-    end
 end
 function __TurtleController__.prototype.checkActionResult(self, assertSuccess, ____bindingPattern0)
     local reason

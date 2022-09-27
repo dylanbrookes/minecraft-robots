@@ -35,13 +35,17 @@ function Routine.prototype.resume(self, event, ...)
     end
     local result = {coroutine.resume(self.co, event, ...)}
     if result[1] == false then
-        error(
-            __TS__New(
-                Error,
-                (("Error in routine " .. tostring(self.id)) .. ": ") .. textutils.serialize(result[2])
-            ),
-            0
-        )
+        if result[2] == "Terminated" then
+            Logger:error(("Routine " .. tostring(self.id)) .. " terminated")
+        else
+            error(
+                __TS__New(
+                    Error,
+                    (("Error in routine " .. tostring(self.id)) .. ": ") .. textutils.serialize(result[2])
+                ),
+                0
+            )
+        end
     end
     if coroutine.status(self.co) == "dead" then
         self.co = nil
@@ -65,6 +69,7 @@ function __EventLoop__.prototype.on(self, name, cb, options)
     end
     local ____self_events_name_3 = self.events[name]
     ____self_events_name_3[#____self_events_name_3 + 1] = __TS__ObjectAssign({cb = cb, name = name}, options)
+    return __TS__FunctionBind(self.off, self, name, cb)
 end
 function __EventLoop__.prototype.off(self, name, cb)
     if not (self.events[name] ~= nil) then
@@ -77,11 +82,17 @@ function __EventLoop__.prototype.off(self, name, cb)
     if idx == -1 then
         return false
     end
-    __TS__ArraySplice(self.events[name], idx, 1)
+    self.events[name][idx + 1].cb = function() return true end
     return true
 end
 function __EventLoop__.prototype.emit(self, name, ...)
     local params = {...}
+    if not self.running then
+        error(
+            __TS__New(Error, "Cannot emit events before starting event loop"),
+            0
+        )
+    end
     if not (self.events[name] ~= nil) then
         return
     end
@@ -118,13 +129,7 @@ function __EventLoop__.prototype.emit(self, name, ...)
         if not remove then
             cbsLeft[#cbsLeft + 1] = ev
         else
-            print("REMOVED EVENT LISTENER", name)
         end
-    end
-    if #self.events[name] > startLen then
-        local newCbs = __TS__ArraySlice(self.events[name], startLen)
-        print("Added", #newCbs, "events that would have been missed", name)
-        __TS__ArrayPushArray(cbsLeft, newCbs)
     end
     self.events[name] = cbsLeft
 end
@@ -147,6 +152,9 @@ function __EventLoop__.prototype.emitRepeat(self, name, interval, ...)
     )
 end
 function __EventLoop__.prototype.setTimeout(self, cb, interval)
+    if interval == nil then
+        interval = 0
+    end
     local evTimer = os.startTimer(interval)
     self:on(
         "timer",
@@ -192,13 +200,23 @@ function __EventLoop__.prototype.run(self, tick)
         {async = true}
     )
     while self.running do
-        local ____temp_6 = {os.pullEvent()}
+        local ____temp_6 = {os.pullEventRaw()}
         local event = ____temp_6[1]
         local params = __TS__ArraySlice(____temp_6, 1)
         if not event then
             error(
                 __TS__New(Error, "wtf why isn't there an event"),
                 0
+            )
+        end
+        if event == "terminate" then
+            Logger:info("Terminate event received, shutting down in 1 second...")
+            self:setTimeout(
+                function()
+                    self.running = false
+                    return false
+                end,
+                1
             )
         end
         self:emit(

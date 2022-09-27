@@ -92,7 +92,7 @@ function __LocationMonitor__.prototype.register(self)
         )
     end
     self.registered = true
-    print("Registering Location Monitor")
+    Logger:info("Registering Location Monitor")
     for ____, event in ipairs(RELEVANT_EVENTS) do
         EventLoop:on(
             event,
@@ -105,7 +105,7 @@ function __LocationMonitor__.prototype.register(self)
         {async = true}
     )
     EventLoop:emitRepeat("check_position", 10)
-    EventLoop:emit("check_position")
+    EventLoop:setTimeout(function() return EventLoop:emit("check_position") end)
 end
 function __LocationMonitor__.prototype.checkPosition(self)
     if self._status == ____exports.LocationMonitorStatus.UNKNOWN then
@@ -193,27 +193,27 @@ end
 function __LocationMonitor__.prototype.onMoveForwardOrBack(self, forward)
     local delta = forward and 1 or -1
     repeat
-        local ____switch29 = self._heading
-        local ____cond29 = ____switch29 == ____exports.Heading.NORTH
-        if ____cond29 then
+        local ____switch30 = self._heading
+        local ____cond30 = ____switch30 == ____exports.Heading.NORTH
+        if ____cond30 then
             local ____self_pos_0, ____3_1 = self.pos, 3
             ____self_pos_0[____3_1] = ____self_pos_0[____3_1] - delta
             break
         end
-        ____cond29 = ____cond29 or ____switch29 == ____exports.Heading.SOUTH
-        if ____cond29 then
+        ____cond30 = ____cond30 or ____switch30 == ____exports.Heading.SOUTH
+        if ____cond30 then
             local ____self_pos_2, ____3_3 = self.pos, 3
             ____self_pos_2[____3_3] = ____self_pos_2[____3_3] + delta
             break
         end
-        ____cond29 = ____cond29 or ____switch29 == ____exports.Heading.EAST
-        if ____cond29 then
+        ____cond30 = ____cond30 or ____switch30 == ____exports.Heading.EAST
+        if ____cond30 then
             local ____self_pos_4, ____1_5 = self.pos, 1
             ____self_pos_4[____1_5] = ____self_pos_4[____1_5] + delta
             break
         end
-        ____cond29 = ____cond29 or ____switch29 == ____exports.Heading.WEST
-        if ____cond29 then
+        ____cond30 = ____cond30 or ____switch30 == ____exports.Heading.WEST
+        if ____cond30 then
             local ____self_pos_6, ____1_7 = self.pos, 1
             ____self_pos_6[____1_7] = ____self_pos_6[____1_7] - delta
             break
@@ -225,9 +225,9 @@ function __LocationMonitor__.prototype.onMove(self, eventName)
         return
     end
     repeat
-        local ____switch32 = eventName
-        local ____cond32 = ____switch32 == TurtleEvent.moved_forward
-        if ____cond32 then
+        local ____switch33 = eventName
+        local ____cond33 = ____switch33 == TurtleEvent.moved_forward
+        if ____cond33 then
             if self._status == ____exports.LocationMonitorStatus.POS_ONLY and self._heading == ____exports.Heading.UNKNOWN then
                 self._heading = ____exports.Heading.SYNCING
                 EventLoop:emit("check_position")
@@ -236,36 +236,36 @@ function __LocationMonitor__.prototype.onMove(self, eventName)
             end
             break
         end
-        ____cond32 = ____cond32 or ____switch32 == TurtleEvent.moved_back
-        if ____cond32 then
+        ____cond33 = ____cond33 or ____switch33 == TurtleEvent.moved_back
+        if ____cond33 then
             if self._status ~= ____exports.LocationMonitorStatus.ACQUIRED then
                 break
             end
             self:onMoveForwardOrBack(false)
             break
         end
-        ____cond32 = ____cond32 or ____switch32 == TurtleEvent.moved_up
-        if ____cond32 then
+        ____cond33 = ____cond33 or ____switch33 == TurtleEvent.moved_up
+        if ____cond33 then
             local ____self_pos_8, ____2_9 = self.pos, 2
             ____self_pos_8[____2_9] = ____self_pos_8[____2_9] + 1
             break
         end
-        ____cond32 = ____cond32 or ____switch32 == TurtleEvent.moved_down
-        if ____cond32 then
+        ____cond33 = ____cond33 or ____switch33 == TurtleEvent.moved_down
+        if ____cond33 then
             local ____self_pos_10, ____2_11 = self.pos, 2
             ____self_pos_10[____2_11] = ____self_pos_10[____2_11] - 1
             break
         end
-        ____cond32 = ____cond32 or ____switch32 == TurtleEvent.turned_left
-        if ____cond32 then
+        ____cond33 = ____cond33 or ____switch33 == TurtleEvent.turned_left
+        if ____cond33 then
             if self._heading == ____exports.Heading.UNKNOWN then
                 break
             end
             self._heading = ____exports.HEADING_ORDER[(__TS__ArrayIndexOf(____exports.HEADING_ORDER, self._heading) + #____exports.HEADING_ORDER - 1) % #____exports.HEADING_ORDER + 1]
             break
         end
-        ____cond32 = ____cond32 or ____switch32 == TurtleEvent.turned_right
-        if ____cond32 then
+        ____cond33 = ____cond33 or ____switch33 == TurtleEvent.turned_right
+        if ____cond33 then
             if self._heading == ____exports.Heading.UNKNOWN then
                 break
             end

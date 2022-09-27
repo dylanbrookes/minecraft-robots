@@ -1,5 +1,7 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
 ____exports.TurtleStatus = TurtleStatus or ({})
 ____exports.TurtleStatus.OFFLINE = "OFFLINE"
 ____exports.TurtleStatus.IDLE = "IDLE"
@@ -13,12 +15,15 @@ function TurtleStore.prototype.____constructor(self, storeFile)
     end
     self.storeFile = storeFile
     self.turtles = ____exports.default:LoadStoreFile(storeFile)
-    print("TurtleStore loaded with", self.turtles.size, "turtles")
+    Logger:info("TurtleStore loaded with", self.turtles.size, "turtles")
+end
+TurtleStore.prototype[Symbol.iterator] = function(self)
+    return self.turtles:values()
 end
 function TurtleStore.LoadStoreFile(self, storeFile)
     local turtles = __TS__New(Map)
     if not fs.exists(storeFile) then
-        print("Starting without turtle store file")
+        Logger:info("Starting without turtle store file")
         return turtles
     end
     local handle, err = fs.open(storeFile, "r")
@@ -51,7 +56,7 @@ function TurtleStore.LoadStoreFile(self, storeFile)
 end
 function TurtleStore.prototype.save(self)
     if fs.exists(self.storeFile) then
-        print("Overwriting store file", self.storeFile)
+        Logger:debug("Overwriting store file", self.storeFile)
     end
     local handle, err = fs.open(self.storeFile, "w")
     if not handle then
@@ -68,7 +73,7 @@ function TurtleStore.prototype.save(self)
     end
     handle.flush()
     handle.close()
-    print("Saved to storefile", self.storeFile)
+    Logger:debug("Saved to storefile", self.storeFile)
 end
 function TurtleStore.prototype.__tostring(self)
     local jobs = {}
@@ -83,8 +88,14 @@ end
 function TurtleStore.prototype.get(self, id)
     return self.turtles:get(id)
 end
-function TurtleStore.prototype.getAll(self)
-    return {__TS__Spread(self.turtles:values())}
+function TurtleStore.prototype.select(self, filter)
+    if filter == nil then
+        filter = function() return true end
+    end
+    return __TS__ArrayFilter(
+        {__TS__Spread(self.turtles:values())},
+        filter
+    )
 end
 function TurtleStore.prototype.count(self)
     return self.turtles.size
@@ -102,8 +113,8 @@ function TurtleStore.prototype.add(self, record)
     self.turtles:set(record.id, record)
 end
 function TurtleStore.prototype.update(self, id, record)
-    local og = self.turtles:get(id)
-    if not og then
+    local turtleRecord = self.turtles:get(id)
+    if not turtleRecord then
         error(
             __TS__New(
                 Error,
@@ -112,9 +123,8 @@ function TurtleStore.prototype.update(self, id, record)
             0
         )
     end
-    local newRecord = __TS__ObjectAssign({}, og, record)
-    self.turtles:set(id, newRecord)
-    return newRecord
+    __TS__ObjectAssign(turtleRecord, record)
+    return turtleRecord
 end
 TurtleStore.DEFAULT_STORE_FILE = "/.turtlestore"
 ____exports.default = TurtleStore

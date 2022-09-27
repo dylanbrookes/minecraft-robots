@@ -2,6 +2,7 @@
 local ____exports = {}
 local ____Logger = require("utils.Logger")
 local Logger = ____Logger.default
+--- Must be run async
 function ____exports.refuel(self)
     Logger:info("Refueling")
     local startSlot = turtle.getSelectedSlot()

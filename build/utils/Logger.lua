@@ -1,11 +1,14 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+local ____env = require("utils.env")
+local env = ____env.default
 local LogLevel = LogLevel or ({})
 LogLevel.DEBUG = "DEBUG"
 LogLevel.INFO = "INFO"
 LogLevel.WARN = "WARN"
 LogLevel.ERROR = "ERROR"
 local LOG_LEVEL_SHORTCODES = {[LogLevel.DEBUG] = "[D]", [LogLevel.INFO] = "[I]", [LogLevel.WARN] = "[W]", [LogLevel.ERROR] = "[E]"}
+local LOG_LEVEL_ORDER = {LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR}
 local function formatArgs(____, args)
     return table.concat(
         __TS__ArrayMap(
@@ -60,15 +63,29 @@ function __Logger__.prototype.____constructor(self, logDir, fileName)
         )
     end
     self.file = file
-    self:debug(("Logger " .. tostring(self.id)) .. " created")
+    if env.LOG_LEVEL ~= nil then
+        local idx = __TS__ArrayIndexOf(LOG_LEVEL_ORDER, env.LOG_LEVEL)
+        if idx == -1 then
+            error(
+                __TS__New(Error, "Invalid log level " .. env.LOG_LEVEL),
+                0
+            )
+        end
+        self.logLevel = env.LOG_LEVEL
+    else
+        self.logLevel = LogLevel.INFO
+    end
+    self:debug((("Logger " .. tostring(self.id)) .. " created with log level ") .. self.logLevel)
 end
 function __Logger__.prototype.writeLine(self, line, level)
-    if level ~= LogLevel.DEBUG then
+    if __TS__ArrayIndexOf(LOG_LEVEL_ORDER, level) >= __TS__ArrayIndexOf(LOG_LEVEL_ORDER, self.logLevel) then
         printLog(nil, line, level)
     end
-    local log = (LOG_LEVEL_SHORTCODES[level] .. " ") .. line
-    self.file.writeLine(log)
-    self.file.flush()
+    if env.FILE_LOGGING ~= nil then
+        local log = (LOG_LEVEL_SHORTCODES[level] .. " ") .. line
+        self.file.writeLine(log)
+        self.file.flush()
+    end
 end
 function __Logger__.prototype.debug(self, ...)
     local args = {...}

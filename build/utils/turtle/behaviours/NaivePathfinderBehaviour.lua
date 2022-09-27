@@ -6,13 +6,17 @@ local HEADING_TO_XZ_VEC = ____LocationMonitor.HEADING_TO_XZ_VEC
 local LocationMonitor = ____LocationMonitor.LocationMonitor
 local ____TurtleController = require("utils.turtle.TurtleController")
 local TurtleController = ____TurtleController.TurtleController
+local ____TurtleBehaviour = require("utils.turtle.behaviours.TurtleBehaviour")
+local TurtleBehaviourBase = ____TurtleBehaviour.TurtleBehaviourBase
 ____exports.NaivePathfinderBehaviour = __TS__Class()
 local NaivePathfinderBehaviour = ____exports.NaivePathfinderBehaviour
 NaivePathfinderBehaviour.name = "NaivePathfinderBehaviour"
+__TS__ClassExtends(NaivePathfinderBehaviour, TurtleBehaviourBase)
 function NaivePathfinderBehaviour.prototype.____constructor(self, targetPos, priority)
     if priority == nil then
         priority = 1
     end
+    TurtleBehaviourBase.prototype.____constructor(self)
     self.targetPos = targetPos
     self.priority = priority
     self.name = "pathfinding_naive"

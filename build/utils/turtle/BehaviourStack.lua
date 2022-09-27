@@ -4,6 +4,8 @@ local ____Logger = require("utils.Logger")
 local Logger = ____Logger.default
 local ____PriorityQueue = require("utils.PriorityQueue")
 local PriorityQueue = ____PriorityQueue.default
+local ____TurtleBehaviour = require("utils.turtle.behaviours.TurtleBehaviour")
+local TurtleBehaviourStatus = ____TurtleBehaviour.TurtleBehaviourStatus
 local __BehaviourStack__ = __TS__Class()
 __BehaviourStack__.name = "__BehaviourStack__"
 function __BehaviourStack__.prototype.____constructor(self)
@@ -22,7 +24,29 @@ function __BehaviourStack__.prototype.step(self)
     local currentBehaviour = self.priorityQueue:peek()
     if not self.lastBehaviour and currentBehaviour then
         Logger:info("Found something to do!")
-    elseif currentBehaviour ~= self.lastBehaviour then
+    end
+    if currentBehaviour and currentBehaviour ~= self.lastBehaviour then
+        if currentBehaviour.status == TurtleBehaviourStatus.INIT then
+            local ____currentBehaviour_onStart_result_0 = currentBehaviour.onStart
+            if ____currentBehaviour_onStart_result_0 ~= nil then
+                ____currentBehaviour_onStart_result_0 = ____currentBehaviour_onStart_result_0(currentBehaviour)
+            end
+        else
+            local ____currentBehaviour_onResume_result_2 = currentBehaviour.onResume
+            if ____currentBehaviour_onResume_result_2 ~= nil then
+                ____currentBehaviour_onResume_result_2 = ____currentBehaviour_onResume_result_2(currentBehaviour)
+            end
+        end
+        currentBehaviour.status = TurtleBehaviourStatus.RUNNING
+    end
+    if self.lastBehaviour and currentBehaviour ~= self.lastBehaviour then
+        local ____this_5
+        ____this_5 = self.lastBehaviour
+        local ____table_lastBehaviour_onPause_result_4 = ____this_5.onPause
+        if ____table_lastBehaviour_onPause_result_4 ~= nil then
+            ____table_lastBehaviour_onPause_result_4 = ____table_lastBehaviour_onPause_result_4(____this_5)
+        end
+        self.lastBehaviour.status = TurtleBehaviourStatus.PAUSED
     end
     self.lastBehaviour = currentBehaviour
     if not currentBehaviour then
@@ -30,6 +54,11 @@ function __BehaviourStack__.prototype.step(self)
     end
     local done = currentBehaviour:step()
     if done then
+        currentBehaviour.status = TurtleBehaviourStatus.DONE
+        local ____currentBehaviour_onEnd_result_6 = currentBehaviour.onEnd
+        if ____currentBehaviour_onEnd_result_6 ~= nil then
+            ____currentBehaviour_onEnd_result_6 = ____currentBehaviour_onEnd_result_6(currentBehaviour)
+        end
         self.lastBehaviour = nil
         if self.priorityQueue:peek() ~= currentBehaviour then
             error(

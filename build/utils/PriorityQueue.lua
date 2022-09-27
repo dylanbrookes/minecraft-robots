@@ -20,6 +20,9 @@ function PriorityQueue.prototype.____constructor(self, comparator)
     self.comparator = comparator
     self.heap = {}
 end
+function PriorityQueue.prototype.clear(self)
+    self.heap = {}
+end
 function PriorityQueue.prototype.size(self)
     return #self.heap
 end

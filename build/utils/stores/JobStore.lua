@@ -1,5 +1,7 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
 ____exports.JobStatus = JobStatus or ({})
 ____exports.JobStatus.PENDING = "PENDING"
 ____exports.JobStatus.IN_PROGRESS = "IN_PROGRESS"
@@ -7,6 +9,7 @@ ____exports.JobStatus.PAUSED = "PAUSED"
 ____exports.JobStatus.HALTED = "HALTED"
 ____exports.JobStatus.DONE = "DONE"
 ____exports.JobStatus.CANCELLED = "CANCELLED"
+____exports.JobStatus.FAILED = "FAILED"
 ____exports.JobStore = __TS__Class()
 local JobStore = ____exports.JobStore
 JobStore.name = "JobStore"
@@ -19,14 +22,26 @@ function JobStore.prototype.____constructor(self, storeFile)
     local ____temp_0 = ____exports.JobStore:LoadStoreFile(self.storeFile)
     self.jobs = ____temp_0[1]
     self.maxId = ____temp_0[2]
-    print("N jobs:", self.jobs.size)
-    print("Max ID:", self.maxId)
+    Logger:info("N jobs:", self.jobs.size)
+    Logger:info("Max ID:", self.maxId)
+end
+JobStore.prototype[Symbol.iterator] = function(self)
+    return self.jobs:values()
+end
+function JobStore.prototype.select(self, filter)
+    if filter == nil then
+        filter = function() return true end
+    end
+    return __TS__ArrayFilter(
+        {__TS__Spread(self.jobs:values())},
+        filter
+    )
 end
 function JobStore.LoadStoreFile(self, storeFile)
     local jobs = __TS__New(Map)
     local maxId = 0
     if not fs.exists(storeFile) then
-        print("Starting without store file")
+        Logger:debug("Starting without store file")
         return {jobs, maxId}
     end
     local handle, err = fs.open(storeFile, "r")
@@ -70,36 +85,37 @@ function JobStore.prototype.updateById(self, id, changes)
     if not job then
         return nil
     end
-    local newJob = __TS__ObjectAssign({}, job, changes)
-    self.jobs:set(id, newJob)
-    return newJob
+    __TS__ObjectAssign(job, changes)
+    return job
 end
 function JobStore.prototype.list(self)
-    print("Jobs:")
+    Logger:info("Jobs:")
     for ____, job in __TS__Iterator(self.jobs:values()) do
-        print(textutils.serializeJSON(job, true))
+        Logger:info(textutils.serializeJSON(job, true))
     end
 end
-function JobStore.prototype.add(self)
+function JobStore.prototype.add(self, jobRecord)
     local ____self_1, ____maxId_2 = self, "maxId"
     local ____self_maxId_3 = ____self_1[____maxId_2] + 1
     ____self_1[____maxId_2] = ____self_maxId_3
-    local job = {
-        id = ____self_maxId_3,
-        params = "",
-        resume_counter = 0,
-        status = ____exports.JobStatus.PENDING,
-        type = "job_type",
-        error = nil,
-        resume_state = nil,
-        turtle_id = nil
-    }
+    local job = __TS__ObjectAssign(
+        {
+            id = ____self_maxId_3,
+            resume_counter = 0,
+            status = ____exports.JobStatus.PENDING,
+            error = nil,
+            resume_state = nil,
+            turtle_id = nil,
+            issuer_id = os.computerID()
+        },
+        jobRecord
+    )
     self.jobs:set(job.id, job)
     return job
 end
 function JobStore.prototype.save(self)
     if fs.exists(self.storeFile) then
-        print("Overwriting store file", self.storeFile)
+        Logger:debug("Overwriting store file", self.storeFile)
     end
     local handle, err = fs.open(self.storeFile, "w")
     if not handle then
@@ -116,7 +132,7 @@ function JobStore.prototype.save(self)
     end
     handle.flush()
     handle.close()
-    print("Saved to storefile", self.storeFile)
+    Logger:debug("Saved to storefile", self.storeFile)
 end
 function JobStore.prototype.__tostring(self)
     local jobs = {}
