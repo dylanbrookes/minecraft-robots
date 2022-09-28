@@ -3,12 +3,25 @@ local ____exports = {}
 local ____env = require("utils.env")
 local env = ____env.default
 local LogLevel = LogLevel or ({})
+LogLevel.INTERNAL = "INTERNAL"
 LogLevel.DEBUG = "DEBUG"
 LogLevel.INFO = "INFO"
 LogLevel.WARN = "WARN"
 LogLevel.ERROR = "ERROR"
-local LOG_LEVEL_SHORTCODES = {[LogLevel.DEBUG] = "[D]", [LogLevel.INFO] = "[I]", [LogLevel.WARN] = "[W]", [LogLevel.ERROR] = "[E]"}
-local LOG_LEVEL_ORDER = {LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR}
+local LOG_LEVEL_SHORTCODES = {
+    [LogLevel.INTERNAL] = "[*]",
+    [LogLevel.DEBUG] = "[D]",
+    [LogLevel.INFO] = "[I]",
+    [LogLevel.WARN] = "[W]",
+    [LogLevel.ERROR] = "[E]"
+}
+local LOG_LEVEL_ORDER = {
+    LogLevel.INTERNAL,
+    LogLevel.DEBUG,
+    LogLevel.INFO,
+    LogLevel.WARN,
+    LogLevel.ERROR
+}
 local function formatArgs(____, args)
     return table.concat(
         __TS__ArrayMap(
@@ -75,13 +88,28 @@ function __Logger__.prototype.____constructor(self, logDir, fileName)
     else
         self.logLevel = LogLevel.INFO
     end
-    self:debug((("Logger " .. tostring(self.id)) .. " created with log level ") .. self.logLevel)
+    if env.FILE_LOG_LEVEL ~= nil then
+        local idx = __TS__ArrayIndexOf(LOG_LEVEL_ORDER, env.FILE_LOG_LEVEL)
+        if idx == -1 then
+            error(
+                __TS__New(Error, "Invalid log level " .. env.FILE_LOG_LEVEL),
+                0
+            )
+        end
+        self.fileLogLevel = env.FILE_LOG_LEVEL
+    else
+        self.fileLogLevel = LogLevel.DEBUG
+    end
+    self:writeLine(
+        (((("Logger " .. tostring(self.id)) .. " created with log level ") .. self.logLevel) .. "/") .. self.fileLogLevel,
+        LogLevel.INTERNAL
+    )
 end
 function __Logger__.prototype.writeLine(self, line, level)
     if __TS__ArrayIndexOf(LOG_LEVEL_ORDER, level) >= __TS__ArrayIndexOf(LOG_LEVEL_ORDER, self.logLevel) then
         printLog(nil, line, level)
     end
-    if env.FILE_LOGGING ~= nil then
+    if env.FILE_LOGGING ~= nil and __TS__ArrayIndexOf(LOG_LEVEL_ORDER, level) >= __TS__ArrayIndexOf(LOG_LEVEL_ORDER, self.fileLogLevel) then
         local log = (LOG_LEVEL_SHORTCODES[level] .. " ") .. line
         self.file.writeLine(log)
         self.file.flush()
