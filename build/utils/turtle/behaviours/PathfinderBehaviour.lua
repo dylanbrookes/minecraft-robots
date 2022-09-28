@@ -73,11 +73,11 @@ function PathfinderBehaviour.prototype.____constructor(self, targetPos, priority
     self.initialized = false
     self.nodeQueue = __TS__New(
         PriorityQueue,
-        function(____, a) return ____exports.PathfinderBehaviour:costHeuristic(a, targetPos) + (self.heuristicOffsets[serializePosition(nil, a)] or 0) end
+        function(____, a, b) return self:costHeuristic(b) > self:costHeuristic(a) end
     )
 end
-function PathfinderBehaviour.costHeuristic(self, pos, target)
-    return cartesianDistance(nil, pos, target)
+function PathfinderBehaviour.prototype.costHeuristic(self, pos)
+    return cartesianDistance(nil, pos, self.targetPos) + (self.heuristicOffsets[serializePosition(nil, pos)] or 0)
 end
 function PathfinderBehaviour.prototype.onStart(self)
     Logger:info("pathfinder onStart")
@@ -208,7 +208,7 @@ function PathfinderBehaviour.prototype.step(self)
         end
         if ranIntoTurtle then
             Logger:info("Ran into another turtle, will check again")
-            self.heuristicOffsets[nextPosKey] = (self.heuristicOffsets[nextPosKey] or 0) - 1
+            self.heuristicOffsets[nextPosKey] = (self.heuristicOffsets[nextPosKey] or 0) + 1
             self.nodeQueue:push(nextPos)
         end
     else
