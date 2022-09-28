@@ -12,7 +12,7 @@ export enum FuelStatus {
 
 class __FuelMonitor__ {
   private static CHECK_FUEL_INTERVAL = 10; // seconds
-  private static MIN_FUEL_RATIO = 0.9998;
+  private static MIN_FUEL_RATIO = 0.2;
 
   private registered = false;
   private _fuelStatus: FuelStatus = FuelStatus.UNKNOWN;
@@ -51,7 +51,7 @@ class __FuelMonitor__ {
       }
       this._fuelStatus = nextFuelStatus;
     } else {
-      Logger.debug("Fuel OK, level:", fuelLevel, "limit:", fuelLimit, "ratio:", (fuelLevel / fuelLimit * 100), "%");
+      Logger.debug("Fuel OK, level:", fuelLevel, "limit:", fuelLimit, "ratio:", (fuelLevel / fuelLimit * 100), "%", "target:", __FuelMonitor__.MIN_FUEL_RATIO);
       this._fuelStatus = FuelStatus.OK;
     }
 
