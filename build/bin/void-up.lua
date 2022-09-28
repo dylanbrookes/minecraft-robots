@@ -1,5 +1,6 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
+require("/require_stub")
 local ____JobRegistryClient = require("utils.clients.JobRegistryClient")
 local JobRegistryClient = ____JobRegistryClient.JobRegistryClient
 local ____Consts = require("utils.Consts")
@@ -10,8 +11,6 @@ local ____LocationMonitor = require("utils.LocationMonitor")
 local Heading = ____LocationMonitor.Heading
 local ____Logger = require("utils.Logger")
 local Logger = ____Logger.default
-local ____parseHeadingParam = require("utils.parseHeadingParam")
-local parseHeadingParam = ____parseHeadingParam.default
 local ____Consts = require("utils.turtle.Consts")
 local JobType = ____Consts.JobType
 local hostId = findProtocolHostId(nil, JOB_REGISTRY_PROTOCOL_NAME)
@@ -24,11 +23,7 @@ end
 Logger:info("Found host ID: " .. tostring(hostId))
 local jobRegistryClient = __TS__New(JobRegistryClient, hostId)
 local CHUNK_SIZE = 3
-local ____temp_0 = {...}
-local headingParam = ____temp_0[1]
-local values = __TS__ArraySlice(____temp_0, 1)
-local heading = parseHeadingParam(nil, headingParam)
-assert(heading ~= Heading.UNKNOWN, "Invalid heading " .. headingParam)
+local values = {...}
 local x0p, z0p, x1p, z1p, y, h = table.unpack(__TS__ArrayMap(
     values,
     function(____, v) return __TS__ParseInt(v) end
