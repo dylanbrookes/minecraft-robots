@@ -24,6 +24,7 @@ export enum TurtleCommands {
   cancelJob = 'cancelJob',
   status = 'status',
   inspect = 'inspect',
+  reboot = 'reboot',
 }
 
 class __TurtleService__ {
@@ -85,11 +86,14 @@ class __TurtleService__ {
           JobProcessor.cancel(id);
           rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
         } break;
-        case TurtleCommands.status:
+        case TurtleCommands.status: {
           const status = getStatusUpdate();
           Logger.info("Received status request, sending:", status);
           rednet.send(sender, { ok: true, status }, TURTLE_PROTOCOL_NAME);
-          break;
+        } break;
+        case TurtleCommands.reboot: {
+          EventLoop.emit('terminate', 'reboot');
+        } break;
         default:
           Logger.error("invalid command", message.cmd);
       }

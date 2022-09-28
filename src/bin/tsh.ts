@@ -1,19 +1,11 @@
 import '/require_stub';
 import { TURTLE_PROTOCOL_NAME } from '../utils/Consts';
 import { EventLoop } from '../utils/EventLoop';
-import { findProtocolHostId } from '../utils/findProtocolHostId';
 import { TurtleCommands } from '../utils/services/TurtleService';
 import { JobRecord, JobStatus } from '../utils/stores/JobStore';
 import { JobType } from '../utils/turtle/Consts';
 import { Heading } from '../utils/LocationMonitor';
 import Logger from '../utils/Logger';
-
-// const pos = gps.locate();
-// if (!pos) {
-//   throw new Error("Failed to find position");
-// }
-
-// console.log("Position is:", ...pos);
 
 const modem = peripheral.find('modem');
 if (!modem) throw new Error('Could not find modem');
@@ -21,21 +13,22 @@ if (!modem) throw new Error('Could not find modem');
 const modemName = peripheral.getName(modem);
 rednet.open(modemName);
 
-// const hostId = findProtocolHostId(TURTLE_PROTOCOL_NAME);
-// if (!hostId) {
-//   throw new Error('Could not find any agent protocol hosts');
-// }
-
 const [hostIdArg, cmd, ...params] = [...$vararg];
 if (!hostIdArg) {
-  throw new Error("host id required");
+  throw new Error("host id required (use all to broadcast)");
 }
-const hostId = parseInt(hostIdArg);
+const broadcast = hostIdArg.toLowerCase() === 'all';
 
 const sendCmd = (cmd: TurtleCommands, ...params: any[]) => {
-  rednet.send(hostId, {
-    cmd, params,
-  }, TURTLE_PROTOCOL_NAME);
+  if (broadcast) {
+    rednet.send(parseInt(hostIdArg), {
+      cmd, params,
+    }, TURTLE_PROTOCOL_NAME);
+  } else {
+    rednet.broadcast({
+      cmd, params,
+    }, TURTLE_PROTOCOL_NAME);
+  }
 }
 
 if (cmd === null) {

@@ -63,6 +63,7 @@ class Routine {
 class __EventLoop__ {
   private static TICK_TIMEOUT = 0.01; // 0.01;
   private running: boolean = false;
+  private reboot: boolean = false;
   private events: {
     [name: string]: EventRecord[];
   } = {};
@@ -207,7 +208,12 @@ class __EventLoop__ {
       const [event, ...params] = os.pullEventRaw();
       if (!event) throw new Error("wtf why isn't there an event");
       if (event === 'terminate') {
-        Logger.info('Terminate event received, shutting down in 1 second...');
+        if (params[0] === 'reboot') {
+          this.reboot = true;
+          Logger.info('Reboot event received, rebooting in 1 second...');
+        } else {
+          Logger.info('Terminate event received, shutting down in 1 second...');
+        }
         this.setTimeout(() => this.running = false, 1);
       }
       this.emit(event, ...params);
@@ -220,6 +226,10 @@ class __EventLoop__ {
           // console.log("Routine", routine.id, "finished.");
         }
       }
+    }
+
+    if (this.reboot) {
+      os.reboot();
     }
   }
 }
