@@ -50,6 +50,26 @@ function JobScheduler.prototype.register(self)
         function() return self:scheduleJobs() end,
         {async = true}
     )
+    EventLoop:on(
+        TurtleControlEvent.TURTLE_OFFLINE,
+        function(____, id) return self:onTurtleOffline(id) end
+    )
+end
+function JobScheduler.prototype.onTurtleOffline(self, id)
+    local assignedJobs = self.jobStore:select(function(____, ____bindingPattern0)
+        local turtle_id
+        local status
+        status = ____bindingPattern0.status
+        turtle_id = ____bindingPattern0.turtle_id
+        return status == JobStatus.IN_PROGRESS and turtle_id == id
+    end)
+    for ____, job in ipairs(assignedJobs) do
+        Logger:info(("Releasing job " .. tostring(job.id)) .. " to be retried")
+        self.jobStore:updateById(job.id, {status = JobStatus.HALTED})
+    end
+    if #assignedJobs > 0 then
+        self.jobStore:save()
+    end
 end
 function JobScheduler.prototype.scheduleJobs(self)
     if self.schedulingInProgress then
@@ -91,7 +111,7 @@ function JobScheduler.prototype.scheduleJobs(self)
         self.jobStore:select(function(____, ____bindingPattern0)
             local status
             status = ____bindingPattern0.status
-            return status == JobStatus.PENDING
+            return __TS__ArrayIncludes({JobStatus.PENDING, JobStatus.HALTED}, status)
         end),
         function(____, jobRecord) return __TS__New(Job, jobRecord) end
     )) do

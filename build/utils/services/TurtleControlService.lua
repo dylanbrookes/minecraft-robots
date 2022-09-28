@@ -134,7 +134,10 @@ function TurtleControlService.prototype.onMessage(self, message, sender)
                 local turtleRecord = self.turtleStore:get(sender)
                 local updates = buildUpdates(nil, message, turtleRecord)
                 if turtleRecord then
-                    local turtleRecord = self.turtleStore:update(sender, updates)
+                    if turtleRecord.status ~= TurtleStatus.OFFLINE then
+                        EventLoop:emit(TurtleControlEvent.TURTLE_OFFLINE, turtleRecord.id)
+                    end
+                    turtleRecord = self.turtleStore:update(sender, updates)
                     self.turtleStore:save()
                     Logger:info(((("Turtle " .. turtleRecord.label) .. " [") .. tostring(sender)) .. "] reconnected")
                     rednet.send(sender, {ok = true, label = turtleRecord.label}, TURTLE_CONTROL_PROTOCOL_NAME)
