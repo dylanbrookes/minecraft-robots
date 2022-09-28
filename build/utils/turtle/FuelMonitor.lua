@@ -68,14 +68,16 @@ function __FuelMonitor__.prototype.checkFuel(self)
             fuelLimit,
             "ratio:",
             fuelLevel / fuelLimit * 100,
-            "%"
+            "%",
+            "target:",
+            __FuelMonitor__.MIN_FUEL_RATIO
         )
         self._fuelStatus = ____exports.FuelStatus.OK
     end
     return self.fuelStatus
 end
 __FuelMonitor__.CHECK_FUEL_INTERVAL = 10
-__FuelMonitor__.MIN_FUEL_RATIO = 0.9998
+__FuelMonitor__.MIN_FUEL_RATIO = 0.2
 local FuelMonitor = __TS__New(__FuelMonitor__)
 ____exports.default = FuelMonitor
 return ____exports
