@@ -37,7 +37,7 @@ end
 local broadcast = string.lower(hostIdArg) == "all"
 local function sendCmd(____, cmd, ...)
     local params = {...}
-    if broadcast then
+    if not broadcast then
         rednet.send(
             __TS__ParseInt(hostIdArg),
             {cmd = cmd, params = params},
