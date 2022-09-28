@@ -33,6 +33,7 @@ ____exports.TurtleCommands.addJob = "addJob"
 ____exports.TurtleCommands.cancelJob = "cancelJob"
 ____exports.TurtleCommands.status = "status"
 ____exports.TurtleCommands.inspect = "inspect"
+____exports.TurtleCommands.reboot = "reboot"
 local __TurtleService__ = __TS__Class()
 __TurtleService__.name = "__TurtleService__"
 function __TurtleService__.prototype.____constructor(self)
@@ -63,7 +64,6 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
     if message.cmd ~= nil then
         repeat
             local ____switch9 = message.cmd
-            local status
             local ____cond9 = ____switch9 == ____exports.TurtleCommands.forward or ____switch9 == ____exports.TurtleCommands.back or ____switch9 == ____exports.TurtleCommands.turnLeft or ____switch9 == ____exports.TurtleCommands.turnRight or ____switch9 == ____exports.TurtleCommands.up or ____switch9 == ____exports.TurtleCommands.down or ____switch9 == ____exports.TurtleCommands.dig or ____switch9 == ____exports.TurtleCommands.digUp or ____switch9 == ____exports.TurtleCommands.digDown
             if ____cond9 then
                 if TurtleController[message.cmd] ~= nil and type(TurtleController[message.cmd]) == "function" then
@@ -132,9 +132,18 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
             end
             ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.status
             if ____cond9 then
-                status = getStatusUpdate(nil)
-                Logger:info("Received status request, sending:", status)
-                rednet.send(sender, {ok = true, status = status}, TURTLE_PROTOCOL_NAME)
+                do
+                    local status = getStatusUpdate(nil)
+                    Logger:info("Received status request, sending:", status)
+                    rednet.send(sender, {ok = true, status = status}, TURTLE_PROTOCOL_NAME)
+                end
+                break
+            end
+            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.reboot
+            if ____cond9 then
+                do
+                    EventLoop:emit("terminate", "reboot")
+                end
                 break
             end
             do

@@ -30,14 +30,22 @@ local cmd = ____temp_0[2]
 local params = __TS__ArraySlice(____temp_0, 2)
 if not hostIdArg then
     error(
-        __TS__New(Error, "host id required"),
+        __TS__New(Error, "host id required (use all to broadcast)"),
         0
     )
 end
-local hostId = __TS__ParseInt(hostIdArg)
+local broadcast = string.lower(hostIdArg) == "all"
 local function sendCmd(____, cmd, ...)
     local params = {...}
-    rednet.send(hostId, {cmd = cmd, params = params}, TURTLE_PROTOCOL_NAME)
+    if broadcast then
+        rednet.send(
+            __TS__ParseInt(hostIdArg),
+            {cmd = cmd, params = params},
+            TURTLE_PROTOCOL_NAME
+        )
+    else
+        rednet.broadcast({cmd = cmd, params = params}, TURTLE_PROTOCOL_NAME)
+    end
 end
 if cmd == nil then
     Logger:info("Entering interactive mode")
@@ -45,58 +53,58 @@ if cmd == nil then
         "char",
         function(____, char)
             repeat
-                local ____switch7 = char
-                local ____cond7 = ____switch7 == "w"
-                if ____cond7 then
+                local ____switch9 = char
+                local ____cond9 = ____switch9 == "w"
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.forward, 1, false)
                     end
                     break
                 end
-                ____cond7 = ____cond7 or ____switch7 == "s"
-                if ____cond7 then
+                ____cond9 = ____cond9 or ____switch9 == "s"
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.back, 1, false)
                     end
                     break
                 end
-                ____cond7 = ____cond7 or ____switch7 == "a"
-                if ____cond7 then
+                ____cond9 = ____cond9 or ____switch9 == "a"
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.turnLeft, false)
                     end
                     break
                 end
-                ____cond7 = ____cond7 or ____switch7 == "d"
-                if ____cond7 then
+                ____cond9 = ____cond9 or ____switch9 == "d"
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.turnRight, false)
                     end
                     break
                 end
-                ____cond7 = ____cond7 or ____switch7 == "q"
-                if ____cond7 then
+                ____cond9 = ____cond9 or ____switch9 == "q"
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.up, 1, false)
                     end
                     break
                 end
-                ____cond7 = ____cond7 or ____switch7 == "e"
-                if ____cond7 then
+                ____cond9 = ____cond9 or ____switch9 == "e"
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.down, 1, false)
                     end
                     break
                 end
-                ____cond7 = ____cond7 or ____switch7 == " "
-                if ____cond7 then
+                ____cond9 = ____cond9 or ____switch9 == " "
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.dig, false)
                     end
                     break
                 end
-                ____cond7 = ____cond7 or ____switch7 == "?"
-                if ____cond7 then
+                ____cond9 = ____cond9 or ____switch9 == "?"
+                if ____cond9 then
                     do
                         sendCmd(nil, TurtleCommands.inspect, false)
                         local pid, message = rednet.receive(TURTLE_PROTOCOL_NAME, 3)
@@ -157,24 +165,24 @@ elseif cmd == "clear" then
     local dimensions = __TS__ArraySlice(____params_1, 1)
     local heading = Heading.UNKNOWN
     repeat
-        local ____switch21 = string.lower(headingParam)
-        local ____cond21 = ____switch21 == "n" or ____switch21 == "north"
-        if ____cond21 then
+        local ____switch23 = string.lower(headingParam)
+        local ____cond23 = ____switch23 == "n" or ____switch23 == "north"
+        if ____cond23 then
             heading = Heading.NORTH
             break
         end
-        ____cond21 = ____cond21 or (____switch21 == "s" or ____switch21 == "south")
-        if ____cond21 then
+        ____cond23 = ____cond23 or (____switch23 == "s" or ____switch23 == "south")
+        if ____cond23 then
             heading = Heading.SOUTH
             break
         end
-        ____cond21 = ____cond21 or (____switch21 == "w" or ____switch21 == "west")
-        if ____cond21 then
+        ____cond23 = ____cond23 or (____switch23 == "w" or ____switch23 == "west")
+        if ____cond23 then
             heading = Heading.WEST
             break
         end
-        ____cond21 = ____cond21 or (____switch21 == "e" or ____switch21 == "east")
-        if ____cond21 then
+        ____cond23 = ____cond23 or (____switch23 == "e" or ____switch23 == "east")
+        if ____cond23 then
             heading = Heading.EAST
             break
         end

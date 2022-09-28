@@ -57,6 +57,7 @@ local __EventLoop__ = __TS__Class()
 __EventLoop__.name = "__EventLoop__"
 function __EventLoop__.prototype.____constructor(self)
     self.running = false
+    self.reboot = false
     self.events = {}
     self.routines = __TS__New(Map)
 end
@@ -210,7 +211,12 @@ function __EventLoop__.prototype.run(self, tick)
             )
         end
         if event == "terminate" then
-            Logger:info("Terminate event received, shutting down in 1 second...")
+            if params[1] == "reboot" then
+                self.reboot = true
+                Logger:info("Reboot event received, rebooting in 1 second...")
+            else
+                Logger:info("Terminate event received, shutting down in 1 second...")
+            end
             self:setTimeout(
                 function()
                     self.running = false
@@ -232,6 +238,9 @@ function __EventLoop__.prototype.run(self, tick)
                 self.routines:delete(routine.id)
             end
         end
+    end
+    if self.reboot then
+        os.reboot()
     end
 end
 __EventLoop__.TICK_TIMEOUT = 0.01
