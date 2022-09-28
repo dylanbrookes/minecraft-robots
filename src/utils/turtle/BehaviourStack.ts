@@ -3,12 +3,8 @@ import PriorityQueue from "../PriorityQueue";
 import { TurtleBehaviour, TurtleBehaviourStatus } from "./behaviours/TurtleBehaviour";
 
 class __BehaviourStack__ {
-  private priorityQueue = new PriorityQueue<TurtleBehaviour>(__BehaviourStack__.CompareBehaviourPriority);
+  private priorityQueue = new PriorityQueue<TurtleBehaviour>(({ priority }) => priority);
   private lastBehaviour: TurtleBehaviour | undefined;
-
-  static CompareBehaviourPriority(a: TurtleBehaviour, b: TurtleBehaviour): boolean {
-    return a.priority > b.priority;
-  }
 
   peek(): TurtleBehaviour | undefined {
     return this.priorityQueue.peek();
