@@ -92,7 +92,7 @@ class __TurtleService__ {
           rednet.send(sender, { ok: true, status }, TURTLE_PROTOCOL_NAME);
         } break;
         case TurtleCommands.reboot: {
-          EventLoop.emit('terminate', 'reboot');
+          os.queueEvent('terminate', 'reboot');
         } break;
         default:
           Logger.error("invalid command", message.cmd);
