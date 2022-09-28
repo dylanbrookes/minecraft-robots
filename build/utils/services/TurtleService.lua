@@ -142,7 +142,7 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
             ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.reboot
             if ____cond9 then
                 do
-                    EventLoop:emit("terminate", "reboot")
+                    os.queueEvent("terminate", "reboot")
                 end
                 break
             end
