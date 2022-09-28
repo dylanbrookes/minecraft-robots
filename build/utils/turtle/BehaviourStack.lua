@@ -57,10 +57,13 @@ function __BehaviourStack__.prototype.step(self)
         local function ____catch(e)
             Logger:error(e)
             Logger:error(("Behaviour " .. currentBehaviour.name) .. " threw an error")
+            currentBehaviour.status = TurtleBehaviourStatus.FAILED
             local ____currentBehaviour_onError_result_6 = currentBehaviour.onError
             if ____currentBehaviour_onError_result_6 ~= nil then
                 ____currentBehaviour_onError_result_6 = ____currentBehaviour_onError_result_6(currentBehaviour, e)
             end
+            self.lastBehaviour = nil
+            self.priorityQueue:pop()
         end
         local ____try, ____hasReturned = pcall(function()
             done = currentBehaviour:step()

@@ -76,6 +76,22 @@ repeat
         end
         break
     end
+    ____cond3 = ____cond3 or ____switch3 == JobRegistryCommand.CANCEL
+    if ____cond3 then
+        do
+            local id = __TS__ParseInt(params[1])
+            Logger:info(jobRegistryClient:cancel(id))
+        end
+        break
+    end
+    ____cond3 = ____cond3 or ____switch3 == JobRegistryCommand.RETRY
+    if ____cond3 then
+        do
+            local id = __TS__ParseInt(params[1])
+            Logger:info(jobRegistryClient:retry(id))
+        end
+        break
+    end
     ____cond3 = ____cond3 or ____switch3 == "CLEAR"
     if ____cond3 then
         do

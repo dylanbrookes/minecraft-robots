@@ -148,6 +148,52 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
             end
             break
         end
+        ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.JOB_FAILED
+        if ____cond9 then
+            do
+                local ____params_6 = params
+                local id = ____params_6.id
+                local ____error = ____params_6.error
+                self.jobStore:updateById(id, {status = JobStatus.FAILED, error = ____error})
+                self.jobStore:save()
+                Logger:error(
+                    ("Job " .. tostring(id)) .. " failed:",
+                    ____error
+                )
+                EventLoop:emit(JobRegistryEvent.JOB_FAILED, id)
+                rednet.send(sender, {ok = true}, JOB_REGISTRY_PROTOCOL_NAME)
+            end
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.CANCEL
+        if ____cond9 then
+            do
+                local ____params_7 = params
+                local id = ____params_7.id
+                self.jobStore:updateById(id, {status = JobStatus.CANCELLED})
+                self.jobStore:save()
+                Logger:warn("Cancelled job " .. tostring(id))
+                EventLoop:emit(JobRegistryEvent.JOB_CANCELLED, id)
+                rednet.send(sender, {ok = true}, JOB_REGISTRY_PROTOCOL_NAME)
+            end
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.RETRY
+        if ____cond9 then
+            do
+                local ____params_8 = params
+                local id = ____params_8.id
+                Logger:info("Retrying job " .. tostring(id))
+                local job = self.jobStore:getById(id)
+                if not job or job.status ~= JobStatus.FAILED then
+                    rednet.send(sender, {ok = false}, JOB_REGISTRY_PROTOCOL_NAME)
+                    return
+                end
+                self.jobStore:updateById(id, {status = JobStatus.PENDING})
+                self.jobStore:save()
+                rednet.send(sender, {ok = true}, JOB_REGISTRY_PROTOCOL_NAME)
+            end
+        end
         do
             Logger:error("invalid JobRegistryService command", message.cmd)
         end

@@ -26,7 +26,8 @@ ____exports.JobEvent = {
     start = function(____, id) return "job:start:" .. tostring(id) end,
     ["end"] = function(____, id) return "job:end:" .. tostring(id) end,
     pause = function(____, id) return "job:pause:" .. tostring(id) end,
-    resume = function(____, id) return "job:resume:" .. tostring(id) end
+    resume = function(____, id) return "job:resume:" .. tostring(id) end,
+    error = function(____, id) return "job:error:" .. tostring(id) end
 }
 ____exports.JobType = JobType or ({})
 ____exports.JobType.spin = "spin"

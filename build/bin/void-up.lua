@@ -39,9 +39,9 @@ do
                 regions[#regions + 1] = {
                     {x, y, z},
                     {
-                        math.min(x1 - x, CHUNK_SIZE),
-                        h,
-                        math.min(z1 - z, CHUNK_SIZE)
+                        math.min(z1 - z + 1, CHUNK_SIZE),
+                        math.min(x1 - x + 1, CHUNK_SIZE),
+                        h
                     }
                 }
                 z = z + CHUNK_SIZE

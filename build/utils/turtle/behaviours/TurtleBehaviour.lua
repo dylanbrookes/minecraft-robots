@@ -5,6 +5,7 @@ ____exports.TurtleBehaviourStatus.INIT = "INIT"
 ____exports.TurtleBehaviourStatus.RUNNING = "RUNNING"
 ____exports.TurtleBehaviourStatus.PAUSED = "PAUSED"
 ____exports.TurtleBehaviourStatus.DONE = "DONE"
+____exports.TurtleBehaviourStatus.FAILED = "FAILED"
 ____exports.TurtleBehaviourBase = __TS__Class()
 local TurtleBehaviourBase = ____exports.TurtleBehaviourBase
 TurtleBehaviourBase.name = "TurtleBehaviourBase"

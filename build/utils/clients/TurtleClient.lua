@@ -12,7 +12,7 @@ TurtleClient.name = "TurtleClient"
 function TurtleClient.prototype.____constructor(self, hostId)
     self.hostId = hostId
 end
-function TurtleClient.prototype.call(self, cmd, params, timeout, assertResp)
+function TurtleClient.prototype.call(self, cmd, params, timeout, assertResp, expectResponse)
     if params == nil then
         params = {}
     end
@@ -22,16 +22,21 @@ function TurtleClient.prototype.call(self, cmd, params, timeout, assertResp)
     if assertResp == nil then
         assertResp = true
     end
-    rednet.send(self.hostId, {cmd = cmd, params = params}, TURTLE_PROTOCOL_NAME)
-    Logger:debug("Sent cmd, waiting for resp...")
-    local pid, message = rednet.receive(TURTLE_PROTOCOL_NAME, timeout)
-    if not pid and assertResp then
-        error(
-            __TS__New(Error, "No response to command " .. cmd),
-            0
-        )
+    if expectResponse == nil then
+        expectResponse = true
     end
-    return message
+    rednet.send(self.hostId, {cmd = cmd, params = params}, TURTLE_PROTOCOL_NAME)
+    if expectResponse then
+        Logger:debug("Sent cmd, waiting for resp...")
+        local pid, message = rednet.receive(TURTLE_PROTOCOL_NAME, timeout)
+        if not pid and assertResp then
+            error(
+                __TS__New(Error, "No response to command " .. cmd),
+                0
+            )
+        end
+        return message
+    end
 end
 function TurtleClient.prototype.addJob(self, jobRecord)
     local resp = self:call(TurtleCommands.addJob, jobRecord)
@@ -59,5 +64,14 @@ function TurtleClient.prototype.status(self)
         return nil
     end
     return resp.status
+end
+function TurtleClient.prototype.cancelJob(self, id)
+    self:call(
+        TurtleCommands.cancelJob,
+        {id = id},
+        1,
+        false,
+        false
+    )
 end
 return ____exports

@@ -28,8 +28,22 @@ function __JobProcessor__.prototype.checkWork(self)
     if not job then
         return
     end
-    local offFns
-    offFns = {
+    local offFns = {}
+    local function offAll()
+        return __TS__ArrayForEach(
+            offFns,
+            function(____, off)
+                if not off(nil) then
+                    error(
+                        __TS__New(Error, "Failed to remove job event callback"),
+                        0
+                    )
+                end
+            end
+        )
+    end
+    __TS__ArrayPush(
+        offFns,
         EventLoop:on(
             JobEvent:start(job.id),
             function() return self:onJobStart(job.id) end
@@ -46,22 +60,21 @@ function __JobProcessor__.prototype.checkWork(self)
             JobEvent["end"](JobEvent, job.id),
             function()
                 self:onJobEnd(job.id)
-                __TS__ArrayForEach(
-                    offFns,
-                    function(____, off)
-                        if not off(nil) then
-                            error(
-                                __TS__New(Error, "Failed to remove job event callback"),
-                                0
-                            )
-                        end
-                    end
-                )
+                offAll(nil)
+            end,
+            {async = true}
+        ),
+        EventLoop:on(
+            JobEvent:error(job.id),
+            function(____, e)
+                self:onJobError(job.id, e)
+                offAll(nil)
             end,
             {async = true}
         )
-    }
-    BehaviourStack:push(__TS__New(JobBehaviour, job))
+    )
+    self.activeJobBehaviour = __TS__New(JobBehaviour, job)
+    BehaviourStack:push(self.activeJobBehaviour)
 end
 function __JobProcessor__.prototype.add(self, jobRecord)
     if self.jobs:has(jobRecord.id) then
@@ -79,6 +92,18 @@ function __JobProcessor__.prototype.add(self, jobRecord)
     )
     self:checkWork()
 end
+function __JobProcessor__.prototype.cancel(self, jobId)
+    if not self.jobs:has(jobId) then
+        return
+    end
+    local ____table_activeJobBehaviour_job_id_0 = self.activeJobBehaviour
+    if ____table_activeJobBehaviour_job_id_0 ~= nil then
+        ____table_activeJobBehaviour_job_id_0 = ____table_activeJobBehaviour_job_id_0.job.id
+    end
+    if ____table_activeJobBehaviour_job_id_0 == jobId then
+        self.activeJobBehaviour.cancelled = true
+    end
+end
 function __JobProcessor__.prototype.onJobStart(self, id)
     Logger:info("Job started", id)
 end
@@ -94,22 +119,67 @@ function __JobProcessor__.prototype.onJobEnd(self, id)
             0
         )
     end
+    local ____table_activeJobBehaviour_cancelled_2 = self.activeJobBehaviour
+    if ____table_activeJobBehaviour_cancelled_2 ~= nil then
+        ____table_activeJobBehaviour_cancelled_2 = ____table_activeJobBehaviour_cancelled_2.cancelled
+    end
+    local cancelled = ____table_activeJobBehaviour_cancelled_2
     self.activeJobBehaviour = nil
     self.jobs:delete(id)
     self:checkWork()
-    local jobRegistryClient = __TS__New(JobRegistryClient, job.record.issuer_id)
-    do
-        local function ____catch(e)
-            Logger:error(
-                ("Failed to report job " .. tostring(id)) .. " done",
-                e
-            )
+    if not cancelled then
+        local jobRegistryClient = __TS__New(JobRegistryClient, job.record.issuer_id)
+        do
+            local function ____catch(e)
+                Logger:error(
+                    ("Failed to report job " .. tostring(id)) .. " done",
+                    e
+                )
+            end
+            local ____try, ____hasReturned = pcall(function()
+                jobRegistryClient:jobDone(job.id)
+            end)
+            if not ____try then
+                ____catch(____hasReturned)
+            end
         end
-        local ____try, ____hasReturned = pcall(function()
-            jobRegistryClient:jobDone(job.id)
-        end)
-        if not ____try then
-            ____catch(____hasReturned)
+    end
+end
+function __JobProcessor__.prototype.onJobError(self, id, err)
+    Logger:info("Job threw an error", id)
+    local job = self.jobs:get(id)
+    if not job then
+        error(
+            __TS__New(
+                Error,
+                "Missing job " .. tostring(id)
+            ),
+            0
+        )
+    end
+    local ____table_activeJobBehaviour_cancelled_4 = self.activeJobBehaviour
+    if ____table_activeJobBehaviour_cancelled_4 ~= nil then
+        ____table_activeJobBehaviour_cancelled_4 = ____table_activeJobBehaviour_cancelled_4.cancelled
+    end
+    local cancelled = ____table_activeJobBehaviour_cancelled_4
+    self.activeJobBehaviour = nil
+    self.jobs:delete(id)
+    self:checkWork()
+    if not cancelled then
+        local jobRegistryClient = __TS__New(JobRegistryClient, job.record.issuer_id)
+        do
+            local function ____catch(e)
+                Logger:error(
+                    ("Failed to report job " .. tostring(id)) .. " failed",
+                    e
+                )
+            end
+            local ____try, ____hasReturned = pcall(function()
+                jobRegistryClient:jobFailed(job.id, err)
+            end)
+            if not ____try then
+                ____catch(____hasReturned)
+            end
         end
     end
 end

@@ -30,6 +30,7 @@ ____exports.TurtleCommands.dig = "dig"
 ____exports.TurtleCommands.digUp = "digUp"
 ____exports.TurtleCommands.digDown = "digDown"
 ____exports.TurtleCommands.addJob = "addJob"
+____exports.TurtleCommands.cancelJob = "cancelJob"
 ____exports.TurtleCommands.status = "status"
 ____exports.TurtleCommands.inspect = "inspect"
 local __TurtleService__ = __TS__Class()
@@ -62,7 +63,7 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
     if message.cmd ~= nil then
         repeat
             local ____switch9 = message.cmd
-            local job, status
+            local status
             local ____cond9 = ____switch9 == ____exports.TurtleCommands.forward or ____switch9 == ____exports.TurtleCommands.back or ____switch9 == ____exports.TurtleCommands.turnLeft or ____switch9 == ____exports.TurtleCommands.turnRight or ____switch9 == ____exports.TurtleCommands.up or ____switch9 == ____exports.TurtleCommands.down or ____switch9 == ____exports.TurtleCommands.dig or ____switch9 == ____exports.TurtleCommands.digUp or ____switch9 == ____exports.TurtleCommands.digDown
             if ____cond9 then
                 if TurtleController[message.cmd] ~= nil and type(TurtleController[message.cmd]) == "function" then
@@ -110,10 +111,23 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
             end
             ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.addJob
             if ____cond9 then
-                job = message.params
-                Logger:info("Adding job with params:", job)
-                JobProcessor:add(job)
-                rednet.send(sender, {ok = true}, TURTLE_PROTOCOL_NAME)
+                do
+                    local job = message.params
+                    Logger:info("Adding job with params:", job)
+                    JobProcessor:add(job)
+                    rednet.send(sender, {ok = true}, TURTLE_PROTOCOL_NAME)
+                end
+                break
+            end
+            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.cancelJob
+            if ____cond9 then
+                do
+                    local ____message_params_0 = message.params
+                    local id = ____message_params_0.id
+                    Logger:info("Cancelling job", id)
+                    JobProcessor:cancel(id)
+                    rednet.send(sender, {ok = true}, TURTLE_PROTOCOL_NAME)
+                end
                 break
             end
             ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.status

@@ -46,8 +46,17 @@ end
 function JobRegistryClient.prototype.add(self, ____type, args)
     return self:call(JobRegistryCommand.ADD, {type = ____type, args = args})
 end
+function JobRegistryClient.prototype.cancel(self, id)
+    return self:call(JobRegistryCommand.CANCEL, {id = id})
+end
+function JobRegistryClient.prototype.retry(self, id)
+    return self:call(JobRegistryCommand.RETRY, {id = id})
+end
 function JobRegistryClient.prototype.jobDone(self, id)
     return self:call(JobRegistryCommand.JOB_DONE, {id = id})
+end
+function JobRegistryClient.prototype.jobFailed(self, id, ____error)
+    return self:call(JobRegistryCommand.JOB_DONE, {id = id, error = ____error})
 end
 function JobRegistryClient.prototype.deleteDone(self)
     return self:call(JobRegistryCommand.DELETE_DONE)

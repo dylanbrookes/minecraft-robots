@@ -46,6 +46,19 @@ function JobScheduler.prototype.register(self)
         {async = true}
     )
     EventLoop:on(
+        JobRegistryEvent.JOB_FAILED,
+        function() return self:scheduleJobs() end,
+        {async = true}
+    )
+    EventLoop:on(
+        JobRegistryEvent.JOB_CANCELLED,
+        function(____, id)
+            self:onJobCancelled(id)
+            self:scheduleJobs()
+        end,
+        {async = true}
+    )
+    EventLoop:on(
         TurtleControlEvent.TURTLE_IDLE,
         function() return self:scheduleJobs() end,
         {async = true}
@@ -54,6 +67,17 @@ function JobScheduler.prototype.register(self)
         TurtleControlEvent.TURTLE_OFFLINE,
         function(____, id) return self:onTurtleOffline(id) end
     )
+end
+function JobScheduler.prototype.onJobCancelled(self, jobId)
+    local jobRecord = self.jobStore:getById(jobId)
+    if not jobRecord then
+        Logger:error("Unknown job", jobId)
+        return
+    end
+    if jobRecord.turtle_id then
+        local turtleClient = __TS__New(TurtleClient, jobRecord.turtle_id)
+        turtleClient:cancelJob(jobRecord.id)
+    end
 end
 function JobScheduler.prototype.onTurtleOffline(self, id)
     local assignedJobs = self.jobStore:select(function(____, ____bindingPattern0)

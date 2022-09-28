@@ -19,11 +19,16 @@ function JobBehaviour.prototype.____constructor(self, job, priority)
     TurtleBehaviourBase.prototype.____constructor(self)
     self.job = job
     self.priority = priority
+    self.cancelled = false
     self.name = ((("job:" .. self.job.type) .. " [") .. tostring(self.job.id)) .. "]"
     self.behaviour = self.job:buildBehaviour()
     Logger:info("Created job behaviour " .. self.behaviour.name)
 end
 function JobBehaviour.prototype.step(self)
+    if self.cancelled then
+        Logger:info(("Job behaviour " .. self.name) .. " cancelled")
+        return true
+    end
     return self.behaviour:step()
 end
 function JobBehaviour.prototype.onStart(self)
@@ -61,5 +66,17 @@ function JobBehaviour.prototype.onEnd(self)
         ____table_behaviour_onEnd_result_6 = ____table_behaviour_onEnd_result_6(____this_7)
     end
     EventLoop:emit(JobEvent["end"](JobEvent, self.job.id))
+end
+function JobBehaviour.prototype.onError(self, e)
+    local ____this_9
+    ____this_9 = self.behaviour
+    local ____table_behaviour_onError_result_8 = ____this_9.onError
+    if ____table_behaviour_onError_result_8 ~= nil then
+        ____table_behaviour_onError_result_8 = ____table_behaviour_onError_result_8(____this_9, e)
+    end
+    EventLoop:emit(
+        JobEvent:error(self.job.id),
+        e
+    )
 end
 return ____exports
