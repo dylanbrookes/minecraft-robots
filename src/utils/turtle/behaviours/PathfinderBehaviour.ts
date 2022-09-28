@@ -55,13 +55,11 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
     readonly priority = 1,
   ) {
     super();
-    this.nodeQueue = new PriorityQueue((a) => PathfinderBehaviour.costHeuristic(a, targetPos)
-      + (this.heuristicOffsets.get(serializePosition(a)) || 0));
+    this.nodeQueue = new PriorityQueue((a, b) => this.costHeuristic(b) > this.costHeuristic(a));
   }
 
-  private static costHeuristic(pos: TurtlePosition, target: TurtlePosition) {
-    // return distance(pos, target) * PathfinderBehaviour.EPSILON;
-    return cartesianDistance(pos, target);
+  private costHeuristic(pos: TurtlePosition) {
+    return cartesianDistance(pos, this.targetPos) + (this.heuristicOffsets.get(serializePosition(pos)) || 0);
   }
 
   onStart() {
@@ -194,7 +192,7 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
 
       if (ranIntoTurtle) {
         Logger.info("Ran into another turtle, will check again");
-        this.heuristicOffsets.set(nextPosKey, (this.heuristicOffsets.get(nextPosKey) || 0) - 1); // deincentivize the node so that it will try a different route
+        this.heuristicOffsets.set(nextPosKey, (this.heuristicOffsets.get(nextPosKey) || 0) + 1); // deincentivize the node so that it will try a different route
         this.nodeQueue.push(nextPos);
       }
     } else {

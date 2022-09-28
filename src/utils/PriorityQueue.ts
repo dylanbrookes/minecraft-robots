@@ -11,12 +11,7 @@ const right = (i: number) => (i + 1) * 2;
 export default class PriorityQueue<T> {
   private heap: T[] = [];
 
-  constructor(private evaluate = (a: T): number => {
-    if (typeof a === 'number') {
-      return a;
-    }
-    throw new Error('Missing evaulator fn for item' + textutils.serialize(a))
-  }) {}
+  constructor(private comparator = (a: T, b: T) => a > b) { }
   
   clear() {
     this.heap = [];
@@ -54,7 +49,7 @@ export default class PriorityQueue<T> {
     return replacedValue;
   }
   private greater(i: number, j: number): boolean {
-    return this.evaluate(this.heap[i]) > this.evaluate(this.heap[j]);
+    return this.comparator(this.heap[i], this.heap[j]);
   }
   private swap(i: number, j: number): void {
     [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
