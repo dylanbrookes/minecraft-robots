@@ -97,7 +97,7 @@ function __TurtleService__.prototype.onMessage(self, message, sender)
                     "Adding pathfinder to",
                     __TS__Spread(message.params)
                 )
-                BehaviourStack:push(__TS__New(PathfinderBehaviour, message.params))
+                BehaviourStack:push(__TS__New(PathfinderBehaviour, message.params, 100))
                 break
             end
             ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.exec

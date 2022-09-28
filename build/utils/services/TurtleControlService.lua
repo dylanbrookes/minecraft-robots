@@ -192,6 +192,7 @@ function TurtleControlService.prototype.onMessage(self, message, sender)
                 break
             end
             turtle = self.turtleStore:update(sender, {status = TurtleStatus.OFFLINE})
+            EventLoop:emit(TurtleControlEvent.TURTLE_OFFLINE, sender)
             Logger:info(((("Turtle " .. turtle.label) .. " [") .. tostring(sender)) .. "] terminated")
             break
         end

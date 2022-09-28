@@ -226,6 +226,11 @@ elseif cmd == "clear" then
             issuer_id = os.computerID()
         }
     )
+elseif cmd == "status" then
+    Logger:info("Requesting status...")
+    sendCmd(nil, cmd)
+    local ____, message = rednet.receive(TURTLE_PROTOCOL_NAME, 3)
+    Logger:info("Response:", message)
 else
     Logger:info(
         "Sending",
