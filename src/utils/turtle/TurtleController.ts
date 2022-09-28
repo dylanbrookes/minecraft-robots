@@ -44,7 +44,11 @@ class __TurtleController__ {
   private _dig(direction: 'forward' | 'up' | 'down', assertSuccess: boolean = true): boolean {
     const [occupied, info] = turtle[direction === 'forward' ? 'inspect' : (direction === 'up' ? 'inspectUp' : 'inspectDown')]();
     if (occupied && inspectHasTag(info, ItemTags.stella_arcanum)) {
-      Logger.error('Dig target is stellar arcanum');
+      if (assertSuccess) {
+        throw new Error('Dig target is stella arcanum');
+      } else {
+        Logger.error('Dig target is stellar arcanum');
+      }
       return false;
     }
 
