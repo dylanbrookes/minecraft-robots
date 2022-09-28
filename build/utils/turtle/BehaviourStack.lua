@@ -52,12 +52,28 @@ function __BehaviourStack__.prototype.step(self)
     if not currentBehaviour then
         return
     end
-    local done = currentBehaviour:step()
+    local done
+    do
+        local function ____catch(e)
+            Logger:error(e)
+            Logger:error(("Behaviour " .. currentBehaviour.name) .. " threw an error")
+            local ____currentBehaviour_onError_result_6 = currentBehaviour.onError
+            if ____currentBehaviour_onError_result_6 ~= nil then
+                ____currentBehaviour_onError_result_6 = ____currentBehaviour_onError_result_6(currentBehaviour, e)
+            end
+        end
+        local ____try, ____hasReturned = pcall(function()
+            done = currentBehaviour:step()
+        end)
+        if not ____try then
+            ____catch(____hasReturned)
+        end
+    end
     if done then
         currentBehaviour.status = TurtleBehaviourStatus.DONE
-        local ____currentBehaviour_onEnd_result_6 = currentBehaviour.onEnd
-        if ____currentBehaviour_onEnd_result_6 ~= nil then
-            ____currentBehaviour_onEnd_result_6 = ____currentBehaviour_onEnd_result_6(currentBehaviour)
+        local ____currentBehaviour_onEnd_result_8 = currentBehaviour.onEnd
+        if ____currentBehaviour_onEnd_result_8 ~= nil then
+            ____currentBehaviour_onEnd_result_8 = ____currentBehaviour_onEnd_result_8(currentBehaviour)
         end
         self.lastBehaviour = nil
         if self.priorityQueue:peek() ~= currentBehaviour then
