@@ -109,6 +109,7 @@ if cmd == nil then
                                 0
                             )
                         end
+                        Logger:info(message)
                     end
                     break
                 end

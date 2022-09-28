@@ -2,10 +2,15 @@
 local ____exports = {}
 local ____EventLoop = require("utils.EventLoop")
 local EventLoop = ____EventLoop.EventLoop
+local ____ItemTags = require("utils.ItemTags")
+local inspectHasTag = ____ItemTags.inspectHasTag
+local ItemTags = ____ItemTags.ItemTags
 local ____LocationMonitor = require("utils.LocationMonitor")
 local HEADING_ORDER = ____LocationMonitor.HEADING_ORDER
 local LocationMonitor = ____LocationMonitor.LocationMonitor
 local LocationMonitorStatus = ____LocationMonitor.LocationMonitorStatus
+local ____Logger = require("utils.Logger")
+local Logger = ____Logger.default
 local ____Consts = require("utils.turtle.Consts")
 local TurtleEvent = ____Consts.TurtleEvent
 local TurtleReason = ____Consts.TurtleReason
@@ -75,6 +80,11 @@ end
 function __TurtleController__.prototype._dig(self, direction, assertSuccess)
     if assertSuccess == nil then
         assertSuccess = true
+    end
+    local occupied, info = turtle[direction == "forward" and "inspect" or (direction == "up" and "inspectUp" or "inspectDown")]()
+    if occupied and inspectHasTag(nil, info, ItemTags.stella_arcanum) then
+        Logger:error("Dig target is stellar arcanum")
+        return false
     end
     local success = self:checkActionResult(
         assertSuccess,
