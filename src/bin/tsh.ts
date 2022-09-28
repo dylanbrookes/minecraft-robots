@@ -67,6 +67,7 @@ if (cmd === null) {
         sendCmd(TurtleCommands.inspect, false);
         const [pid, message] = rednet.receive(TURTLE_PROTOCOL_NAME, 3);
         if (!pid) throw new Error("No response to command " + cmd);
+        Logger.info(message);
       } break;
       default:
         Logger.warn("unknown char", char);

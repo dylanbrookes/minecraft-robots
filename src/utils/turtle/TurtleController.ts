@@ -1,5 +1,7 @@
 import { EventLoop } from "../EventLoop";
+import { inspectHasTag, ItemTags } from "../ItemTags";
 import { Heading, HEADING_ORDER, LocationMonitor, LocationMonitorStatus } from "../LocationMonitor";
+import Logger from "../Logger";
 import { TurtleEvent, TurtleReason } from "./Consts";
 
 class __TurtleController__ {
@@ -40,6 +42,12 @@ class __TurtleController__ {
   }
 
   private _dig(direction: 'forward' | 'up' | 'down', assertSuccess: boolean = true): boolean {
+    const [occupied, info] = turtle[direction === 'forward' ? 'inspect' : (direction === 'up' ? 'inspectUp' : 'inspectDown')]();
+    if (occupied && inspectHasTag(info, ItemTags.stella_arcanum)) {
+      Logger.error('Dig target is stellar arcanum');
+      return false;
+    }
+
     const success = this.checkActionResult(
       assertSuccess,
       turtle[direction === 'forward' ? 'dig' : (direction === 'up' ? 'digUp' : 'digDown')](),
