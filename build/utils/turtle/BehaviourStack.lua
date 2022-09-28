@@ -9,10 +9,14 @@ local TurtleBehaviourStatus = ____TurtleBehaviour.TurtleBehaviourStatus
 local __BehaviourStack__ = __TS__Class()
 __BehaviourStack__.name = "__BehaviourStack__"
 function __BehaviourStack__.prototype.____constructor(self)
-    self.priorityQueue = __TS__New(PriorityQueue, __BehaviourStack__.CompareBehaviourPriority)
-end
-function __BehaviourStack__.CompareBehaviourPriority(self, a, b)
-    return a.priority > b.priority
+    self.priorityQueue = __TS__New(
+        PriorityQueue,
+        function(____, ____bindingPattern0)
+            local priority
+            priority = ____bindingPattern0.priority
+            return priority
+        end
+    )
 end
 function __BehaviourStack__.prototype.peek(self)
     return self.priorityQueue:peek()

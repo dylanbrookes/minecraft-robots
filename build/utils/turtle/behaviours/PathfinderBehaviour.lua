@@ -69,10 +69,11 @@ function PathfinderBehaviour.prototype.____constructor(self, targetPos, priority
     self.name = "pathfinding"
     self.cameFrom = {}
     self.gScore = {}
+    self.heuristicOffsets = {}
     self.initialized = false
     self.nodeQueue = __TS__New(
         PriorityQueue,
-        function(____, a, b) return ____exports.PathfinderBehaviour:costHeuristic(b, targetPos) > ____exports.PathfinderBehaviour:costHeuristic(a, targetPos) end
+        function(____, a) return ____exports.PathfinderBehaviour:costHeuristic(a, targetPos) + (self.heuristicOffsets[serializePosition(nil, a)] or 0) end
     )
 end
 function PathfinderBehaviour.costHeuristic(self, pos, target)
@@ -108,16 +109,17 @@ function PathfinderBehaviour.prototype.step(self)
         )
         return true
     end
+    local currentPosKey = serializePosition(nil, currentPos)
     if not self.initialized then
         self.initialized = true
         self.nodeQueue:push(currentPos)
-        self.cameFrom[serializePosition(nil, currentPos)] = currentPos
-        self.gScore[serializePosition(nil, currentPos)] = 0
+        self.cameFrom[currentPosKey] = currentPos
+        self.gScore[currentPosKey] = 0
     end
     local bestNode = self.nodeQueue:peek()
     if bestNode and positionsEqual(nil, bestNode, currentPos) then
         self.nodeQueue:pop()
-        local currentGScore = self.gScore[serializePosition(nil, currentPos)]
+        local currentGScore = self.gScore[currentPosKey]
         if type(currentGScore) ~= "number" then
             error(
                 __TS__New(Error, "missing gscore"),
@@ -155,45 +157,39 @@ function PathfinderBehaviour.prototype.step(self)
             end
             nextPos = bestNodePath[currentPosIdx]
         else
-            local pos = self.cameFrom[serializePosition(nil, currentPos)]
+            local pos = self.cameFrom[currentPosKey]
             if not pos then
                 error(
-                    __TS__New(
-                        Error,
-                        ("Missing pos " .. serializePosition(nil, currentPos)) .. " in cameFrom"
-                    ),
+                    __TS__New(Error, ("Missing pos " .. currentPosKey) .. " in cameFrom"),
                     0
                 )
             end
             nextPos = pos
         end
         local nextPosIsBestNode = positionsEqual(nil, nextPos, bestNode)
+        local nextPosKey = serializePosition(nil, nextPos)
         if cartesianDistance(nil, currentPos, nextPos) ~= 1 then
             error(
-                __TS__New(
-                    Error,
-                    (("Next pos " .. serializePosition(nil, nextPos)) .. " is not adjacent to current pos ") .. serializePosition(nil, currentPos)
-                ),
+                __TS__New(Error, (("Next pos " .. nextPosKey) .. " is not adjacent to current pos ") .. currentPosKey),
                 0
             )
         end
+        local ranIntoTurtle = false
         if nextPos[2] > currentPos[2] then
             local occupied, info = turtle.inspectUp()
-            if nextPosIsBestNode and occupied and not inspectHasTags(nil, info, ItemTags.turtle) then
+            if nextPosIsBestNode and occupied then
                 self.nodeQueue:pop()
-                return
-            end
-            if not TurtleController:up(1, false) then
+                ranIntoTurtle = inspectHasTags(nil, info, ItemTags.turtle)
+            elseif not TurtleController:up(1, false) then
                 Logger:warn("failed to move up, sleeping for 5 seconds")
                 sleep(5)
             end
         elseif nextPos[2] < currentPos[2] then
             local occupied, info = turtle.inspectDown()
-            if nextPosIsBestNode and occupied and not inspectHasTags(nil, info, ItemTags.turtle) then
+            if nextPosIsBestNode and occupied then
                 self.nodeQueue:pop()
-                return
-            end
-            if not TurtleController:down(1, false) then
+                ranIntoTurtle = inspectHasTags(nil, info, ItemTags.turtle)
+            elseif not TurtleController:down(1, false) then
                 Logger:warn("failed to move up, sleeping for 5 seconds")
                 sleep(5)
             end
@@ -202,14 +198,18 @@ function PathfinderBehaviour.prototype.step(self)
             Logger:debug("moving " .. tostring(targetHeading))
             TurtleController:rotate(targetHeading)
             local occupied, info = turtle.inspect()
-            if nextPosIsBestNode and occupied and not inspectHasTags(nil, info, ItemTags.turtle) then
+            if nextPosIsBestNode and occupied then
                 self.nodeQueue:pop()
-                return
-            end
-            if not TurtleController:forward(1, false) then
+                ranIntoTurtle = inspectHasTags(nil, info, ItemTags.turtle)
+            elseif not TurtleController:forward(1, false) then
                 Logger:warn("failed to move forward, sleeping for 5 seconds")
                 sleep(5)
             end
+        end
+        if ranIntoTurtle then
+            Logger:info("Ran into another turtle, will check again")
+            self.heuristicOffsets[nextPosKey] = (self.heuristicOffsets[nextPosKey] or 0) - 1
+            self.nodeQueue:push(nextPos)
         end
     else
         error(

@@ -61,4 +61,7 @@ end
 function JobRegistryClient.prototype.deleteDone(self)
     return self:call(JobRegistryCommand.DELETE_DONE)
 end
+function JobRegistryClient.prototype.deleteAll(self)
+    return self:call(JobRegistryCommand.DELETE_ALL)
+end
 return ____exports

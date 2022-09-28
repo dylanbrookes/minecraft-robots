@@ -82,8 +82,16 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
             do
                 local ____params_2 = params
                 local id = ____params_2.id
+                local job = self.jobStore:getById(id)
                 local result = self.jobStore:removeById(id)
                 if result then
+                    local ____job_status_3 = job
+                    if ____job_status_3 ~= nil then
+                        ____job_status_3 = ____job_status_3.status
+                    end
+                    if ____job_status_3 == JobStatus.IN_PROGRESS then
+                        EventLoop:emit(JobRegistryEvent.JOB_CANCELLED, id)
+                    end
                     self.jobStore:save()
                 end
                 rednet.send(sender, result, JOB_REGISTRY_PROTOCOL_NAME)
@@ -113,9 +121,9 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.UPDATE
         if ____cond9 then
             do
-                local ____params_3 = params
-                local id = ____params_3.id
-                local changes = __TS__ObjectRest(____params_3, {id = true})
+                local ____params_5 = params
+                local id = ____params_5.id
+                local changes = __TS__ObjectRest(____params_5, {id = true})
                 local result = self.jobStore:updateById(id, changes)
                 if result then
                     self.jobStore:save()
@@ -127,9 +135,9 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.ADD
         if ____cond9 then
             do
-                local ____params_4 = params
-                local ____type = ____params_4.type
-                local args = ____params_4.args
+                local ____params_6 = params
+                local ____type = ____params_6.type
+                local args = ____params_6.args
                 local result = self.jobStore:add({type = ____type, args = args})
                 self.jobStore:save()
                 rednet.send(sender, result, JOB_REGISTRY_PROTOCOL_NAME)
@@ -139,8 +147,8 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.JOB_DONE
         if ____cond9 then
             do
-                local ____params_5 = params
-                local id = ____params_5.id
+                local ____params_7 = params
+                local id = ____params_7.id
                 self.jobStore:updateById(id, {status = JobStatus.DONE})
                 self.jobStore:save()
                 EventLoop:emit(JobRegistryEvent.JOB_DONE, id)
@@ -151,9 +159,9 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.JOB_FAILED
         if ____cond9 then
             do
-                local ____params_6 = params
-                local id = ____params_6.id
-                local ____error = ____params_6.error
+                local ____params_8 = params
+                local id = ____params_8.id
+                local ____error = ____params_8.error
                 self.jobStore:updateById(id, {status = JobStatus.FAILED, error = ____error})
                 self.jobStore:save()
                 Logger:error(
@@ -168,8 +176,8 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.CANCEL
         if ____cond9 then
             do
-                local ____params_7 = params
-                local id = ____params_7.id
+                local ____params_9 = params
+                local id = ____params_9.id
                 self.jobStore:updateById(id, {status = JobStatus.CANCELLED})
                 self.jobStore:save()
                 Logger:warn("Cancelled job " .. tostring(id))
@@ -181,8 +189,8 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.RETRY
         if ____cond9 then
             do
-                local ____params_8 = params
-                local id = ____params_8.id
+                local ____params_10 = params
+                local id = ____params_10.id
                 Logger:info("Retrying job " .. tostring(id))
                 local job = self.jobStore:getById(id)
                 if not job or job.status ~= JobStatus.FAILED then
@@ -193,6 +201,20 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
                 self.jobStore:save()
                 rednet.send(sender, {ok = true}, JOB_REGISTRY_PROTOCOL_NAME)
             end
+        end
+        ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.DELETE_ALL
+        if ____cond9 then
+            do
+                for ____, job in __TS__Iterator(self.jobStore) do
+                    self.jobStore:removeById(job.id)
+                    if job.status == JobStatus.IN_PROGRESS then
+                        EventLoop:emit(JobRegistryEvent.JOB_CANCELLED, job.id)
+                    end
+                end
+                self.jobStore:save()
+                rednet.send(sender, {ok = true}, JOB_REGISTRY_PROTOCOL_NAME)
+            end
+            break
         end
         do
             Logger:error("invalid JobRegistryService command", message.cmd)

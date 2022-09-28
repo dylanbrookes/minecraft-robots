@@ -29,13 +29,6 @@ local function clearCol(self, breakForward, height, up)
         end
     end
 end
-local function breakAndMove(self)
-    TurtleController:dig(false)
-    while not TurtleController:forward(1, false) do
-        print("Could not move, waiting 5 seconds...")
-        sleep(5)
-    end
-end
 ____exports.ClearBehaviour = __TS__Class()
 local ClearBehaviour = ____exports.ClearBehaviour
 ClearBehaviour.name = "ClearBehaviour"
@@ -119,7 +112,8 @@ function ClearBehaviour.prototype.step(self)
             )
         end
         if not (lastCol and lastRow) then
-            breakAndMove(nil)
+            TurtleController:dig(false)
+            TurtleController:forward()
         end
         self.y = self.y + 1
         if self.y == self.d then

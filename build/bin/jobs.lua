@@ -48,6 +48,13 @@ repeat
         end
         break
     end
+    ____cond3 = ____cond3 or ____switch3 == JobRegistryCommand.DELETE_ALL
+    if ____cond3 then
+        do
+            Logger:info(jobRegistryClient:deleteAll())
+        end
+        break
+    end
     ____cond3 = ____cond3 or ____switch3 == JobRegistryCommand.GET
     if ____cond3 then
         do

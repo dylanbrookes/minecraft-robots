@@ -10,6 +10,7 @@ ____exports.JobRegistryCommand = JobRegistryCommand or ({})
 ____exports.JobRegistryCommand.LIST = "LIST"
 ____exports.JobRegistryCommand.DELETE = "DELETE"
 ____exports.JobRegistryCommand.DELETE_DONE = "DELETE_DONE"
+____exports.JobRegistryCommand.DELETE_ALL = "DELETE_ALL"
 ____exports.JobRegistryCommand.GET = "GET"
 ____exports.JobRegistryCommand.UPDATE = "UPDATE"
 ____exports.JobRegistryCommand.ADD = "ADD"

@@ -13,11 +13,22 @@ end
 ____exports.default = __TS__Class()
 local PriorityQueue = ____exports.default
 PriorityQueue.name = "PriorityQueue"
-function PriorityQueue.prototype.____constructor(self, comparator)
-    if comparator == nil then
-        comparator = function(____, a, b) return a > b end
+function PriorityQueue.prototype.____constructor(self, evaluate)
+    if evaluate == nil then
+        evaluate = function(____, a)
+            if type(a) == "number" then
+                return a
+            end
+            error(
+                __TS__New(
+                    Error,
+                    "Missing evaulator fn for item" .. textutils.serialize(a)
+                ),
+                0
+            )
+        end
     end
-    self.comparator = comparator
+    self.evaluate = evaluate
     self.heap = {}
 end
 function PriorityQueue.prototype.clear(self)
@@ -61,7 +72,7 @@ function PriorityQueue.prototype.replace(self, value)
     return replacedValue
 end
 function PriorityQueue.prototype.greater(self, i, j)
-    return self:comparator(self.heap[i + 1], self.heap[j + 1])
+    return self:evaluate(self.heap[i + 1]) > self:evaluate(self.heap[j + 1])
 end
 function PriorityQueue.prototype.swap(self, i, j)
     local ____temp_1 = {self.heap[j + 1], self.heap[i + 1]}
