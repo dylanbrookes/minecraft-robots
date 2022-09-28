@@ -50,6 +50,8 @@ export interface TurtleBehaviour {
    * Called when the behaviour is completed (returns true from step)
    */
   onEnd?(): void;
+
+  onError?(e: any): void;
 }
 
 export type TurtleBehaviourConstructor = {

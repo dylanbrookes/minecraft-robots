@@ -1,6 +1,7 @@
 import env from "./env";
 
 enum LogLevel {
+  INTERNAL = 'INTERNAL',
   DEBUG = 'DEBUG',
   INFO = 'INFO',
   WARN = 'WARN',
@@ -8,6 +9,7 @@ enum LogLevel {
 }
 
 const LOG_LEVEL_SHORTCODES = {
+  [LogLevel.INTERNAL]: '[*]',
   [LogLevel.DEBUG]: '[D]',
   [LogLevel.INFO]: '[I]',
   [LogLevel.WARN]: '[W]',
@@ -15,6 +17,7 @@ const LOG_LEVEL_SHORTCODES = {
 }
 
 const LOG_LEVEL_ORDER = [
+  LogLevel.INTERNAL,
   LogLevel.DEBUG,
   LogLevel.INFO,
   LogLevel.WARN,
@@ -51,6 +54,7 @@ class __Logger__ {
   private readonly id = os.epoch();
   private readonly file: WriteHandle;
   private readonly logLevel: LogLevel; // level that goes to stdout
+  private readonly fileLogLevel: LogLevel; // level that goes to file
   constructor(logDir: string, fileName?: string) {
     const filePath = `${logDir}/${fileName || `${this.id}.log`}`;
     const [file, err] = fs.open(filePath, "a");
@@ -65,14 +69,22 @@ class __Logger__ {
       this.logLevel = LogLevel.INFO;
     }
 
-    this.debug(`Logger ${this.id} created with log level ${this.logLevel}`);
+    if (`FILE_LOG_LEVEL` in env) {
+      const idx = LOG_LEVEL_ORDER.indexOf(env.FILE_LOG_LEVEL as LogLevel);
+      if (idx === -1) throw new Error(`Invalid log level ${env.FILE_LOG_LEVEL}`);
+      this.fileLogLevel = env.FILE_LOG_LEVEL as LogLevel;
+    } else {
+      this.fileLogLevel = LogLevel.DEBUG;
+    }
+
+    this.writeLine(`Logger ${this.id} created with log level ${this.logLevel}/${this.fileLogLevel}`, LogLevel.INTERNAL);
   }
 
   private writeLine(line: string, level: LogLevel) {
     if (LOG_LEVEL_ORDER.indexOf(level) >= LOG_LEVEL_ORDER.indexOf(this.logLevel)) {
       printLog(line, level);
     }
-    if ('FILE_LOGGING' in env) { 
+    if ('FILE_LOGGING' in env && LOG_LEVEL_ORDER.indexOf(level) >= LOG_LEVEL_ORDER.indexOf(this.fileLogLevel)) { 
       const log = `${LOG_LEVEL_SHORTCODES[level]} ${line}`;
       this.file.writeLine(log);
       this.file.flush();

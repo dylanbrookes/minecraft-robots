@@ -45,7 +45,14 @@ class __BehaviourStack__ {
       // console.log("Nothing to do...");
       return;
     }
-    const done = currentBehaviour.step();
+    let done: boolean | void;
+    try {
+      done = currentBehaviour.step();
+    } catch (e) {
+      Logger.error(e);
+      Logger.error(`Behaviour ${currentBehaviour.name} threw an error`);
+      currentBehaviour.onError?.(e);
+    }
 
     if (done) {
       currentBehaviour.status = TurtleBehaviourStatus.DONE;
