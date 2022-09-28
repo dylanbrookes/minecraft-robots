@@ -42,8 +42,10 @@ export default class JobRegistryService {
       } break;
       case JobRegistryCommand.DELETE: {
         const { id } = params;
+        const job = this.jobStore.getById(id);
         const result = this.jobStore.removeById(id);
         if (result) {
+          if (job?.status === JobStatus.IN_PROGRESS) EventLoop.emit(JobRegistryEvent.JOB_CANCELLED, id);
           this.jobStore.save();
         }
         rednet.send(sender, result, JOB_REGISTRY_PROTOCOL_NAME);
@@ -116,6 +118,16 @@ export default class JobRegistryService {
         this.jobStore.save();
         rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
       }
+      case JobRegistryCommand.DELETE_ALL: {
+        for (const job of this.jobStore) {
+          this.jobStore.removeById(job.id);
+          if (job.status === JobStatus.IN_PROGRESS) {
+            EventLoop.emit(JobRegistryEvent.JOB_CANCELLED, job.id);
+          }
+        }
+        this.jobStore.save();
+        rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
+      } break;
       default:
         Logger.error("invalid JobRegistryService command", message.cmd);
     }

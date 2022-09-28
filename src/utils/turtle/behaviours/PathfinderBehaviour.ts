@@ -47,6 +47,7 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
   private nodeQueue: PriorityQueue<TurtlePosition>;
   private cameFrom = new LuaMap<string, TurtlePosition>();
   private gScore = new LuaMap<string, number>();
+  private heuristicOffsets = new LuaMap<string, number>(); // used to adjust cost heuristic
   private initialized = false;
 
   constructor(
@@ -54,7 +55,8 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
     readonly priority = 1,
   ) {
     super();
-    this.nodeQueue = new PriorityQueue((a, b) => PathfinderBehaviour.costHeuristic(b, targetPos) > PathfinderBehaviour.costHeuristic(a, targetPos));
+    this.nodeQueue = new PriorityQueue((a) => PathfinderBehaviour.costHeuristic(a, targetPos)
+      + (this.heuristicOffsets.get(serializePosition(a)) || 0));
   }
 
   private static costHeuristic(pos: TurtlePosition, target: TurtlePosition) {
@@ -93,20 +95,21 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
       return true;
     }
 
+    const currentPosKey = serializePosition(currentPos);
     if (!this.initialized) {
       this.initialized = true;
       this.nodeQueue.push(currentPos);
-      this.cameFrom.set(serializePosition(currentPos), currentPos);
-      this.gScore.set(serializePosition(currentPos), 0);
+      this.cameFrom.set(currentPosKey, currentPos);
+      this.gScore.set(currentPosKey, 0);
     }
 
-    // Logger.debug(`current pos: ${serializePosition(currentPos)}`);
+    // Logger.debug(`current pos: ${currentPosKey}`);
     let bestNode = this.nodeQueue.peek();
     if (bestNode && positionsEqual(bestNode, currentPos)) {
       this.nodeQueue.pop(); // remove it since we're here
       // explore neighbors
       // Logger.debug("exploring neighbors");
-      const currentGScore = this.gScore.get(serializePosition(currentPos));
+      const currentGScore = this.gScore.get(currentPosKey);
       if (typeof currentGScore !== 'number') throw new Error('missing gscore');
 
       for (const neighbor of neighbors(currentPos)) {
@@ -142,35 +145,35 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
         nextPos = bestNodePath[currentPosIdx - 1];
       } else {
         // backtrack to the previous position
-        const pos = this.cameFrom.get(serializePosition(currentPos));
-        if (!pos) throw new Error(`Missing pos ${serializePosition(currentPos)} in cameFrom`);
+        const pos = this.cameFrom.get(currentPosKey);
+        if (!pos) throw new Error(`Missing pos ${currentPosKey} in cameFrom`);
         nextPos = pos;
       }
 
       const nextPosIsBestNode = positionsEqual(nextPos, bestNode);
+      const nextPosKey = serializePosition(nextPos);
       // Logger.debug(`moving to ${serializePosition(nextPos)} (${nextPosIsBestNode})`);
       // move to next pos
-      if (cartesianDistance(currentPos, nextPos) !== 1) throw new Error(`Next pos ${serializePosition(nextPos)} is not adjacent to current pos ${serializePosition(currentPos)}`);
+      if (cartesianDistance(currentPos, nextPos) !== 1) throw new Error(`Next pos ${nextPosKey} is not adjacent to current pos ${currentPosKey}`);
+      let ranIntoTurtle = false;
       if (nextPos[1] > currentPos[1]) {
         const [occupied, info] = turtle.inspectUp();
         // just wait if occupied by another turtle
-        if (nextPosIsBestNode && occupied && !inspectHasTags(info, ItemTags.turtle)) {
+        if (nextPosIsBestNode && occupied) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
-          return;
-        }
-        if (!TurtleController.up(1, false)) {
+          ranIntoTurtle = inspectHasTags(info, ItemTags.turtle);
+        } else if (!TurtleController.up(1, false)) {
           Logger.warn("failed to move up, sleeping for 5 seconds");
           sleep(5);
         }
       } else if (nextPos[1] < currentPos[1]) {
         const [occupied, info] = turtle.inspectDown();
-        if (nextPosIsBestNode && occupied && !inspectHasTags(info, ItemTags.turtle)) {
+        if (nextPosIsBestNode && occupied) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
-          return;
-        }
-        if (!TurtleController.down(1, false)) {
+          ranIntoTurtle = inspectHasTags(info, ItemTags.turtle);
+        } else if (!TurtleController.down(1, false)) {
           Logger.warn("failed to move up, sleeping for 5 seconds");
           sleep(5);
         }
@@ -179,15 +182,20 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
         Logger.debug(`moving ${targetHeading}`);
         TurtleController.rotate(targetHeading);
         const [occupied, info] = turtle.inspect();
-        if (nextPosIsBestNode && occupied && !inspectHasTags(info, ItemTags.turtle)) {
+        if (nextPosIsBestNode && occupied) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
-          return;
-        }
-        if (!TurtleController.forward(1, false)) {
+          ranIntoTurtle = inspectHasTags(info, ItemTags.turtle);
+        } else if (!TurtleController.forward(1, false)) {
           Logger.warn("failed to move forward, sleeping for 5 seconds");
           sleep(5);
         }
+      }
+
+      if (ranIntoTurtle) {
+        Logger.info("Ran into another turtle, will check again");
+        this.heuristicOffsets.set(nextPosKey, (this.heuristicOffsets.get(nextPosKey) || 0) - 1); // deincentivize the node so that it will try a different route
+        this.nodeQueue.push(nextPos);
       }
     } else {
       throw new Error(`Failed to find path to ${serializePosition(this.targetPos)}`);

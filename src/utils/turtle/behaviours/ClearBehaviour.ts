@@ -13,14 +13,6 @@ function clearCol(breakForward: boolean, height: number, up: boolean = true) {
   }
 }
 
-function breakAndMove() {
-  TurtleController.dig(false);
-  while (!TurtleController.forward(1, false)) {
-    console.log("Could not move, waiting 5 seconds...");
-    sleep(5);
-  }
-}
-
 export class ClearBehaviour extends TurtleBehaviourBase implements TurtleBehaviour {
   readonly priority = 1;
   readonly name = 'clearing';
@@ -85,7 +77,8 @@ export class ClearBehaviour extends TurtleBehaviourBase implements TurtleBehavio
       }
 
       if (!(lastCol && lastRow)) {
-        breakAndMove();
+        TurtleController.dig(false);
+        TurtleController.forward(); // asserts success, job will be failed if can't move
       }
       this.y++;
 

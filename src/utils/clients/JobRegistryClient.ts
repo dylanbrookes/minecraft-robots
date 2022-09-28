@@ -58,4 +58,8 @@ export class JobRegistryClient {
   deleteDone() {
     return this.call(JobRegistryCommand.DELETE_DONE);
   }
+
+  deleteAll() {
+    return this.call(JobRegistryCommand.DELETE_ALL);
+  }
 }

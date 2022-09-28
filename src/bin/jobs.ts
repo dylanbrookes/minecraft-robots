@@ -28,6 +28,9 @@ switch(cmd.toUpperCase()) {
   case JobRegistryCommand.DELETE_DONE: {
     Logger.info(jobRegistryClient.deleteDone());
   } break;
+  case JobRegistryCommand.DELETE_ALL: {
+    Logger.info(jobRegistryClient.deleteAll());
+  } break;
   case JobRegistryCommand.GET: {
     const id = parseInt(params[0]);
     Logger.info(jobRegistryClient.getById(id));

@@ -10,6 +10,7 @@ export enum JobRegistryCommand {
   LIST = 'LIST',
   DELETE = 'DELETE',
   DELETE_DONE = 'DELETE_DONE',
+  DELETE_ALL = 'DELETE_ALL',
   GET = 'GET',
   UPDATE = 'UPDATE',
   ADD = 'ADD',
