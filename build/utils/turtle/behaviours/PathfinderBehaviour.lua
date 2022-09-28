@@ -1,7 +1,7 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
 local ____exports = {}
 local ____ItemTags = require("utils.ItemTags")
-local inspectHasTag = ____ItemTags.inspectHasTag
+local inspectHasTags = ____ItemTags.inspectHasTags
 local ItemTags = ____ItemTags.ItemTags
 local ____LocationMonitor = require("utils.LocationMonitor")
 local HEADING_ORDER = ____LocationMonitor.HEADING_ORDER
@@ -179,7 +179,7 @@ function PathfinderBehaviour.prototype.step(self)
         end
         if nextPos[2] > currentPos[2] then
             local occupied, info = turtle.inspectUp()
-            if nextPosIsBestNode and occupied and not inspectHasTag(nil, info, ItemTags.turtle) then
+            if nextPosIsBestNode and occupied and not inspectHasTags(nil, info, ItemTags.turtle) then
                 self.nodeQueue:pop()
                 return
             end
@@ -189,7 +189,7 @@ function PathfinderBehaviour.prototype.step(self)
             end
         elseif nextPos[2] < currentPos[2] then
             local occupied, info = turtle.inspectDown()
-            if nextPosIsBestNode and occupied and not inspectHasTag(nil, info, ItemTags.turtle) then
+            if nextPosIsBestNode and occupied and not inspectHasTags(nil, info, ItemTags.turtle) then
                 self.nodeQueue:pop()
                 return
             end
@@ -202,7 +202,7 @@ function PathfinderBehaviour.prototype.step(self)
             Logger:debug("moving " .. tostring(targetHeading))
             TurtleController:rotate(targetHeading)
             local occupied, info = turtle.inspect()
-            if nextPosIsBestNode and occupied and not inspectHasTag(nil, info, ItemTags.turtle) then
+            if nextPosIsBestNode and occupied and not inspectHasTags(nil, info, ItemTags.turtle) then
                 self.nodeQueue:pop()
                 return
             end
