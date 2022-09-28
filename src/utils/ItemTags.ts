@@ -3,7 +3,8 @@ export enum ItemTags {
   stella_arcanum = 'forge:ores/stella_arcanum',
 }
 
-export const inspectHasTag = (info: string | turtle.InspectItemData | null, tag: string): boolean => {
+export const inspectHasTags = (info: string | turtle.InspectItemData | null, tagsParam: string | string[]): boolean => {
   if (!info || typeof info !== 'object') return false;
-  return tag in (info as any).tags;
+  const tags = Array.isArray(tagsParam) ? tagsParam : [tagsParam];
+  return tags.findIndex(tag => tag in (info as any).tags) !== -1;
 }

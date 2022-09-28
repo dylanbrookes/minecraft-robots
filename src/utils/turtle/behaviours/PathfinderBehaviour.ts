@@ -1,4 +1,4 @@
-import { inspectHasTag, ItemTags } from "../../ItemTags";
+import { inspectHasTags, ItemTags } from "../../ItemTags";
 import { Heading, HEADING_ORDER, HEADING_TO_XZ_VEC, LocationMonitor, LocationMonitorStatus } from "../../LocationMonitor";
 import Logger from "../../Logger";
 import PriorityQueue from "../../PriorityQueue";
@@ -154,7 +154,7 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
       if (nextPos[1] > currentPos[1]) {
         const [occupied, info] = turtle.inspectUp();
         // just wait if occupied by another turtle
-        if (nextPosIsBestNode && occupied && !inspectHasTag(info, ItemTags.turtle)) {
+        if (nextPosIsBestNode && occupied && !inspectHasTags(info, ItemTags.turtle)) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
           return;
@@ -165,7 +165,7 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
         }
       } else if (nextPos[1] < currentPos[1]) {
         const [occupied, info] = turtle.inspectDown();
-        if (nextPosIsBestNode && occupied && !inspectHasTag(info, ItemTags.turtle)) {
+        if (nextPosIsBestNode && occupied && !inspectHasTags(info, ItemTags.turtle)) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
           return;
@@ -179,7 +179,7 @@ export class PathfinderBehaviour extends TurtleBehaviourBase implements TurtleBe
         Logger.debug(`moving ${targetHeading}`);
         TurtleController.rotate(targetHeading);
         const [occupied, info] = turtle.inspect();
-        if (nextPosIsBestNode && occupied && !inspectHasTag(info, ItemTags.turtle)) {
+        if (nextPosIsBestNode && occupied && !inspectHasTags(info, ItemTags.turtle)) {
           // Logger.debug('space is occupied, removing best node');
           this.nodeQueue.pop();
           return;
