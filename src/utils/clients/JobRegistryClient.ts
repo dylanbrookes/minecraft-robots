@@ -39,8 +39,20 @@ export class JobRegistryClient {
     return this.call(JobRegistryCommand.ADD, { type, args });
   }
 
+  cancel(id: number): void {
+    return this.call(JobRegistryCommand.CANCEL, { id });
+  }
+
+  retry(id: number): void {
+    return this.call(JobRegistryCommand.RETRY, { id });
+  }
+
   jobDone(id: number) {
     return this.call(JobRegistryCommand.JOB_DONE, { id });
+  }
+
+  jobFailed(id: number, error: any) {
+    return this.call(JobRegistryCommand.JOB_DONE, { id, error });
   }
 
   deleteDone() {

@@ -51,7 +51,10 @@ class __BehaviourStack__ {
     } catch (e) {
       Logger.error(e);
       Logger.error(`Behaviour ${currentBehaviour.name} threw an error`);
+      currentBehaviour.status = TurtleBehaviourStatus.FAILED;
       currentBehaviour.onError?.(e);
+      this.lastBehaviour = undefined;
+      this.priorityQueue.pop();
     }
 
     if (done) {

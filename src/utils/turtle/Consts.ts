@@ -32,6 +32,7 @@ export const JobEvent = {
   end: (id: number) => `job:end:${id}`,
   pause: (id: number) => `job:pause:${id}`,
   resume: (id: number) => `job:resume:${id}`,
+  error: (id: number) => `job:error:${id}`,
 }
 
 export enum JobType {

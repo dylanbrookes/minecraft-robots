@@ -7,16 +7,18 @@ import { TurtleStatusUpdate } from "../stores/TurtleStore";
 export class TurtleClient {
   constructor(private hostId: number) {}
 
-  private call(cmd: TurtleCommands, params: object = {}, timeout = 3, assertResp: boolean = true): any {
+  private call(cmd: TurtleCommands, params: object = {}, timeout = 3, assertResp: boolean = true, expectResponse = true): any {
     rednet.send(this.hostId, {
       cmd,
       params,
     }, TURTLE_PROTOCOL_NAME);
   
-    Logger.debug('Sent cmd, waiting for resp...');
-    const [pid, message] = rednet.receive(TURTLE_PROTOCOL_NAME, timeout);
-    if (!pid && assertResp) throw new Error("No response to command " + cmd);
-    return message;
+    if (expectResponse) {
+      Logger.debug('Sent cmd, waiting for resp...');
+      const [pid, message] = rednet.receive(TURTLE_PROTOCOL_NAME, timeout);
+      if (!pid && assertResp) throw new Error("No response to command " + cmd);
+      return message;
+    }
   }
 
   addJob(jobRecord: JobRecord) {
@@ -28,5 +30,9 @@ export class TurtleClient {
     const resp = this.call(TurtleCommands.status, {}, 1, false);
     if (!resp?.ok) return undefined;
     return resp.status;
+  }
+
+  cancelJob(id: number) {
+    this.call(TurtleCommands.cancelJob, { id }, 1, false, false);
   }
 }

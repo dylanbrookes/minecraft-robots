@@ -13,11 +13,16 @@ export enum JobRegistryCommand {
   GET = 'GET',
   UPDATE = 'UPDATE',
   ADD = 'ADD',
+  CANCEL = 'CANCEL',
+  RETRY = 'RETRY',
   JOB_DONE = 'JOB_DONE',
+  JOB_FAILED = 'JOB_FAILED',
 }
 
 export enum JobRegistryEvent {
   JOB_DONE = 'JobRegistry:job_done',
+  JOB_FAILED = 'JobRegistry:job_failed',
+  JOB_CANCELLED = 'JobRegistry:job_cancelled',
 }
 
 export enum TurtleControlEvent {

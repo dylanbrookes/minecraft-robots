@@ -22,7 +22,7 @@ const [x0, z0, x1, z1] = [Math.min(x0p, x1p), Math.min(z0p, z1p), Math.max(x0p, 
 const regions: [TurtlePosition, TurtlePosition /* dimensions */][] = [];
 for (let x = x0; x <= x1; x += CHUNK_SIZE) {
   for (let z = z0; z <= z1; z += CHUNK_SIZE) {
-    regions.push([[x, y, z], [Math.min(x1 - x, CHUNK_SIZE), h, Math.min(z1 - z, CHUNK_SIZE)]]);
+    regions.push([[x, y, z], [Math.min(z1 - z + 1, CHUNK_SIZE), Math.min(x1 - x + 1, CHUNK_SIZE), h]]);
   }
 }
 

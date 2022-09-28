@@ -39,6 +39,14 @@ switch(cmd.toUpperCase()) {
     const [type, ...args] = params;
     Logger.info(jobRegistryClient.add(type as JobType, args));
   } break;
+  case JobRegistryCommand.CANCEL: {
+    const id = parseInt(params[0]);
+    Logger.info(jobRegistryClient.cancel(id));
+  } break;
+  case JobRegistryCommand.RETRY: {
+    const id = parseInt(params[0]);
+    Logger.info(jobRegistryClient.retry(id));
+  } break;
   case 'CLEAR': {
     const [headingParam, ...dimensions] = params;
     const heading = parseHeadingParam(headingParam);

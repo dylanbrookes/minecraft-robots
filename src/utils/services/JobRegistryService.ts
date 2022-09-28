@@ -77,7 +77,6 @@ export default class JobRegistryService {
         rednet.send(sender, result, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.JOB_DONE: {
-        // maybe just allow turtles to call UPDATE
         const { id } = params;
         this.jobStore.updateById(id, {
           status: JobStatus.DONE,
@@ -86,6 +85,37 @@ export default class JobRegistryService {
         EventLoop.emit(JobRegistryEvent.JOB_DONE, id);
         rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
+      case JobRegistryCommand.JOB_FAILED: {
+        const { id, error } = params;
+        this.jobStore.updateById(id, {
+          status: JobStatus.FAILED,
+          error,
+        });
+        this.jobStore.save();
+        Logger.error(`Job ${id} failed:`, error);
+        EventLoop.emit(JobRegistryEvent.JOB_FAILED, id);
+        rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
+      } break;
+      case JobRegistryCommand.CANCEL: {
+        const { id } = params;
+        this.jobStore.updateById(id, { status: JobStatus.CANCELLED });
+        this.jobStore.save();
+        Logger.warn(`Cancelled job ${id}`);
+        EventLoop.emit(JobRegistryEvent.JOB_CANCELLED, id);
+        rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
+      } break;
+      case JobRegistryCommand.RETRY: {
+        const { id } = params;
+        Logger.info(`Retrying job ${id}`);
+        const job = this.jobStore.getById(id);
+        if (!job || job.status !== JobStatus.FAILED) {
+          rednet.send(sender, { ok: false }, JOB_REGISTRY_PROTOCOL_NAME);
+          return;
+        }
+        this.jobStore.updateById(id, { status: JobStatus.PENDING });
+        this.jobStore.save();
+        rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
+      }
       default:
         Logger.error("invalid JobRegistryService command", message.cmd);
     }

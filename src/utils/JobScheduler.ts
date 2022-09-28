@@ -22,8 +22,27 @@ export default class JobScheduler {
     EventLoop.setTimeout(() => EventLoop.emit(JobScheduler.SCHEDULE_JOBS_EVENT));
 
     EventLoop.on(JobRegistryEvent.JOB_DONE, () => this.scheduleJobs(), { async: true });
+    EventLoop.on(JobRegistryEvent.JOB_FAILED, () => this.scheduleJobs(), { async: true });
+    EventLoop.on(JobRegistryEvent.JOB_CANCELLED, (id) => {
+      this.onJobCancelled(id);
+      this.scheduleJobs();
+    }, { async: true });
     EventLoop.on(TurtleControlEvent.TURTLE_IDLE, () => this.scheduleJobs(), { async: true });
     EventLoop.on(TurtleControlEvent.TURTLE_OFFLINE, (id: number) => this.onTurtleOffline(id));
+  }
+
+  private onJobCancelled(jobId: number) {
+    const jobRecord = this.jobStore.getById(jobId);
+    if (!jobRecord) {
+      Logger.error("Unknown job", jobId);
+      return;
+    }
+
+    if (jobRecord.turtle_id) {
+      // notify the turtle that they can stop
+      const turtleClient = new TurtleClient(jobRecord.turtle_id);
+      turtleClient.cancelJob(jobRecord.id);
+    }
   }
 
   private onTurtleOffline(id: number) {

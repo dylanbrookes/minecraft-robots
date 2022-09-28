@@ -21,6 +21,7 @@ export enum TurtleCommands {
   digUp = 'digUp',
   digDown = 'digDown',
   addJob = 'addJob',
+  cancelJob = 'cancelJob',
   status = 'status',
   inspect = 'inspect',
 }
@@ -72,12 +73,18 @@ class __TurtleService__ {
           Logger.info("Running command:", ...message.params);
           shell.run(...message.params);
           break;
-        case TurtleCommands.addJob:
+        case TurtleCommands.addJob: {
           const job = message.params;
           Logger.info("Adding job with params:", job);
           JobProcessor.add(job);
           rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
-          break;
+        } break;
+        case TurtleCommands.cancelJob: {
+          const { id } = message.params;
+          Logger.info("Cancelling job", id);
+          JobProcessor.cancel(id);
+          rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
+        } break;
         case TurtleCommands.status:
           const status = getStatusUpdate();
           Logger.info("Received status request, sending:", status);

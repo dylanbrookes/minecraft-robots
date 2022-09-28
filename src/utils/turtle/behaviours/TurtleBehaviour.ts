@@ -4,6 +4,7 @@ export enum TurtleBehaviourStatus {
   RUNNING = 'RUNNING',
   PAUSED = 'PAUSED',
   DONE = 'DONE',
+  FAILED = 'FAILED',
 }
 
 export interface TurtleBehaviour {
