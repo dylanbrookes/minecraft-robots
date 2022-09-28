@@ -68,7 +68,7 @@ class __TurtleService__ {
           break;
         case TurtleCommands.moveTo:
           Logger.info("Adding pathfinder to", ...message.params);
-          BehaviourStack.push(new PathfinderBehaviour(message.params));
+          BehaviourStack.push(new PathfinderBehaviour(message.params, 100)); // use higher priority so that it trumps jobs
           break;
         case TurtleCommands.exec:
           Logger.info("Running command:", ...message.params);

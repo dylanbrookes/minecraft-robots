@@ -129,6 +129,11 @@ if (cmd === null) {
     status: JobStatus.IN_PROGRESS,
     issuer_id: os.computerID(),
   });
+} else if (cmd === 'status') {
+  Logger.info("Requesting status...");
+  sendCmd(cmd as TurtleCommands);
+  const [, message] = rednet.receive(TURTLE_PROTOCOL_NAME, 3);
+  Logger.info("Response:", message);
 } else {
   Logger.info("Sending", cmd, "with params:", ...params);
   sendCmd(cmd as TurtleCommands, ...params);

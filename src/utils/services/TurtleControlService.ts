@@ -152,6 +152,7 @@ export default class TurtleControlService {
           break;
         }
         const turtle = this.turtleStore.update(sender, { status: TurtleStatus.OFFLINE });
+        EventLoop.emit(TurtleControlEvent.TURTLE_OFFLINE, sender);
         Logger.info(`Turtle ${turtle.label} [${sender}] terminated`);
         break;
       case TurtleControlCommand.LIST:
