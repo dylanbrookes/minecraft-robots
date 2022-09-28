@@ -10,6 +10,7 @@ import getStatusUpdate from "../turtle/getStatusUpdate";
 
 export class TurtleControlClient {
   private static REGISTER_EVENT = 'TurtleRegistryClient:registerSelf';
+  private static REGISTER_RETRY_INTERVAL = 5;
   private static PING_EVENT = 'TurtleRegistryClient:sendPing';
   private static PING_INTERVAL = 5;
   private terminated = false;
@@ -29,7 +30,7 @@ export class TurtleControlClient {
     }, { async: true });
   }
 
-  private call(cmd: TurtleControlCommand, args: object = {}, getResponse: boolean = true): any {
+  private call(cmd: TurtleControlCommand, args: object = {}, getResponse: boolean = true, assertResponse = true): any {
     rednet.send(this.hostId,{
       cmd,
       ...args,
@@ -38,7 +39,7 @@ export class TurtleControlClient {
 
     if (getResponse) {
       const [pid, message] = rednet.receive(TURTLE_CONTROL_PROTOCOL_NAME, 3);
-      if (!pid) throw new Error("No response to command " + cmd);
+      if (!pid && assertResponse) throw new Error("No response to command " + cmd);
       return message;
     }
   }
@@ -65,6 +66,7 @@ export class TurtleControlClient {
     if (!resp?.ok) {
       // this could happen if the server crashes
       Logger.warn("Turtle register failed, will retry:", textutils.serialize(resp));
+      EventLoop.setTimeout(() => EventLoop.emit(TurtleControlClient.REGISTER_EVENT), TurtleControlClient.REGISTER_RETRY_INTERVAL);
       return;
     }
 
