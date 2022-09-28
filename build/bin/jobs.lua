@@ -12,8 +12,8 @@ local ____Logger = require("utils.Logger")
 local Logger = ____Logger.default
 local ____Consts = require("utils.turtle.Consts")
 local JobType = ____Consts.JobType
-local ____LocationMonitor = require("utils.LocationMonitor")
-local Heading = ____LocationMonitor.Heading
+local ____parseHeadingParam = require("utils.parseHeadingParam")
+local parseHeadingParam = ____parseHeadingParam.default
 local hostId = findProtocolHostId(nil, JOB_REGISTRY_PROTOCOL_NAME)
 if not hostId then
     error(
@@ -82,30 +82,7 @@ repeat
             local ____params_2 = params
             local headingParam = ____params_2[1]
             local dimensions = __TS__ArraySlice(____params_2, 1)
-            local heading = Heading.UNKNOWN
-            repeat
-                local ____switch10 = string.lower(headingParam)
-                local ____cond10 = ____switch10 == "n" or ____switch10 == "north"
-                if ____cond10 then
-                    heading = Heading.NORTH
-                    break
-                end
-                ____cond10 = ____cond10 or (____switch10 == "s" or ____switch10 == "south")
-                if ____cond10 then
-                    heading = Heading.SOUTH
-                    break
-                end
-                ____cond10 = ____cond10 or (____switch10 == "w" or ____switch10 == "west")
-                if ____cond10 then
-                    heading = Heading.WEST
-                    break
-                end
-                ____cond10 = ____cond10 or (____switch10 == "e" or ____switch10 == "east")
-                if ____cond10 then
-                    heading = Heading.EAST
-                    break
-                end
-            until true
+            local heading = parseHeadingParam(nil, headingParam)
             Logger:info("Locating...")
             local pos = {gps.locate(3)}
             if not pos or not pos[1] then
