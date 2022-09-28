@@ -83,7 +83,14 @@ function __TurtleController__.prototype._dig(self, direction, assertSuccess)
     end
     local occupied, info = turtle[direction == "forward" and "inspect" or (direction == "up" and "inspectUp" or "inspectDown")]()
     if occupied and inspectHasTag(nil, info, ItemTags.stella_arcanum) then
-        Logger:error("Dig target is stellar arcanum")
+        if assertSuccess then
+            error(
+                __TS__New(Error, "Dig target is stella arcanum"),
+                0
+            )
+        else
+            Logger:error("Dig target is stellar arcanum")
+        end
         return false
     end
     local success = self:checkActionResult(
