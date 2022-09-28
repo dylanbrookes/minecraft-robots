@@ -5,6 +5,7 @@ import { JobRegistryClient } from '../utils/clients/JobRegistryClient';
 import Logger from '../utils/Logger';
 import { JobType } from '../utils/turtle/Consts';
 import { Heading } from '../utils/LocationMonitor';
+import parseHeadingParam from '../utils/parseHeadingParam';
 
 const hostId = findProtocolHostId(JOB_REGISTRY_PROTOCOL_NAME);
 if (!hostId) {
@@ -40,25 +41,7 @@ switch(cmd.toUpperCase()) {
   } break;
   case 'CLEAR': {
     const [headingParam, ...dimensions] = params;
-    let heading = Heading.UNKNOWN;
-    switch (headingParam.toLowerCase()) {
-      case 'n':
-      case 'north':
-        heading = Heading.NORTH;
-        break;
-      case 's':
-      case 'south':
-        heading = Heading.SOUTH;
-        break;
-      case 'w':
-      case 'west':
-        heading = Heading.WEST;
-        break;
-      case 'e':
-      case 'east':
-        heading = Heading.EAST;
-        break;
-    }
+    const heading = parseHeadingParam(headingParam);
   
     Logger.info("Locating...");
     const pos = gps.locate(3);
