@@ -23,6 +23,18 @@ export default class JobScheduler {
 
     EventLoop.on(JobRegistryEvent.JOB_DONE, () => this.scheduleJobs(), { async: true });
     EventLoop.on(TurtleControlEvent.TURTLE_IDLE, () => this.scheduleJobs(), { async: true });
+    EventLoop.on(TurtleControlEvent.TURTLE_OFFLINE, (id: number) => this.onTurtleOffline(id));
+  }
+
+  private onTurtleOffline(id: number) {
+    const assignedJobs = this.jobStore.select(({ status, turtle_id }) => status === JobStatus.IN_PROGRESS && turtle_id === id);
+    for (const job of assignedJobs) {
+      Logger.info(`Releasing job ${job.id} to be retried`);
+      this.jobStore.updateById(job.id, { status: JobStatus.HALTED });
+    }
+    if (assignedJobs.length > 0) {
+      this.jobStore.save();
+    }
   }
 
   private schedulingInProgress = false;
@@ -45,7 +57,7 @@ export default class JobScheduler {
     } 
 
     for (const job of this.jobStore
-      .select(({ status }) => status === JobStatus.PENDING)
+      .select(({ status }) => [JobStatus.PENDING, JobStatus.HALTED].includes(status))
       .map(jobRecord => new Job(jobRecord))) {
       
       let turtleFitnesses: [TurtleRecord, number][] | undefined = undefined;

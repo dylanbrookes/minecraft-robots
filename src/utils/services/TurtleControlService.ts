@@ -94,7 +94,12 @@ export default class TurtleControlService {
           const updates = buildUpdates(message, turtleRecord);
           
           if (turtleRecord) {
-            const turtleRecord = this.turtleStore.update(sender, updates);
+            if (turtleRecord.status !== TurtleStatus.OFFLINE) {
+              // if we got a connect msg without it being offline first, the turtle was probably picked up and placed again quickly
+              // trigger offline event to reap jobs
+              EventLoop.emit(TurtleControlEvent.TURTLE_OFFLINE, turtleRecord.id);
+            }
+            turtleRecord = this.turtleStore.update(sender, updates);
             this.turtleStore.save();
             Logger.info(`Turtle ${turtleRecord.label} [${sender}] reconnected`);
             rednet.send(sender, {
