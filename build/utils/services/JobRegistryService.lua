@@ -193,7 +193,7 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
                 local id = ____params_10.id
                 Logger:info("Retrying job " .. tostring(id))
                 local job = self.jobStore:getById(id)
-                if not job or job.status ~= JobStatus.FAILED then
+                if not job or not __TS__ArrayIncludes({JobStatus.CANCELLED, JobStatus.FAILED}, job.status) then
                     rednet.send(sender, {ok = false}, JOB_REGISTRY_PROTOCOL_NAME)
                     return
                 end
