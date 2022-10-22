@@ -42,12 +42,15 @@ function TurtleControlClient.prototype.register(self)
         {async = true}
     )
 end
-function TurtleControlClient.prototype.call(self, cmd, args, getResponse)
+function TurtleControlClient.prototype.call(self, cmd, args, getResponse, assertResponse)
     if args == nil then
         args = {}
     end
     if getResponse == nil then
         getResponse = true
+    end
+    if assertResponse == nil then
+        assertResponse = true
     end
     rednet.send(
         self.hostId,
@@ -56,7 +59,7 @@ function TurtleControlClient.prototype.call(self, cmd, args, getResponse)
     )
     if getResponse then
         local pid, message = rednet.receive(TURTLE_CONTROL_PROTOCOL_NAME, 3)
-        if not pid then
+        if not pid and assertResponse then
             error(
                 __TS__New(Error, "No response to command " .. cmd),
                 0
@@ -93,6 +96,10 @@ function TurtleControlClient.prototype.registerSelf(self)
             "Turtle register failed, will retry:",
             textutils.serialize(resp)
         )
+        EventLoop:setTimeout(
+            function() return EventLoop:emit(____exports.TurtleControlClient.REGISTER_EVENT) end,
+            ____exports.TurtleControlClient.REGISTER_RETRY_INTERVAL
+        )
         return
     end
     if resp.label then
@@ -113,6 +120,7 @@ function TurtleControlClient.prototype.sendPing(self)
     )
 end
 TurtleControlClient.REGISTER_EVENT = "TurtleRegistryClient:registerSelf"
+TurtleControlClient.REGISTER_RETRY_INTERVAL = 5
 TurtleControlClient.PING_EVENT = "TurtleRegistryClient:sendPing"
 TurtleControlClient.PING_INTERVAL = 5
 return ____exports
