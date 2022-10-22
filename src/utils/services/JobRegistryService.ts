@@ -110,7 +110,7 @@ export default class JobRegistryService {
         const { id } = params;
         Logger.info(`Retrying job ${id}`);
         const job = this.jobStore.getById(id);
-        if (!job || job.status !== JobStatus.FAILED) {
+        if (!job || ![JobStatus.CANCELLED, JobStatus.FAILED].includes(job.status)) {
           rednet.send(sender, { ok: false }, JOB_REGISTRY_PROTOCOL_NAME);
           return;
         }
