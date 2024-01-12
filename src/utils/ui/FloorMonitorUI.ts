@@ -54,7 +54,7 @@ export default class FloorMonitorUI {
         this.monitor.clear();
       } break;
       case 2: {
-
+        // idk what was supposed to go here
       } break;
     }
 

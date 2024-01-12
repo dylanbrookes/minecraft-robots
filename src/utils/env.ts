@@ -7,7 +7,7 @@ if (fs.exists(ENV_FILE)) {
   }
 
   let line: string | undefined;
-  while (line = handle.readLine()) {
+  while ((line = handle.readLine())) {
     const [key, value] = line.split('=');
     if (!key || !value) {
       // can't use logger because circular dependency

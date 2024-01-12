@@ -6,7 +6,7 @@ import { JobType } from "../turtle/Consts";
 export class JobRegistryClient {
   constructor(private hostId: number) {}
 
-  private call(cmd: JobRegistryCommand, args: object = {}): any {
+  private call<T>(cmd: JobRegistryCommand, args: object = {}): T {
     rednet.send(this.hostId, {
       cmd,
       ...args,
@@ -19,40 +19,40 @@ export class JobRegistryClient {
   }
 
   list(): JobRecord[] {
-    const resp = this.call(JobRegistryCommand.LIST);
+    const resp = this.call<string>(JobRegistryCommand.LIST);
     return textutils.unserialize(resp);
   }
 
   getById(id: number): JobRecord | undefined {
-    return this.call(JobRegistryCommand.GET, { id });
+    return this.call<JobRecord>(JobRegistryCommand.GET, { id });
   }
 
   updateById(id: number, changes: Partial<JobRecord>): JobRecord {
-    return this.call(JobRegistryCommand.UPDATE, { id, changes });
+    return this.call<JobRecord>(JobRegistryCommand.UPDATE, { id, changes });
   }
 
   deleteById(id: number): boolean {
-    return this.call(JobRegistryCommand.DELETE, { id });
+    return this.call<boolean>(JobRegistryCommand.DELETE, { id });
   }
 
-  add(type: JobType, args: any[]): JobRecord {
-    return this.call(JobRegistryCommand.ADD, { type, args });
+  add(type: JobType, args: unknown[]): JobRecord {
+    return this.call<JobRecord>(JobRegistryCommand.ADD, { type, args });
   }
 
-  cancel(id: number): void {
-    return this.call(JobRegistryCommand.CANCEL, { id });
+  cancel(id: number): boolean {
+    return this.call<{ ok: boolean }>(JobRegistryCommand.CANCEL, { id }).ok;
   }
 
-  retry(id: number): void {
-    return this.call(JobRegistryCommand.RETRY, { id });
+  retry(id: number): boolean {
+    return this.call<{ ok: boolean }>(JobRegistryCommand.RETRY, { id }).ok;
   }
 
   jobDone(id: number) {
     return this.call(JobRegistryCommand.JOB_DONE, { id });
   }
 
-  jobFailed(id: number, error: any) {
-    return this.call(JobRegistryCommand.JOB_DONE, { id, error });
+  jobFailed(id: number, error: unknown) {
+    return this.call(JobRegistryCommand.JOB_FAILED, { id, error });
   }
 
   deleteDone() {

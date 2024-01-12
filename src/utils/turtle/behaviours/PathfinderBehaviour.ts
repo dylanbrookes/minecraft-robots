@@ -18,6 +18,7 @@ const neighbors = (p: TurtlePosition): TurtlePosition[] => [
 
 const buildPathFromNode = (p: TurtlePosition, cameFrom: LuaMap<string, TurtlePosition>): TurtlePosition[] => {
   const path: TurtlePosition[] = [p];
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const lastPos = path[path.length - 1];
     const pp = cameFrom.get(serializePosition(lastPos));

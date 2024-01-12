@@ -20,7 +20,7 @@ class __JobProcessor__ {
     const job = this.jobs.values().next().value as Job | void;
     if (!job) return; // no jobs
 
-    let offFns: (() => boolean)[] = [];
+    const offFns: (() => boolean)[] = [];
     const offAll = () => offFns.forEach(off => {
       if (!off()) {
         throw new Error('Failed to remove job event callback');
@@ -34,7 +34,7 @@ class __JobProcessor__ {
         this.onJobEnd(job.id);
         offAll();
       }, { async: true }),
-      EventLoop.on(JobEvent.error(job.id), (e: any) => {
+      EventLoop.on(JobEvent.error(job.id), (e: unknown) => {
         this.onJobError(job.id, e);
         offAll();
       }, { async: true }),
@@ -84,7 +84,7 @@ class __JobProcessor__ {
     }
   }
 
-  private onJobError(id: number, err: any) {
+  private onJobError(id: number, err: unknown) {
     Logger.info('Job threw an error', id);
     const job = this.jobs.get(id);
     if (!job) throw new Error(`Missing job ${id}`);

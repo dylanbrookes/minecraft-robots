@@ -4,6 +4,8 @@ local ____EventLoop = require("utils.EventLoop")
 local EventLoop = ____EventLoop.EventLoop
 local ____Logger = require("utils.Logger")
 local Logger = ____Logger.default
+local ____JobStore = require("utils.stores.JobStore")
+local JobStatus = ____JobStore.JobStatus
 local ____Consts = require("utils.turtle.Consts")
 local serializePosition = ____Consts.serializePosition
 ____exports.default = __TS__Class()
@@ -72,7 +74,7 @@ function TurtleControlUI.prototype.render(self)
     local text = {}
     __TS__ArrayForEach(
         self.turtleStore:select(),
-        function(____, ____bindingPattern0, i)
+        function(____, ____bindingPattern0)
             local currentBehaviour
             local status
             local lastSeen
@@ -152,6 +154,23 @@ function TurtleControlUI.prototype.render(self)
                 ) + 1
             )
             self.monitor.write("    Turtle ID: " .. tostring(job.turtle_id))
+        end
+        if job.status == JobStatus.FAILED then
+            self.monitor.setCursorPos(
+                2,
+                select(
+                    2,
+                    self.monitor.getCursorPos()
+                ) + 1
+            )
+            local ____self_monitor_write_4 = self.monitor.write
+            local ____temp_3
+            if job.error and type(job.error) == "table" and job.error.message ~= nil then
+                ____temp_3 = job.error.message
+            else
+                ____temp_3 = "UNKNOWN"
+            end
+            ____self_monitor_write_4("    Error: " .. tostring(____temp_3))
         end
         self.monitor.setCursorPos(
             2,

@@ -1,6 +1,6 @@
 import { EventLoop } from "../EventLoop";
 import Logger from "../Logger";
-import { JobStore } from "../stores/JobStore";
+import { JobStatus, JobStore } from "../stores/JobStore";
 import { ResourceStore } from "../stores/ResourceStore";
 import TurtleStore from "../stores/TurtleStore";
 import { serializePosition } from "../turtle/Consts";
@@ -57,7 +57,7 @@ export default class TurtleControlUI {
     this.monitor.write("Hey there!!!!! " + this.frameNum);
 
     const text: string[] = [];
-    this.turtleStore.select().forEach(({ id, label, location, lastSeen, status, currentBehaviour }, i) => text.push(
+    this.turtleStore.select().forEach(({ id, label, location, lastSeen, status, currentBehaviour }) => text.push(
       `[${id}] ${label}`,
       `    status: ${status}`
         + ((currentBehaviour && currentBehaviour !== '') ? ` (${currentBehaviour})` : ''),
@@ -88,6 +88,10 @@ export default class TurtleControlUI {
       if (job.turtle_id) {
         this.monitor.setCursorPos(2, this.monitor.getCursorPos()[1] + 1);
         this.monitor.write(`    Turtle ID: ${job.turtle_id}`);
+      }
+      if (job.status === JobStatus.FAILED) {
+        this.monitor.setCursorPos(2, this.monitor.getCursorPos()[1] + 1);
+        this.monitor.write(`    Error: ${(job.error && typeof job.error === 'object' && 'message' in job.error) ? job.error.message : 'UNKNOWN'}`);
       }
       this.monitor.setCursorPos(2, this.monitor.getCursorPos()[1] + 1);
     }

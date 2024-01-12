@@ -66,7 +66,7 @@ export default class BulletinBoardUI {
       this.monitor.setTextColor(colors.white);
       this.monitor.write(` ${task.description}\n`);
 
-      const [_, y] = this.monitor.getCursorPos();
+      const [, y] = this.monitor.getCursorPos();
       this.monitor.setCursorPos(2, y + 1);
     }
     // this.monitor.setCursorPos(1, 3);

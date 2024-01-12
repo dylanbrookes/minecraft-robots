@@ -1,7 +1,6 @@
 import { HOSTNAME, TURTLE_PROTOCOL_NAME } from "../Consts";
 import { EventLoop } from "../EventLoop";
 import Logger from "../Logger";
-import { TurtleStatusUpdate } from "../stores/TurtleStore";
 import { PathfinderBehaviour } from "../turtle/behaviours/PathfinderBehaviour";
 import { BehaviourStack } from "../turtle/BehaviourStack";
 import getStatusUpdate from "../turtle/getStatusUpdate";
@@ -27,6 +26,8 @@ export enum TurtleCommands {
   reboot = 'reboot',
 }
 
+type Message = { cmd: string, params: unknown[] };
+
 class __TurtleService__ {
   private registered = false;
 
@@ -37,7 +38,7 @@ class __TurtleService__ {
 
     Logger.info("Registering Turtle Service");
     rednet.host(TURTLE_PROTOCOL_NAME, HOSTNAME);
-    EventLoop.on('rednet_message', (sender: number, message: any, protocol: string | null) => {
+    EventLoop.on('rednet_message', (sender: number, message: Message, protocol: string | null) => {
       if (protocol === TURTLE_PROTOCOL_NAME) {
         this.onMessage(message, sender);
       }
@@ -45,60 +46,69 @@ class __TurtleService__ {
     });
   }
 
-  onMessage(message: any, sender: number) {
+  onMessage(message: Message, sender: number) {
     Logger.debug("GOT MESSAGE from sender", sender, message);
-    if ('cmd' in message) {
-      switch (message.cmd) {
-        case TurtleCommands.forward:
-        case TurtleCommands.back:
-        case TurtleCommands.turnLeft:
-        case TurtleCommands.turnRight:
-        case TurtleCommands.up:
-        case TurtleCommands.down:
-        case TurtleCommands.dig:
-        case TurtleCommands.digUp:
-        case TurtleCommands.digDown:
-          if (message.cmd in TurtleController
-            // @ts-ignore
-            && typeof TurtleController[message.cmd] === 'function') TurtleController[message.cmd](...(message.params || []));
-          else throw new Error(`Method ${message.cmd} does not exist on TurtleController`);
-          break;
-        case TurtleCommands.inspect:
-          rednet.send(sender, { result: turtle.inspect() }, TURTLE_PROTOCOL_NAME);
-          break;
-        case TurtleCommands.moveTo:
-          Logger.info("Adding pathfinder to", ...message.params);
-          BehaviourStack.push(new PathfinderBehaviour(message.params, 100)); // use higher priority so that it trumps jobs
-          break;
-        case TurtleCommands.exec:
-          Logger.info("Running command:", ...message.params);
-          shell.run(...message.params);
-          break;
-        case TurtleCommands.addJob: {
-          const job = message.params;
-          Logger.info("Adding job with params:", job);
-          JobProcessor.add(job);
-          rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
-        } break;
-        case TurtleCommands.cancelJob: {
-          const { id } = message.params;
-          Logger.info("Cancelling job", id);
-          JobProcessor.cancel(id);
-          rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
-        } break;
-        case TurtleCommands.status: {
-          const status = getStatusUpdate();
-          Logger.info("Received status request, sending:", status);
-          rednet.send(sender, { ok: true, status }, TURTLE_PROTOCOL_NAME);
-        } break;
-        case TurtleCommands.reboot: {
-          os.queueEvent('terminate', 'reboot');
-        } break;
-        default:
-          Logger.error("invalid command", message.cmd);
-      }
-    } else {
+    if (typeof message !== 'object' || message === null || !('cmd' in message)) {
       Logger.error("idk what to do with this", textutils.serialize(message));
+      return;
+    }
+
+    switch (message.cmd) {
+      case TurtleCommands.forward:
+      case TurtleCommands.back:
+      case TurtleCommands.turnLeft:
+      case TurtleCommands.turnRight:
+      case TurtleCommands.up:
+      case TurtleCommands.down:
+      case TurtleCommands.dig:
+      case TurtleCommands.digUp:
+      case TurtleCommands.digDown:
+        if (message.cmd in TurtleController
+          // @ts-expect-error message is untyped
+          && typeof TurtleController[message.cmd] === 'function') TurtleController[message.cmd](...(message.params || []));
+        else throw new Error(`Method ${message.cmd} does not exist on TurtleController`);
+        break;
+      case TurtleCommands.inspect:
+        rednet.send(sender, { result: turtle.inspect() }, TURTLE_PROTOCOL_NAME);
+        break;
+      case TurtleCommands.moveTo:
+        
+        BehaviourStack.push(new PathfinderBehaviour(
+          // @ts-expect-error untyped
+          message.params,
+          100, // use higher priority so that it trumps jobs
+        ));
+        break;
+      case TurtleCommands.exec:
+        if (!('params' in message)) throw new Error(`Missing params`);
+        Logger.info("Running command:", ...message.params);
+        // @ts-expect-error untyped
+        shell.run(...message.params);
+        break;
+      case TurtleCommands.addJob: {
+        const job = message.params;
+        Logger.info("Adding job with params:", job);
+        // @ts-expect-error untyped
+        JobProcessor.add(job);
+        rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
+      } break;
+      case TurtleCommands.cancelJob: {
+        // @ts-expect-error untyped
+        const { id } = message.params;
+        Logger.info("Cancelling job", id);
+        JobProcessor.cancel(id);
+        rednet.send(sender, { ok: true }, TURTLE_PROTOCOL_NAME);
+      } break;
+      case TurtleCommands.status: {
+        const status = getStatusUpdate();
+        Logger.info("Received status request, sending:", status);
+        rednet.send(sender, { ok: true, status }, TURTLE_PROTOCOL_NAME);
+      } break;
+      case TurtleCommands.reboot: {
+        os.queueEvent('terminate', 'reboot');
+      } break;
+      default:
+        Logger.error("invalid command", message.cmd);
     }
   }
 }

@@ -4,7 +4,6 @@ import { findProtocolHostId } from '../utils/findProtocolHostId';
 import { JobRegistryClient } from '../utils/clients/JobRegistryClient';
 import Logger from '../utils/Logger';
 import { JobType } from '../utils/turtle/Consts';
-import { Heading } from '../utils/LocationMonitor';
 import parseHeadingParam from '../utils/parseHeadingParam';
 
 const hostId = findProtocolHostId(JOB_REGISTRY_PROTOCOL_NAME);

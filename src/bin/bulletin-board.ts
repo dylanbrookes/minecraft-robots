@@ -29,7 +29,7 @@ function handleCommand(cmd: string, ...params: string[]) {
       taskStore.remove(parseInt(params[0]));
       console.log("Removed task");
       break;
-    case 'update':
+    case 'update': {
       const status = params[1] as TaskStatus;
       if (!VALID_STATUSES.includes(status)) {
         console.log(`Invalid status ${status}, must be one of ${textutils.serialize(VALID_STATUSES)}`);
@@ -37,7 +37,7 @@ function handleCommand(cmd: string, ...params: string[]) {
       }
       taskStore.update(parseInt(params[0]), { status });
       console.log("Updated task");
-      break;
+    } break;
     case 'list':
       console.log(taskStore.toString());
       break;
@@ -55,14 +55,14 @@ EventLoop.on('char', (char: string) => {
 });
 
 EventLoop.on('key', (key: string) => {
-  // @ts-ignore
+  // @ts-expect-error missing types for keys
   if (key === keys.enter) {
     print(); // newline
     const [cmd, ...params] = line.split(' ');
     handleCommand(cmd, ...params);
     printPrompt();
     line = '';
-    // @ts-ignore
+    // @ts-expect-error missing types for keys
   } else if (key === keys.backspace) {
     if (line.length === 0) return;
     const [x, y] = term.getCursorPos();

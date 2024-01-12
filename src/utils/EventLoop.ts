@@ -1,5 +1,6 @@
 import Logger from "./Logger";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EventCallback = (...ev: any[]) => boolean | void; // return true to be removed
 
 type EventOptions = {
@@ -42,7 +43,7 @@ class Routine {
   /**
    * @returns true if the routine finished 
    */
-  resume(event?: string, ...params: any[]): boolean | undefined {
+  resume(event?: string, ...params: unknown[]): boolean | undefined {
     if (!this.co) throw new Error('Cannot resume a dead routine ' + this.id);
     const result = coroutine.resume(this.co, event, ...params);
     if (result[0] === false) {
@@ -93,12 +94,11 @@ class __EventLoop__ {
     return true;
   }
 
-  emit(name: string, ...params: any[]) {
+  emit(name: string, ...params: unknown[]) {
     if (!this.running) throw new Error("Cannot emit events before starting event loop");
     if (!(name in this.events)) return;
 
     const cbsLeft: EventRecord[] = [];
-    const startLen = this.events[name].length;
     // console.log("calling", startLen, name, "event cbs");
     for (const ev of this.events[name]) {
       const { cb, async } = ev;
@@ -161,7 +161,7 @@ class __EventLoop__ {
     this.events[name] = cbsLeft;
   }
 
-  emitRepeat(name: string, interval: number, ...ev: any[]) {
+  emitRepeat(name: string, interval: number, ...ev: unknown[]) {
     let evTimer = os.startTimer(interval);
     this.on('timer', (id: number) => {
       if (id !== evTimer) return false;
@@ -173,7 +173,7 @@ class __EventLoop__ {
   }
 
   setTimeout(cb: () => void, interval: number = 0) {
-    let evTimer = os.startTimer(interval);
+    const evTimer = os.startTimer(interval);
     this.on('timer', (id: number) => {
       if (id !== evTimer) return false;
       cb();

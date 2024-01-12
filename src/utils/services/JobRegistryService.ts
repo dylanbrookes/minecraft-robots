@@ -1,7 +1,7 @@
 import { HOSTNAME, JobRegistryCommand, JobRegistryEvent, JOB_REGISTRY_PROTOCOL_NAME } from "../Consts";
 import { EventLoop } from "../EventLoop";
 import Logger from "../Logger";
-import { JobStatus, JobStore } from "../stores/JobStore";
+import { JobRecord, JobStatus, JobStore } from "../stores/JobStore";
 
 export default class JobRegistryService {
   private registered = false;
@@ -15,7 +15,7 @@ export default class JobRegistryService {
 
     Logger.info("Registering Job Registry Service");
     rednet.host(JOB_REGISTRY_PROTOCOL_NAME, HOSTNAME);
-    EventLoop.on('rednet_message', (sender: number, message: any, protocol: string | null) => {
+    EventLoop.on('rednet_message', (sender: number, message: unknown, protocol: string | null) => {
       if (protocol === JOB_REGISTRY_PROTOCOL_NAME) {
         this.onMessage(message, sender);
       }
@@ -23,9 +23,9 @@ export default class JobRegistryService {
     });
   }
 
-  private onMessage(message: any, sender: number) {
+  private onMessage(message: unknown, sender: number) {
     Logger.info("Got JobRegistryService message from sender", sender, textutils.serialize(message));
-    if (!('cmd' in message)) {
+    if (typeof message !== 'object' || message === null || !('cmd' in message)) {
       Logger.error("idk what to do with this", message);
       return;
     }
@@ -37,11 +37,11 @@ export default class JobRegistryService {
         rednet.send(sender, this.jobStore.toString(), JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.GET: {
-        const { id } = params;
+        const { id } = params as Pick<JobRecord, 'id'>;
         rednet.send(sender, this.jobStore.getById(id), JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.DELETE: {
-        const { id } = params;
+        const { id } = params as Pick<JobRecord, 'id'>;
         const job = this.jobStore.getById(id);
         const result = this.jobStore.removeById(id);
         if (result) {
@@ -65,7 +65,7 @@ export default class JobRegistryService {
         rednet.send(sender, { ok: true, count }, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.UPDATE: {
-        const { id, ...changes } = params;
+        const { id, ...changes } = params as Pick<JobRecord, 'id'> & Partial<JobRecord>;
         const result = this.jobStore.updateById(id, changes);
         if (result) {
           this.jobStore.save();
@@ -73,13 +73,13 @@ export default class JobRegistryService {
         rednet.send(sender, result, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.ADD: {
-        const { type, args } = params;
+        const { type, args } = params as Pick<JobRecord, 'type' | 'args'>;
         const result = this.jobStore.add({ type, args });
         this.jobStore.save();
         rednet.send(sender, result, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.JOB_DONE: {
-        const { id } = params;
+        const { id } = params as Pick<JobRecord, 'id'>;
         this.jobStore.updateById(id, {
           status: JobStatus.DONE,
         });
@@ -88,7 +88,7 @@ export default class JobRegistryService {
         rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.JOB_FAILED: {
-        const { id, error } = params;
+        const { id, error } = params as Pick<JobRecord, 'id' | 'error'>;
         this.jobStore.updateById(id, {
           status: JobStatus.FAILED,
           error,
@@ -99,7 +99,7 @@ export default class JobRegistryService {
         rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.CANCEL: {
-        const { id } = params;
+        const { id } = params as Pick<JobRecord, 'id'>;
         this.jobStore.updateById(id, { status: JobStatus.CANCELLED });
         this.jobStore.save();
         Logger.warn(`Cancelled job ${id}`);
@@ -107,7 +107,7 @@ export default class JobRegistryService {
         rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
       } break;
       case JobRegistryCommand.RETRY: {
-        const { id } = params;
+        const { id } = params as Pick<JobRecord, 'id'>;
         Logger.info(`Retrying job ${id}`);
         const job = this.jobStore.getById(id);
         if (!job || ![JobStatus.CANCELLED, JobStatus.FAILED].includes(job.status)) {
@@ -117,10 +117,10 @@ export default class JobRegistryService {
         this.jobStore.updateById(id, { status: JobStatus.PENDING });
         this.jobStore.save();
         rednet.send(sender, { ok: true }, JOB_REGISTRY_PROTOCOL_NAME);
-      }
+      } break;
       case JobRegistryCommand.DELETE_ALL: {
         for (const job of this.jobStore) {
-          this.jobStore.removeById(job.id);
+          this.jobStore.removeById(job.id)
           if (job.status === JobStatus.IN_PROGRESS) {
             EventLoop.emit(JobRegistryEvent.JOB_CANCELLED, job.id);
           }

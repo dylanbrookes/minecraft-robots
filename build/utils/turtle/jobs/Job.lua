@@ -25,7 +25,7 @@ end
 function Job.prototype.buildBehaviour(self)
     return __TS__New(
         self.impl.BehaviourConstructor,
-        __TS__Spread(self.record.args)
+        table.unpack(self.record.args)
     )
 end
 ____exports.default = Job

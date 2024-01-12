@@ -52,7 +52,17 @@ function ResourceStore.LoadStoreFile(self, storeFile)
         if not line then
             break
         end
-        local resource = textutils.unserialize(line)
+        local res, err = textutils.unserializeJSON(line)
+        if res == nil then
+            error(
+                __TS__New(
+                    Error,
+                    "Failed to deserialize resource: " .. tostring(err)
+                ),
+                0
+            )
+        end
+        local resource = res
         if type(resource.id) ~= "number" then
             error(
                 __TS__New(Error, "Invalid resource parsed from: " .. line),
@@ -83,7 +93,7 @@ end
 function ResourceStore.prototype.list(self)
     Logger:info("Resources:")
     for ____, resource in __TS__Iterator(self.resources:values()) do
-        Logger:info(textutils.serializeJSON(resource, true))
+        Logger:info(textutils.serialize(resource))
     end
 end
 function ResourceStore.prototype.add(self, resourceRecord)
@@ -109,7 +119,7 @@ function ResourceStore.prototype.save(self)
         )
     end
     for ____, resource in __TS__Iterator(self.resources:values()) do
-        handle.writeLine(textutils.serialize(resource, {compact = true}))
+        handle.writeLine(textutils.serializeJSON(resource))
     end
     handle.flush()
     handle.close()

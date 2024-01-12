@@ -1,4 +1,4 @@
-import { Heading, HEADING_ORDER, HEADING_TO_XZ_VEC, LocationMonitor } from "../../LocationMonitor";
+import { Heading, LocationMonitor } from "../../LocationMonitor";
 import Logger from "../../Logger";
 import { serializePosition, TurtlePosition } from "../Consts";
 import { TurtleController } from "../TurtleController";
@@ -77,8 +77,11 @@ export class ClearBehaviour extends TurtleBehaviourBase implements TurtleBehavio
       }
 
       if (!(lastCol && lastRow)) {
-        TurtleController.dig(false);
-        TurtleController.forward(); // asserts success, job will be failed if can't move
+        let moved = false;
+        do {
+          TurtleController.dig(false);
+          moved = TurtleController.forward(1, false);
+        } while (!moved); // loop to handle gravel that may fall and obstruct
       }
       this.y++;
 

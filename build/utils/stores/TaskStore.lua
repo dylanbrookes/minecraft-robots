@@ -42,7 +42,17 @@ function TaskStore.LoadStoreFile(self, storeFile)
         if not line then
             break
         end
-        local task = textutils.unserialize(line)
+        local res, err = textutils.unserializeJSON(line)
+        if res == nil then
+            error(
+                __TS__New(
+                    Error,
+                    "Failed to deserialize resource: " .. tostring(err)
+                ),
+                0
+            )
+        end
+        local task = res
         if type(task.id) ~= "number" then
             error(
                 __TS__New(Error, "Invalid task parsed from: " .. line),
@@ -71,7 +81,7 @@ function TaskStore.prototype.save(self)
         )
     end
     for ____, task in __TS__Iterator(self.tasks:values()) do
-        handle.writeLine(textutils.serialize(task, {compact = true}))
+        handle.writeLine(textutils.serializeJSON(task))
     end
     handle.flush()
     handle.close()

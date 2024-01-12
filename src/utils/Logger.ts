@@ -36,7 +36,7 @@ const levelColor = (level: LogLevel) => {
   }
 }
 const printLog = (line: string, level: LogLevel) => {
-  let oColor = term.getTextColor();
+  const oColor = term.getTextColor();
   let log = line;
   if (term.isColor()) {
     term.setTextColor(levelColor(level));

@@ -43,7 +43,7 @@ function ResourceRegistryService.prototype.onMessage(self, message, sender)
         sender,
         textutils.serialize(message)
     )
-    if not (message.cmd ~= nil) then
+    if type(message) ~= "table" or message == nil or not (message.cmd ~= nil) then
         Logger:error("idk what to do with this", message)
         return
     end

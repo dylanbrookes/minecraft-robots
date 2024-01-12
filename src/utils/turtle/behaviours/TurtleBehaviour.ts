@@ -38,25 +38,25 @@ export interface TurtleBehaviour {
    * state that was returned from the onPause method.
    * The behaviour may be resumed on any turtle.
    */
-  onResume?(data?: any): void;
+  onResume?(data?: unknown): void;
 
   /**
    * Called when the behaviour is paused.
    * If required, the behaviour can return state that will be persisted
    * and passed to the turtle that is resuming the job.
    */
-  onPause?(): any;
+  onPause?(): unknown;
 
   /**
    * Called when the behaviour is completed (returns true from step)
    */
   onEnd?(): void;
 
-  onError?(e: any): void;
+  onError?(e: unknown): void;
 }
 
 export type TurtleBehaviourConstructor = {
-  new (...args: any[]): TurtleBehaviour;
+  new (...args: unknown[]): TurtleBehaviour;
 }
 
 export class TurtleBehaviourBase {

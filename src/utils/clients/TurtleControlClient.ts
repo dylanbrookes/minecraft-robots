@@ -1,11 +1,8 @@
 import { TURTLE_CONTROL_PROTOCOL_NAME } from "../Consts";
 import { EventLoop } from "../EventLoop";
-import { LocationMonitor } from "../LocationMonitor";
 import { TurtleControlCommand } from "../services/TurtleControlService";
-import { BehaviourStack } from "../turtle/BehaviourStack";
-import { TurtleRecord, TurtleStatus } from "../stores/TurtleStore";
+import { TurtleRecord } from "../stores/TurtleStore";
 import Logger from "../Logger";
-import { TurtlePosition } from "../turtle/Consts";
 import getStatusUpdate from "../turtle/getStatusUpdate";
 
 export class TurtleControlClient {
@@ -30,7 +27,7 @@ export class TurtleControlClient {
     }, { async: true });
   }
 
-  private call(cmd: TurtleControlCommand, args: object = {}, getResponse: boolean = true, assertResponse = true): any {
+  private call<T>(cmd: TurtleControlCommand, args: object = {}, getResponse: boolean = true, assertResponse = true): T | undefined {
     rednet.send(this.hostId,{
       cmd,
       ...args,
@@ -40,12 +37,13 @@ export class TurtleControlClient {
     if (getResponse) {
       const [pid, message] = rednet.receive(TURTLE_CONTROL_PROTOCOL_NAME, 3);
       if (!pid && assertResponse) throw new Error("No response to command " + cmd);
-      return message;
+      return message as T;
     }
+    return undefined;
   }
 
   list(): TurtleRecord[] {
-    return this.call(TurtleControlCommand.LIST);
+    return this.call(TurtleControlCommand.LIST)!;
   }
 
   private registerSelf(): void {
@@ -62,7 +60,7 @@ export class TurtleControlClient {
 
     Logger.info("Connecting to turtle control server...");
 
-    const resp = this.call(TurtleControlCommand.TURTLE_CONNECT, getStatusUpdate(), true);
+    const resp = this.call<{ ok: boolean, label: string }>(TurtleControlCommand.TURTLE_CONNECT, getStatusUpdate(), true);
     if (!resp?.ok) {
       // this could happen if the server crashes
       Logger.warn("Turtle register failed, will retry:", textutils.serialize(resp));
@@ -70,7 +68,7 @@ export class TurtleControlClient {
       return;
     }
 
-    if (resp.label) {
+    if (typeof resp.label === 'string') {
       os.setComputerLabel(`${resp.label} [${os.computerID()}]`);
     } else {
       // console.log("Did not receive label from registry");

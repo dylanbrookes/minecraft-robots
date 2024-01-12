@@ -24,7 +24,6 @@ local function handleCommand(self, cmd, ...)
     local params = {...}
     repeat
         local ____switch6 = cmd
-        local status
         local ____cond6 = ____switch6 == "add"
         if ____cond6 then
             taskStore:add({
@@ -42,16 +41,18 @@ local function handleCommand(self, cmd, ...)
         end
         ____cond6 = ____cond6 or ____switch6 == "update"
         if ____cond6 then
-            status = params[2]
-            if not __TS__ArrayIncludes(VALID_STATUSES, status) then
-                print((("Invalid status " .. status) .. ", must be one of ") .. textutils.serialize(VALID_STATUSES))
-                return
+            do
+                local status = params[2]
+                if not __TS__ArrayIncludes(VALID_STATUSES, status) then
+                    print((("Invalid status " .. status) .. ", must be one of ") .. textutils.serialize(VALID_STATUSES))
+                    return
+                end
+                taskStore:update(
+                    __TS__ParseInt(params[1]),
+                    {status = status}
+                )
+                print("Updated task")
             end
-            taskStore:update(
-                __TS__ParseInt(params[1]),
-                {status = status}
-            )
-            print("Updated task")
             break
         end
         ____cond6 = ____cond6 or ____switch6 == "list"

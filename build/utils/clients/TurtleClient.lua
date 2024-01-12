@@ -37,6 +37,7 @@ function TurtleClient.prototype.call(self, cmd, params, timeout, assertResp, exp
         end
         return message
     end
+    return nil
 end
 function TurtleClient.prototype.addJob(self, jobRecord)
     local resp = self:call(TurtleCommands.addJob, jobRecord)

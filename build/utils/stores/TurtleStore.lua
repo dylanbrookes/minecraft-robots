@@ -42,7 +42,17 @@ function TurtleStore.LoadStoreFile(self, storeFile)
         if not line then
             break
         end
-        local turtle = textutils.unserialize(line)
+        local res, err = textutils.unserializeJSON(line)
+        if res == nil then
+            error(
+                __TS__New(
+                    Error,
+                    "Failed to deserialize turtle: " .. tostring(err)
+                ),
+                0
+            )
+        end
+        local turtle = res
         if type(turtle.id) ~= "number" then
             error(
                 __TS__New(Error, "Invalid turtle parsed from: " .. line),
@@ -69,7 +79,7 @@ function TurtleStore.prototype.save(self)
         )
     end
     for ____, job in __TS__Iterator(self.turtles:values()) do
-        handle.writeLine(textutils.serialize(job, {compact = true}))
+        handle.writeLine(textutils.serializeJSON(job))
     end
     handle.flush()
     handle.close()

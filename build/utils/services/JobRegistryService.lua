@@ -44,7 +44,7 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         sender,
         textutils.serialize(message)
     )
-    if not (message.cmd ~= nil) then
+    if type(message) ~= "table" or message == nil or not (message.cmd ~= nil) then
         Logger:error("idk what to do with this", message)
         return
     end
@@ -201,6 +201,7 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
                 self.jobStore:save()
                 rednet.send(sender, {ok = true}, JOB_REGISTRY_PROTOCOL_NAME)
             end
+            break
         end
         ____cond9 = ____cond9 or ____switch9 == JobRegistryCommand.DELETE_ALL
         if ____cond9 then

@@ -67,6 +67,7 @@ function TurtleControlClient.prototype.call(self, cmd, args, getResponse, assert
         end
         return message
     end
+    return nil
 end
 function TurtleControlClient.prototype.list(self)
     return self:call(TurtleControlCommand.LIST)
@@ -102,8 +103,8 @@ function TurtleControlClient.prototype.registerSelf(self)
         )
         return
     end
-    if resp.label then
-        os.setComputerLabel(((tostring(resp.label) .. " [") .. tostring(os.computerID())) .. "]")
+    if type(resp.label) == "string" then
+        os.setComputerLabel(((resp.label .. " [") .. tostring(os.computerID())) .. "]")
     else
     end
     Logger:info("Done registration")

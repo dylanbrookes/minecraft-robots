@@ -7,7 +7,7 @@ import { TurtleStatusUpdate } from "../stores/TurtleStore";
 export class TurtleClient {
   constructor(private hostId: number) {}
 
-  private call(cmd: TurtleCommands, params: object = {}, timeout = 3, assertResp: boolean = true, expectResponse = true): any {
+  private call<T>(cmd: TurtleCommands, params: object = {}, timeout = 3, assertResp: boolean = true, expectResponse = true): T | undefined {
     rednet.send(this.hostId, {
       cmd,
       params,
@@ -19,15 +19,16 @@ export class TurtleClient {
       if (!pid && assertResp) throw new Error("No response to command " + cmd);
       return message;
     }
+    return undefined;
   }
 
   addJob(jobRecord: JobRecord) {
-    const resp = this.call(TurtleCommands.addJob, jobRecord);
+    const resp = this.call<{ ok: boolean }>(TurtleCommands.addJob, jobRecord);
     if (!resp?.ok) throw new Error(`Response didn't contain ok: ${textutils.serialize(resp)}`);
   }
 
   status(): TurtleStatusUpdate | undefined {
-    const resp = this.call(TurtleCommands.status, {}, 1, false);
+    const resp = this.call<{ ok: boolean, status: TurtleStatusUpdate }>(TurtleCommands.status, {}, 1, false);
     if (!resp?.ok) return undefined;
     return resp.status;
   }

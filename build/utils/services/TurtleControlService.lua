@@ -118,7 +118,7 @@ function TurtleControlService.prototype.onMessage(self, message, sender)
         sender,
         textutils.serialize(message)
     )
-    if not (message.cmd ~= nil) then
+    if type(message) ~= "table" or message == nil or not (message.cmd ~= nil) then
         Logger:error(
             "idk what to do with this",
             textutils.serialize(message)
@@ -127,10 +127,9 @@ function TurtleControlService.prototype.onMessage(self, message, sender)
     end
     repeat
         local ____switch19 = message.cmd
-        local turtleRecord, turtle
         local ____cond19 = ____switch19 == ____exports.TurtleControlCommand.TURTLE_CONNECT
         if ____cond19 then
-            if message and type(message) == "table" then
+            do
                 local turtleRecord = self.turtleStore:get(sender)
                 local updates = buildUpdates(nil, message, turtleRecord)
                 if turtleRecord then
@@ -158,42 +157,37 @@ function TurtleControlService.prototype.onMessage(self, message, sender)
                 if turtleRecord.status == TurtleStatus.IDLE then
                     EventLoop:emit(TurtleControlEvent.TURTLE_IDLE, turtleRecord.id)
                 end
-            else
-                Logger:error(
-                    "Invalid connect params",
-                    textutils.serialize(message)
-                )
             end
             break
         end
         ____cond19 = ____cond19 or ____switch19 == ____exports.TurtleControlCommand.TURTLE_PING
         if ____cond19 then
-            turtleRecord = self.turtleStore:get(sender)
-            if not turtleRecord then
-                Logger:error("received turtle ping from unknown sender " .. tostring(sender))
-                break
-            end
-            if message and type(message) == "table" then
+            do
+                local turtleRecord = self.turtleStore:get(sender)
+                if not turtleRecord then
+                    Logger:error("received turtle ping from unknown sender " .. tostring(sender))
+                    break
+                end
                 self.turtleStore:update(
                     sender,
                     buildUpdates(nil, message, turtleRecord)
                 )
                 self.turtleStore:save()
                 Logger:debug(((("Received ping from " .. turtleRecord.label) .. " [") .. tostring(sender)) .. "]")
-            else
-                Logger:error("Invalid ping params", message)
             end
             break
         end
         ____cond19 = ____cond19 or ____switch19 == ____exports.TurtleControlCommand.TURTLE_TERMINATE
         if ____cond19 then
-            if not self.turtleStore:exists(sender) then
-                Logger:error("received turtle terminate from unknown sender " .. tostring(sender))
-                break
+            do
+                if not self.turtleStore:exists(sender) then
+                    Logger:error("received turtle terminate from unknown sender " .. tostring(sender))
+                    break
+                end
+                local turtle = self.turtleStore:update(sender, {status = TurtleStatus.OFFLINE})
+                EventLoop:emit(TurtleControlEvent.TURTLE_OFFLINE, sender)
+                Logger:info(((("Turtle " .. turtle.label) .. " [") .. tostring(sender)) .. "] terminated")
             end
-            turtle = self.turtleStore:update(sender, {status = TurtleStatus.OFFLINE})
-            EventLoop:emit(TurtleControlEvent.TURTLE_OFFLINE, sender)
-            Logger:info(((("Turtle " .. turtle.label) .. " [") .. tostring(sender)) .. "] terminated")
             break
         end
         ____cond19 = ____cond19 or ____switch19 == ____exports.TurtleControlCommand.LIST

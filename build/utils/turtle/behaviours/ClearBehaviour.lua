@@ -112,8 +112,13 @@ function ClearBehaviour.prototype.step(self)
             )
         end
         if not (lastCol and lastRow) then
-            TurtleController:dig(false)
-            TurtleController:forward()
+            local moved = false
+            repeat
+                do
+                    TurtleController:dig(false)
+                    moved = TurtleController:forward(1, false)
+                end
+            until moved
         end
         self.y = self.y + 1
         if self.y == self.d then

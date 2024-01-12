@@ -98,7 +98,6 @@ function __EventLoop__.prototype.emit(self, name, ...)
         return
     end
     local cbsLeft = {}
-    local startLen = #self.events[name]
     for ____, ev in ipairs(self.events[name]) do
         local cb = ev.cb
         local async = ev.async

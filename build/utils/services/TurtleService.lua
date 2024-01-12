@@ -61,101 +61,100 @@ function __TurtleService__.prototype.register(self)
 end
 function __TurtleService__.prototype.onMessage(self, message, sender)
     Logger:debug("GOT MESSAGE from sender", sender, message)
-    if message.cmd ~= nil then
-        repeat
-            local ____switch9 = message.cmd
-            local ____cond9 = ____switch9 == ____exports.TurtleCommands.forward or ____switch9 == ____exports.TurtleCommands.back or ____switch9 == ____exports.TurtleCommands.turnLeft or ____switch9 == ____exports.TurtleCommands.turnRight or ____switch9 == ____exports.TurtleCommands.up or ____switch9 == ____exports.TurtleCommands.down or ____switch9 == ____exports.TurtleCommands.dig or ____switch9 == ____exports.TurtleCommands.digUp or ____switch9 == ____exports.TurtleCommands.digDown
-            if ____cond9 then
-                if TurtleController[message.cmd] ~= nil and type(TurtleController[message.cmd]) == "function" then
-                    TurtleController[message.cmd](
-                        TurtleController,
-                        __TS__Spread(message.params or ({}))
-                    )
-                else
-                    error(
-                        __TS__New(
-                            Error,
-                            ("Method " .. tostring(message.cmd)) .. " does not exist on TurtleController"
-                        ),
-                        0
-                    )
-                end
-                break
-            end
-            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.inspect
-            if ____cond9 then
-                rednet.send(
-                    sender,
-                    {result = {turtle.inspect()}},
-                    TURTLE_PROTOCOL_NAME
-                )
-                break
-            end
-            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.moveTo
-            if ____cond9 then
-                Logger:info(
-                    "Adding pathfinder to",
-                    __TS__Spread(message.params)
-                )
-                BehaviourStack:push(__TS__New(PathfinderBehaviour, message.params, 100))
-                break
-            end
-            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.exec
-            if ____cond9 then
-                Logger:info(
-                    "Running command:",
-                    __TS__Spread(message.params)
-                )
-                shell.run(__TS__Spread(message.params))
-                break
-            end
-            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.addJob
-            if ____cond9 then
-                do
-                    local job = message.params
-                    Logger:info("Adding job with params:", job)
-                    JobProcessor:add(job)
-                    rednet.send(sender, {ok = true}, TURTLE_PROTOCOL_NAME)
-                end
-                break
-            end
-            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.cancelJob
-            if ____cond9 then
-                do
-                    local ____message_params_0 = message.params
-                    local id = ____message_params_0.id
-                    Logger:info("Cancelling job", id)
-                    JobProcessor:cancel(id)
-                    rednet.send(sender, {ok = true}, TURTLE_PROTOCOL_NAME)
-                end
-                break
-            end
-            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.status
-            if ____cond9 then
-                do
-                    local status = getStatusUpdate(nil)
-                    Logger:info("Received status request, sending:", status)
-                    rednet.send(sender, {ok = true, status = status}, TURTLE_PROTOCOL_NAME)
-                end
-                break
-            end
-            ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.reboot
-            if ____cond9 then
-                do
-                    os.queueEvent("terminate", "reboot")
-                end
-                break
-            end
-            do
-                Logger:error("invalid command", message.cmd)
-            end
-        until true
-    else
+    if type(message) ~= "table" or message == nil or not (message.cmd ~= nil) then
         Logger:error(
             "idk what to do with this",
             textutils.serialize(message)
         )
+        return
     end
+    repeat
+        local ____switch9 = message.cmd
+        local ____cond9 = ____switch9 == ____exports.TurtleCommands.forward or ____switch9 == ____exports.TurtleCommands.back or ____switch9 == ____exports.TurtleCommands.turnLeft or ____switch9 == ____exports.TurtleCommands.turnRight or ____switch9 == ____exports.TurtleCommands.up or ____switch9 == ____exports.TurtleCommands.down or ____switch9 == ____exports.TurtleCommands.dig or ____switch9 == ____exports.TurtleCommands.digUp or ____switch9 == ____exports.TurtleCommands.digDown
+        if ____cond9 then
+            if TurtleController[message.cmd] ~= nil and type(TurtleController[message.cmd]) == "function" then
+                TurtleController[message.cmd](
+                    TurtleController,
+                    table.unpack(message.params or ({}))
+                )
+            else
+                error(
+                    __TS__New(Error, ("Method " .. message.cmd) .. " does not exist on TurtleController"),
+                    0
+                )
+            end
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.inspect
+        if ____cond9 then
+            rednet.send(
+                sender,
+                {result = {turtle.inspect()}},
+                TURTLE_PROTOCOL_NAME
+            )
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.moveTo
+        if ____cond9 then
+            BehaviourStack:push(__TS__New(PathfinderBehaviour, message.params, 100))
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.exec
+        if ____cond9 then
+            if not (message.params ~= nil) then
+                error(
+                    __TS__New(Error, "Missing params"),
+                    0
+                )
+            end
+            Logger:info(
+                "Running command:",
+                table.unpack(message.params)
+            )
+            shell.run(table.unpack(message.params))
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.addJob
+        if ____cond9 then
+            do
+                local job = message.params
+                Logger:info("Adding job with params:", job)
+                JobProcessor:add(job)
+                rednet.send(sender, {ok = true}, TURTLE_PROTOCOL_NAME)
+            end
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.cancelJob
+        if ____cond9 then
+            do
+                local ____message_params_0 = message.params
+                local id = ____message_params_0.id
+                Logger:info("Cancelling job", id)
+                JobProcessor:cancel(id)
+                rednet.send(sender, {ok = true}, TURTLE_PROTOCOL_NAME)
+            end
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.status
+        if ____cond9 then
+            do
+                local status = getStatusUpdate(nil)
+                Logger:info("Received status request, sending:", status)
+                rednet.send(sender, {ok = true, status = status}, TURTLE_PROTOCOL_NAME)
+            end
+            break
+        end
+        ____cond9 = ____cond9 or ____switch9 == ____exports.TurtleCommands.reboot
+        if ____cond9 then
+            do
+                os.queueEvent("terminate", "reboot")
+            end
+            break
+        end
+        do
+            Logger:error("invalid command", message.cmd)
+        end
+    until true
 end
 ____exports.TurtleService = __TS__New(__TurtleService__)
 return ____exports

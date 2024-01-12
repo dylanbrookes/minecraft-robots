@@ -4,11 +4,10 @@ import { findProtocolHostId } from "../../findProtocolHostId";
 import { LocationMonitor } from "../../LocationMonitor";
 import Logger from "../../Logger";
 import { ResourceRecord } from "../../stores/ResourceStore";
-import { positionsEqual, serializePosition, TurtlePosition } from "../Consts";
+import { positionsEqual, serializePosition } from "../Consts";
 import { PathfinderBehaviour } from "./PathfinderBehaviour";
 import { TurtleBehaviour, TurtleBehaviourBase } from "./TurtleBehaviour";
 
-//
 export class ResupplyBehaviour extends TurtleBehaviourBase implements TurtleBehaviour {
   readonly name: string;
 

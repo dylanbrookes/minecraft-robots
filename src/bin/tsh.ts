@@ -19,7 +19,7 @@ if (!hostIdArg) {
 }
 const broadcast = hostIdArg.toLowerCase() === 'all';
 
-const sendCmd = (cmd: TurtleCommands, ...params: any[]) => {
+const sendCmd = (cmd: TurtleCommands, ...params: unknown[]) => {
   if (!broadcast) {
     rednet.send(parseInt(hostIdArg), {
       cmd, params,

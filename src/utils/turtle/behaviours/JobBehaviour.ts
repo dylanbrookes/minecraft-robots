@@ -45,7 +45,7 @@ export class JobBehaviour extends TurtleBehaviourBase implements TurtleBehaviour
     this.behaviour.onEnd?.();
     EventLoop.emit(JobEvent.end(this.job.id));
   }
-  onError(e: any): void {
+  onError(e: unknown): void {
     this.behaviour.onError?.(e);
     EventLoop.emit(JobEvent.error(this.job.id), e);
   }

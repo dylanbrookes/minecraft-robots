@@ -1,6 +1,4 @@
-import { EventLoop } from "../../EventLoop";
 import Logger from "../../Logger";
-import { TurtleEvent } from "../Consts";
 import FuelMonitor, { FuelStatus } from "../FuelMonitor";
 import { createInvSpace } from "../routines/createInvSpace";
 import { refuel } from "../routines/refuel";

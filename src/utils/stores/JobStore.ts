@@ -15,10 +15,10 @@ export type JobRecord = {
   id: number,
   type: JobType,
   turtle_id?: number,
-  args: any,
+  args: unknown[],
   resume_state?: string,
   resume_counter: number,
-  error?: any,
+  error?: unknown,
   status: JobStatus,
   issuer_id: number, // host id which created the job
 }
@@ -58,8 +58,10 @@ export class JobStore implements Iterable<JobRecord> {
     }
 
     let line: string | undefined;
-    while (line = handle.readLine()) {
-      const job = textutils.unserialize(line) as JobRecord;
+    while ((line = handle.readLine())) {
+      const [res, err] = textutils.unserializeJSON(line);
+      if (res === null) throw new Error(`Failed to deserialize job: ${err}`);
+      const job = res as JobRecord;
       if (typeof job.id !== 'number') throw new Error("Invalid job parsed from: " + line);
 
       jobs.set(job.id, job);
@@ -89,7 +91,7 @@ export class JobStore implements Iterable<JobRecord> {
   list() {
     Logger.info("Jobs:")
     for (const job of this.jobs.values()) {
-      Logger.info(textutils.serializeJSON(job, true));
+      Logger.info(textutils.serialize(job));
     }
   }
 
@@ -112,6 +114,7 @@ export class JobStore implements Iterable<JobRecord> {
   save() {
     if (fs.exists(this.storeFile)) {
       Logger.debug("Overwriting store file", this.storeFile);
+      Logger.debug(new Error().stack);
     }
 
     const [handle, err] = fs.open(this.storeFile, 'w');
@@ -120,7 +123,7 @@ export class JobStore implements Iterable<JobRecord> {
     }
 
     for (const job of this.jobs.values()) {
-      handle.writeLine(textutils.serialize(job, { compact: true }));
+      handle.writeLine(textutils.serializeJSON(job));
     }
     handle.flush();
     handle.close();

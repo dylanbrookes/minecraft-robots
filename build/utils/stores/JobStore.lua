@@ -60,7 +60,17 @@ function JobStore.LoadStoreFile(self, storeFile)
         if not line then
             break
         end
-        local job = textutils.unserialize(line)
+        local res, err = textutils.unserializeJSON(line)
+        if res == nil then
+            error(
+                __TS__New(
+                    Error,
+                    "Failed to deserialize job: " .. tostring(err)
+                ),
+                0
+            )
+        end
+        local job = res
         if type(job.id) ~= "number" then
             error(
                 __TS__New(Error, "Invalid job parsed from: " .. line),
@@ -91,7 +101,7 @@ end
 function JobStore.prototype.list(self)
     Logger:info("Jobs:")
     for ____, job in __TS__Iterator(self.jobs:values()) do
-        Logger:info(textutils.serializeJSON(job, true))
+        Logger:info(textutils.serialize(job))
     end
 end
 function JobStore.prototype.add(self, jobRecord)
@@ -116,6 +126,7 @@ end
 function JobStore.prototype.save(self)
     if fs.exists(self.storeFile) then
         Logger:debug("Overwriting store file", self.storeFile)
+        Logger:debug(__TS__New(Error).stack)
     end
     local handle, err = fs.open(self.storeFile, "w")
     if not handle then
@@ -128,7 +139,7 @@ function JobStore.prototype.save(self)
         )
     end
     for ____, job in __TS__Iterator(self.jobs:values()) do
-        handle.writeLine(textutils.serialize(job, {compact = true}))
+        handle.writeLine(textutils.serializeJSON(job))
     end
     handle.flush()
     handle.close()

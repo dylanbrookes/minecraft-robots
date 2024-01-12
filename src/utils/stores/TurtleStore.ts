@@ -50,8 +50,10 @@ export default class TurtleStore implements Iterable<TurtleRecord> {
     }
 
     let line: string | undefined;
-    while (line = handle.readLine()) {
-      const turtle = textutils.unserialize(line) as TurtleRecord;
+    while ((line = handle.readLine())) {
+      const [res, err] = textutils.unserializeJSON(line);
+      if (res === null) throw new Error(`Failed to deserialize turtle: ${err}`);
+      const turtle = res as TurtleRecord;
       if (typeof turtle.id !== 'number') throw new Error("Invalid turtle parsed from: " + line);
       turtle.status = TurtleStatus.OFFLINE;
 
@@ -72,7 +74,7 @@ export default class TurtleStore implements Iterable<TurtleRecord> {
     }
 
     for (const job of this.turtles.values()) {
-      handle.writeLine(textutils.serialize(job, { compact: true }));
+      handle.writeLine(textutils.serializeJSON(job));
     }
     handle.flush();
     handle.close();

@@ -47,8 +47,10 @@ export default class TaskStore {
     
     let maxId = 0;
     let line: string | undefined;
-    while (line = handle.readLine()) {
-      const task = textutils.unserialize(line) as TaskRecord;
+    while ((line = handle.readLine())) {
+      const [res, err] = textutils.unserializeJSON(line);
+      if (res === null) throw new Error(`Failed to deserialize resource: ${err}`);
+      const task = res as TaskRecord;
       if (typeof task.id !== 'number') throw new Error("Invalid task parsed from: " + line);
 
       tasks.set(task.id, task);
@@ -72,7 +74,7 @@ export default class TaskStore {
     }
 
     for (const task of this.tasks.values()) {
-      handle.writeLine(textutils.serialize(task, { compact: true }));
+      handle.writeLine(textutils.serializeJSON(task));
     }
     handle.flush();
     handle.close();

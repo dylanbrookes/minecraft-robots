@@ -41,8 +41,10 @@ export class ResourceStore implements Iterable<ResourceRecord> {
     }
 
     let line: string | undefined;
-    while (line = handle.readLine()) {
-      const resource = textutils.unserialize(line) as ResourceRecord;
+    while ((line = handle.readLine())) {
+      const [res, err] = textutils.unserializeJSON(line);
+      if (res === null) throw new Error(`Failed to deserialize resource: ${err}`);
+      const resource = res as ResourceRecord;
       if (typeof resource.id !== 'number') throw new Error("Invalid resource parsed from: " + line);
 
       resources.set(resource.id, resource);
@@ -72,7 +74,7 @@ export class ResourceStore implements Iterable<ResourceRecord> {
   list() {
     Logger.info("Resources:")
     for (const resource of this.resources.values()) {
-      Logger.info(textutils.serializeJSON(resource, true));
+      Logger.info(textutils.serialize(resource));
     }
   }
 
@@ -97,7 +99,7 @@ export class ResourceStore implements Iterable<ResourceRecord> {
     }
 
     for (const resource of this.resources.values()) {
-      handle.writeLine(textutils.serialize(resource, { compact: true }));
+      handle.writeLine(textutils.serializeJSON(resource));
     }
     handle.flush();
     handle.close();

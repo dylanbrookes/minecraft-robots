@@ -38,7 +38,7 @@ export default class TurtleControlService {
 
     Logger.info("Registering Turtle Control Service");
     rednet.host(TURTLE_CONTROL_PROTOCOL_NAME, HOSTNAME);
-    EventLoop.on('rednet_message', (sender: number, message: any, protocol: string | null) => {
+    EventLoop.on('rednet_message', (sender: number, message: unknown, protocol: string | null) => {
       if (protocol === TURTLE_CONTROL_PROTOCOL_NAME) {
         this.onMessage(message, sender);
       }
@@ -80,73 +80,64 @@ export default class TurtleControlService {
     this.checkingTurtles = false;
   }
 
-  private onMessage(message: any, sender: number) {
+  private onMessage(message: unknown, sender: number) {
     Logger.debug("Got TurtleControlService message from sender", sender, textutils.serialize(message));
-    if (!('cmd' in message)) {
+    if (typeof message !== 'object' || message === null || !('cmd' in message)) {
       Logger.error("idk what to do with this", textutils.serialize(message));
       return;
     }
 
     switch (message.cmd) {
-      case TurtleControlCommand.TURTLE_CONNECT:
-        if (message && typeof message === 'object') {
-          let turtleRecord = this.turtleStore.get(sender);
-          const updates = buildUpdates(message, turtleRecord);
-          
-          if (turtleRecord) {
-            if (turtleRecord.status !== TurtleStatus.OFFLINE) {
-              // if we got a connect msg without it being offline first, the turtle was probably picked up and placed again quickly
-              // trigger offline event to reap jobs
-              EventLoop.emit(TurtleControlEvent.TURTLE_OFFLINE, turtleRecord.id);
-            }
-            turtleRecord = this.turtleStore.update(sender, updates);
-            this.turtleStore.save();
-            Logger.info(`Turtle ${turtleRecord.label} [${sender}] reconnected`);
-            rednet.send(sender, {
-              ok: true,
-              label: turtleRecord.label,
-            }, TURTLE_CONTROL_PROTOCOL_NAME);
-          } else {
-            // a new turtle :)
-            turtleRecord = Object.assign({
-              id: sender,
-              label: generateName(),
-              registeredAt: updates.lastSeen,
-            }, updates);
-            Logger.info(turtleRecord);
-            this.turtleStore.add(turtleRecord);
-            this.turtleStore.save();
-            rednet.send(sender, {
-              ok: true,
-              label: turtleRecord.label,
-            }, TURTLE_CONTROL_PROTOCOL_NAME);
+      case TurtleControlCommand.TURTLE_CONNECT: {
+        let turtleRecord = this.turtleStore.get(sender);
+        const updates = buildUpdates(message as unknown as TurtleStatusUpdate, turtleRecord);
+        
+        if (turtleRecord) {
+          if (turtleRecord.status !== TurtleStatus.OFFLINE) {
+            // if we got a connect msg without it being offline first, the turtle was probably picked up and placed again quickly
+            // trigger offline event to reap jobs
+            EventLoop.emit(TurtleControlEvent.TURTLE_OFFLINE, turtleRecord.id);
           }
-
-          if (turtleRecord.status === TurtleStatus.IDLE) {
-            EventLoop.emit(TurtleControlEvent.TURTLE_IDLE, turtleRecord.id);
-          }
+          turtleRecord = this.turtleStore.update(sender, updates);
+          this.turtleStore.save();
+          Logger.info(`Turtle ${turtleRecord.label} [${sender}] reconnected`);
+          rednet.send(sender, {
+            ok: true,
+            label: turtleRecord.label,
+          }, TURTLE_CONTROL_PROTOCOL_NAME);
         } else {
-          Logger.error("Invalid connect params", textutils.serialize(message));
-          // Logger.error(typeof message, 'location' in message, Array.isArray(message.location), (message.location as Array<number>)?.length);
+          // a new turtle :)
+          turtleRecord = Object.assign({
+            id: sender,
+            label: generateName(),
+            registeredAt: updates.lastSeen,
+          }, updates);
+          Logger.info(turtleRecord);
+          this.turtleStore.add(turtleRecord);
+          this.turtleStore.save();
+          rednet.send(sender, {
+            ok: true,
+            label: turtleRecord.label,
+          }, TURTLE_CONTROL_PROTOCOL_NAME);
         }
-        break;
-      case TurtleControlCommand.TURTLE_PING:
+
+        if (turtleRecord.status === TurtleStatus.IDLE) {
+          EventLoop.emit(TurtleControlEvent.TURTLE_IDLE, turtleRecord.id);
+        }
+      } break;
+      case TurtleControlCommand.TURTLE_PING: {
         const turtleRecord = this.turtleStore.get(sender);
         if (!turtleRecord) {
           Logger.error("received turtle ping from unknown sender " + sender);
           break;
         }
 
-        if (message && typeof message === "object") {
-          this.turtleStore.update(sender, buildUpdates(message, turtleRecord));
-          this.turtleStore.save();
-          Logger.debug(`Received ping from ${turtleRecord.label} [${sender}]`);
-          // don't pong
-        } else {
-          Logger.error("Invalid ping params", message);
-        }
-        break;
-      case TurtleControlCommand.TURTLE_TERMINATE:
+        this.turtleStore.update(sender, buildUpdates(message as unknown as TurtleStatusUpdate, turtleRecord));
+        this.turtleStore.save();
+        Logger.debug(`Received ping from ${turtleRecord.label} [${sender}]`);
+        // don't pong
+      } break;
+      case TurtleControlCommand.TURTLE_TERMINATE: {
         if (!this.turtleStore.exists(sender)) {
           Logger.error("received turtle terminate from unknown sender " + sender);
           break;
@@ -154,7 +145,7 @@ export default class TurtleControlService {
         const turtle = this.turtleStore.update(sender, { status: TurtleStatus.OFFLINE });
         EventLoop.emit(TurtleControlEvent.TURTLE_OFFLINE, sender);
         Logger.info(`Turtle ${turtle.label} [${sender}] terminated`);
-        break;
+      } break;
       case TurtleControlCommand.LIST:
         rednet.send(sender, this.turtleStore.toString(), TURTLE_CONTROL_PROTOCOL_NAME);
         break;
