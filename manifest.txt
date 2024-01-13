@@ -1,4 +1,4 @@
-1705021547
+1705171904
 /build/require_stub.lua
 /build/models/Miner.lua
 /build/utils/services/ResourceRegistryService.lua
@@ -54,6 +54,7 @@
 /build/bin/build-floor.lua
 /build/bin/clear.lua
 /build/bin/floor-monitor.lua
+/build/bin/logo.lua
 /build/bin/void-up.lua
 /build/bin/args.lua
 /build/bin/gif.lua
