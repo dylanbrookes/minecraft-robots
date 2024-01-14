@@ -47,7 +47,8 @@ local function levelColor(____, level)
         end
     until true
 end
-local function printLog(____, line, level)
+local function printLog(____, line, level, termRedirect)
+    local oTerm = termRedirect and term.redirect(termRedirect)
     local oColor = term.getTextColor()
     local log = line
     if term.isColor() then
@@ -59,6 +60,7 @@ local function printLog(____, line, level)
     end
     print(log)
     term.setTextColor(oColor)
+    term.redirect(oTerm)
 end
 local __Logger__ = __TS__Class()
 __Logger__.name = "__Logger__"
@@ -107,13 +109,16 @@ function __Logger__.prototype.____constructor(self, logDir, fileName)
 end
 function __Logger__.prototype.writeLine(self, line, level)
     if __TS__ArrayIndexOf(LOG_LEVEL_ORDER, level) >= __TS__ArrayIndexOf(LOG_LEVEL_ORDER, self.logLevel) then
-        printLog(nil, line, level)
+        printLog(nil, line, level, self.termRedirect)
     end
     if env.FILE_LOGGING ~= nil and __TS__ArrayIndexOf(LOG_LEVEL_ORDER, level) >= __TS__ArrayIndexOf(LOG_LEVEL_ORDER, self.fileLogLevel) then
         local log = (LOG_LEVEL_SHORTCODES[level] .. " ") .. line
         self.file.writeLine(log)
         self.file.flush()
     end
+end
+function __Logger__.prototype.setTermRedirect(self, termRedirect)
+    self.termRedirect = termRedirect
 end
 function __Logger__.prototype.debug(self, ...)
     local args = {...}

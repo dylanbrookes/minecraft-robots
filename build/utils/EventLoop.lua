@@ -56,6 +56,7 @@ Routine.ID_COUNTER = 0
 local __EventLoop__ = __TS__Class()
 __EventLoop__.name = "__EventLoop__"
 function __EventLoop__.prototype.____constructor(self)
+    self.tickTimeout = 0.01
     self.running = false
     self.reboot = false
     self.events = {}
@@ -194,7 +195,7 @@ function __EventLoop__.prototype.run(self, tick)
                     ____catch(____hasReturned)
                 end
             end
-            sleep(__EventLoop__.TICK_TIMEOUT)
+            sleep(self.tickTimeout)
             os.queueEvent("_tick", n + 1)
         end,
         {async = true}
@@ -242,6 +243,5 @@ function __EventLoop__.prototype.run(self, tick)
         os.reboot()
     end
 end
-__EventLoop__.TICK_TIMEOUT = 0.01
 ____exports.EventLoop = __TS__New(__EventLoop__)
 return ____exports

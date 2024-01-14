@@ -62,7 +62,8 @@ class Routine {
 }
 
 class __EventLoop__ {
-  private static TICK_TIMEOUT = 0.01; // 0.01;
+  public tickTimeout = 0.01;
+
   private running: boolean = false;
   private reboot: boolean = false;
   private events: {
@@ -186,7 +187,7 @@ class __EventLoop__ {
 
     this.running = true;
 
-    // this.emitRepeat('_tick', __EventLoop__.TICK_TIMEOUT);
+    // this.emitRepeat('_tick', this.tickTimeout);
     // do it this way to wait for async ticks to finish before starting the next
     os.queueEvent('_tick', 0);
     this.on('_tick', (n: number) => {
@@ -197,11 +198,11 @@ class __EventLoop__ {
         throw e;
       }
       // might want to sleep here
-      sleep(__EventLoop__.TICK_TIMEOUT);
+      sleep(this.tickTimeout);
       os.queueEvent('_tick', n + 1);
       // this.setTimeout(() => {
       //   os.queueEvent('tick', n + 1);
-      // }, __EventLoop__.TICK_TIMEOUT);
+      // }, this.tickTimeout);
     }, { async: true });
 
     while (this.running) {

@@ -35,7 +35,8 @@ const levelColor = (level: LogLevel) => {
       return colors.white;
   }
 }
-const printLog = (line: string, level: LogLevel) => {
+const printLog = (line: string, level: LogLevel, termRedirect?: Redirect) => {
+  const oTerm = termRedirect && term.redirect(termRedirect);
   const oColor = term.getTextColor();
   let log = line;
   if (term.isColor()) {
@@ -48,6 +49,7 @@ const printLog = (line: string, level: LogLevel) => {
 
   print(log);
   term.setTextColor(oColor);
+  term.redirect(oTerm);
 }
 
 class __Logger__ {
@@ -55,6 +57,7 @@ class __Logger__ {
   private readonly file: WriteHandle;
   private readonly logLevel: LogLevel; // level that goes to stdout
   private readonly fileLogLevel: LogLevel; // level that goes to file
+  private termRedirect?: Redirect; // used to set a target term redirect for stdout
   constructor(logDir: string, fileName?: string) {
     const filePath = `${logDir}/${fileName || `${this.id}.log`}`;
     const [file, err] = fs.open(filePath, "a");
@@ -82,13 +85,17 @@ class __Logger__ {
 
   private writeLine(line: string, level: LogLevel) {
     if (LOG_LEVEL_ORDER.indexOf(level) >= LOG_LEVEL_ORDER.indexOf(this.logLevel)) {
-      printLog(line, level);
+      printLog(line, level, this.termRedirect);
     }
     if ('FILE_LOGGING' in env && LOG_LEVEL_ORDER.indexOf(level) >= LOG_LEVEL_ORDER.indexOf(this.fileLogLevel)) { 
       const log = `${LOG_LEVEL_SHORTCODES[level]} ${line}`;
       this.file.writeLine(log);
       this.file.flush();
     }
+  }
+
+  setTermRedirect(termRedirect?: Redirect) {
+    this.termRedirect = termRedirect;
   }
 
   debug(...args: unknown[]) {
