@@ -1,4 +1,4 @@
-1705171904
+1705223714
 /build/require_stub.lua
 /build/models/Miner.lua
 /build/utils/services/ResourceRegistryService.lua
@@ -59,6 +59,7 @@
 /build/bin/args.lua
 /build/bin/gif.lua
 /build/bin/jobs.lua
+/build/bin/stacker.lua
 /build/bin/resources.lua
 /build/bin/turtle-control.lua
 /build/bin/turtle.lua
