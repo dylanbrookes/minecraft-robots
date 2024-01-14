@@ -25,6 +25,9 @@ monitor.setBackgroundColor(colors.black);
 monitor.clear();
 
 EventLoop.on('monitor_touch', () => {
+  if (paused) {
+    return;
+  }
   // Logger.info("touch", x, y);
   paused = true;
   // flash the current row

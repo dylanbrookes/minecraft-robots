@@ -31,6 +31,9 @@ monitor.clear()
 EventLoop:on(
     "monitor_touch",
     function()
+        if paused then
+            return
+        end
         paused = true
         paintutils.drawLine(
             1,
@@ -96,7 +99,7 @@ EventLoop:on(
                     for ____, placement in ipairs(remainingPlacements) do
                         do
                             if placement[2] == true then
-                                goto __continue10
+                                goto __continue11
                             end
                             paintutils.drawPixel(placement[1] + 1, h - l - 1, colors.black)
                             paintutils.drawPixel(placement[1] + 1, h - l, colors.red)
@@ -107,7 +110,7 @@ EventLoop:on(
                                 posHistory[l + 1][2] = math.max(posHistory[l + 1][2], placement[1])
                             end
                         end
-                        ::__continue10::
+                        ::__continue11::
                     end
                     sleep(0.3)
                     l = l - 1
