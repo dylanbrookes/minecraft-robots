@@ -177,9 +177,13 @@ function __EventLoop__.prototype.run(self, tick)
     end
     self.running = true
     os.queueEvent("_tick", 0)
+    local lastTickTime = os.epoch("utc")
     self:on(
         "_tick",
         function(____, n)
+            local now = os.epoch("utc")
+            local delta = now - lastTickTime
+            lastTickTime = now
             do
                 local function ____catch(e)
                     Logger:error("Error in EventLoop tick:", e)
@@ -188,7 +192,7 @@ function __EventLoop__.prototype.run(self, tick)
                 local ____try, ____hasReturned = pcall(function()
                     local ____tick_result_4 = tick
                     if ____tick_result_4 ~= nil then
-                        ____tick_result_4 = ____tick_result_4(nil)
+                        ____tick_result_4 = ____tick_result_4(nil, delta)
                     end
                 end)
                 if not ____try then

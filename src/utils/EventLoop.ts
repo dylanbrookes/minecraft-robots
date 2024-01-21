@@ -182,7 +182,7 @@ class __EventLoop__ {
     });
   }
 
-  run(tick?: () => void) {
+  run(tick?: (delta: number) => void) {
     if (this.running) throw new Error("Already running");
 
     this.running = true;
@@ -190,9 +190,13 @@ class __EventLoop__ {
     // this.emitRepeat('_tick', this.tickTimeout);
     // do it this way to wait for async ticks to finish before starting the next
     os.queueEvent('_tick', 0);
+    let lastTickTime = os.epoch('utc');
     this.on('_tick', (n: number) => {
+      const now = os.epoch('utc');
+      const delta = now - lastTickTime;
+      lastTickTime = now;
       try {
-        tick?.();
+        tick?.(delta);
       } catch (e) {
         Logger.error('Error in EventLoop tick:', e);
         throw e;
