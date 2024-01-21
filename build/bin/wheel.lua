@@ -18,21 +18,33 @@ local WHEEL_TICK_HEIGHT = 3
 local WHEEL_SPIN_SOUND = "entity.experience_orb.pickup"
 local SOUND_SEQUENCES = {
     winBig = function(self)
-        speaker.playSound("ui.toast.challenge_complete")
+        if speaker ~= nil then
+            speaker.playSound("ui.toast.challenge_complete")
+        end
     end,
     win = function(self)
-        speaker.playSound("entity.player.levelup")
+        if speaker ~= nil then
+            speaker.playSound("entity.player.levelup")
+        end
     end,
     lose = function(self)
-        speaker.playSound("entity.witch.celebrate")
+        if speaker ~= nil then
+            speaker.playSound("entity.witch.celebrate")
+        end
         sleep(0.5)
     end,
     loseBig = function(self)
-        speaker.playSound("item.flintandsteel.use")
+        if speaker ~= nil then
+            speaker.playSound("item.flintandsteel.use")
+        end
         sleep(0.25)
-        speaker.playSound("entity.tnt.primed")
+        if speaker ~= nil then
+            speaker.playSound("entity.tnt.primed")
+        end
         sleep(1.5)
-        speaker.playSound("entity.villager.no")
+        if speaker ~= nil then
+            speaker.playSound("entity.villager.no")
+        end
     end
 }
 local WHEEL = {
@@ -183,7 +195,7 @@ EventLoop:on(
 EventLoop:on(
     WIN_EVENT,
     function(____, item, count)
-        if dropper == nil or not storage == nil then
+        if dropper == nil or storage == nil then
             Logger:error("Failed to distribute rewards, missing dropper/storage")
             return
         end
@@ -294,11 +306,13 @@ EventLoop:run(function(____, delta)
                 wheelPos = wheelPos + #WHEEL
             end
             if lastWheelPosPx ~= math.floor(wheelPos * WHEEL_TICK_HEIGHT) then
-                speaker.playSound(
-                    WHEEL_SPIN_SOUND,
-                    0.7,
-                    0.5 + math.random() * 0.4
-                )
+                if speaker ~= nil then
+                    speaker.playSound(
+                        WHEEL_SPIN_SOUND,
+                        0.7,
+                        0.5 + math.random() * 0.4
+                    )
+                end
             end
         end
     end

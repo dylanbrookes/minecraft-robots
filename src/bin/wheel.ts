@@ -15,21 +15,21 @@ const WHEEL_SPIN_SOUND = 'entity.experience_orb.pickup';
 
 const SOUND_SEQUENCES = {
   winBig() {
-    speaker.playSound('ui.toast.challenge_complete');
+    speaker?.playSound('ui.toast.challenge_complete');
   },
   win() {
-    speaker.playSound('entity.player.levelup');
+    speaker?.playSound('entity.player.levelup');
   },
   lose() {
-    speaker.playSound('entity.witch.celebrate');
+    speaker?.playSound('entity.witch.celebrate');
     sleep(0.5);
   },
   loseBig() {
-    speaker.playSound('item.flintandsteel.use');
+    speaker?.playSound('item.flintandsteel.use');
     sleep(0.25);
-    speaker.playSound('entity.tnt.primed');
+    speaker?.playSound('entity.tnt.primed');
     sleep(1.5);
-    speaker.playSound('entity.villager.no');
+    speaker?.playSound('entity.villager.no');
   },
 }
 
@@ -213,7 +213,7 @@ EventLoop.on('monitor_touch', () => {
 
 // distributes the rewards
 EventLoop.on(WIN_EVENT, (item: ItemTags, count: number) => {
-  if (dropper === null || !storage === null) {
+  if (dropper === null || storage === null) {
     Logger.error('Failed to distribute rewards, missing dropper/storage');
     return;
   }
@@ -303,7 +303,7 @@ EventLoop.run((delta) => {
       wheelPos -= (delta / 1000) * spinSpeed;
       if (wheelPos < 0) wheelPos += WHEEL.length;
       if (lastWheelPosPx !== Math.floor(wheelPos * WHEEL_TICK_HEIGHT)) {
-        speaker.playSound(WHEEL_SPIN_SOUND, 0.7, 0.5 + (math.random() * 0.4));
+        speaker?.playSound(WHEEL_SPIN_SOUND, 0.7, 0.5 + (math.random() * 0.4));
       }
     }
   }
