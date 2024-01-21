@@ -2,7 +2,8 @@ import "/require_stub";
 
 // find fuel in inv and restore current slot after
 function checkFuel() {
-  if (turtle.getFuelLevel() < 100) {
+  const fuelLevel = turtle.getFuelLevel();
+  if (fuelLevel !== "unlimited" && fuelLevel < 100) {
     console.log("Refuelling...");
     const startSlot = turtle.getSelectedSlot() as turtle.TurtleSlot;
     let refuelled = false;

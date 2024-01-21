@@ -88,11 +88,7 @@ function TurtleControlClient.prototype.registerSelf(self)
         getStatusUpdate(nil),
         true
     )
-    local ____resp_ok_0 = resp
-    if ____resp_ok_0 ~= nil then
-        ____resp_ok_0 = ____resp_ok_0.ok
-    end
-    if not ____resp_ok_0 then
+    if not (resp and resp.ok) then
         Logger:warn(
             "Turtle register failed, will retry:",
             textutils.serialize(resp)

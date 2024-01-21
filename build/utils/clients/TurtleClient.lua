@@ -41,11 +41,7 @@ function TurtleClient.prototype.call(self, cmd, params, timeout, assertResp, exp
 end
 function TurtleClient.prototype.addJob(self, jobRecord)
     local resp = self:call(TurtleCommands.addJob, jobRecord)
-    local ____resp_ok_0 = resp
-    if ____resp_ok_0 ~= nil then
-        ____resp_ok_0 = ____resp_ok_0.ok
-    end
-    if not ____resp_ok_0 then
+    if not (resp and resp.ok) then
         error(
             __TS__New(
                 Error,
@@ -57,11 +53,7 @@ function TurtleClient.prototype.addJob(self, jobRecord)
 end
 function TurtleClient.prototype.status(self)
     local resp = self:call(TurtleCommands.status, {}, 1, false)
-    local ____resp_ok_2 = resp
-    if ____resp_ok_2 ~= nil then
-        ____resp_ok_2 = ____resp_ok_2.ok
-    end
-    if not ____resp_ok_2 then
+    if not (resp and resp.ok) then
         return nil
     end
     return resp.status

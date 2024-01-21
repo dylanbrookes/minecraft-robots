@@ -135,5 +135,4 @@ function TaskStore.prototype.remove(self, id)
     self.tasks:delete(id)
 end
 TaskStore.DEFAULT_STORE_FILE = "/.tasks"
-____exports.default = TaskStore
 return ____exports

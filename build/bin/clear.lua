@@ -2,7 +2,8 @@
 local ____exports = {}
 require("/require_stub")
 local function checkFuel(self)
-    if turtle.getFuelLevel() < 100 then
+    local fuelLevel = turtle.getFuelLevel()
+    if fuelLevel ~= "unlimited" and fuelLevel < 100 then
         print("Refuelling...")
         local startSlot = turtle.getSelectedSlot()
         local refuelled = false

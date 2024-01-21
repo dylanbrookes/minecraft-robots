@@ -96,11 +96,8 @@ function __JobProcessor__.prototype.cancel(self, jobId)
     if not self.jobs:has(jobId) then
         return
     end
-    local ____table_activeJobBehaviour_job_id_0 = self.activeJobBehaviour
-    if ____table_activeJobBehaviour_job_id_0 ~= nil then
-        ____table_activeJobBehaviour_job_id_0 = ____table_activeJobBehaviour_job_id_0.job.id
-    end
-    if ____table_activeJobBehaviour_job_id_0 == jobId then
+    local ____opt_0 = self.activeJobBehaviour
+    if (____opt_0 and ____opt_0.job.id) == jobId then
         self.activeJobBehaviour.cancelled = true
     end
 end
@@ -119,11 +116,8 @@ function __JobProcessor__.prototype.onJobEnd(self, id)
             0
         )
     end
-    local ____table_activeJobBehaviour_cancelled_2 = self.activeJobBehaviour
-    if ____table_activeJobBehaviour_cancelled_2 ~= nil then
-        ____table_activeJobBehaviour_cancelled_2 = ____table_activeJobBehaviour_cancelled_2.cancelled
-    end
-    local cancelled = ____table_activeJobBehaviour_cancelled_2
+    local ____opt_2 = self.activeJobBehaviour
+    local cancelled = ____opt_2 and ____opt_2.cancelled
     self.activeJobBehaviour = nil
     self.jobs:delete(id)
     self:checkWork()
@@ -157,11 +151,8 @@ function __JobProcessor__.prototype.onJobError(self, id, err)
             0
         )
     end
-    local ____table_activeJobBehaviour_cancelled_4 = self.activeJobBehaviour
-    if ____table_activeJobBehaviour_cancelled_4 ~= nil then
-        ____table_activeJobBehaviour_cancelled_4 = ____table_activeJobBehaviour_cancelled_4.cancelled
-    end
-    local cancelled = ____table_activeJobBehaviour_cancelled_4
+    local ____opt_4 = self.activeJobBehaviour
+    local cancelled = ____opt_4 and ____opt_4.cancelled
     self.activeJobBehaviour = nil
     self.jobs:delete(id)
     self:checkWork()

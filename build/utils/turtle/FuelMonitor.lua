@@ -18,14 +18,6 @@ function __FuelMonitor__.prototype.____constructor(self)
     self.registered = false
     self._fuelStatus = ____exports.FuelStatus.UNKNOWN
 end
-__TS__SetDescriptor(
-    __FuelMonitor__.prototype,
-    "fuelStatus",
-    {get = function(self)
-        return self._fuelStatus
-    end},
-    true
-)
 function __FuelMonitor__.prototype.register(self)
     if self.registered then
         error(
@@ -78,6 +70,14 @@ function __FuelMonitor__.prototype.checkFuel(self)
 end
 __FuelMonitor__.CHECK_FUEL_INTERVAL = 10
 __FuelMonitor__.MIN_FUEL_RATIO = 0.2
+__TS__SetDescriptor(
+    __FuelMonitor__.prototype,
+    "fuelStatus",
+    {get = function(self)
+        return self._fuelStatus
+    end},
+    true
+)
 local FuelMonitor = __TS__New(__FuelMonitor__)
 ____exports.default = FuelMonitor
 return ____exports

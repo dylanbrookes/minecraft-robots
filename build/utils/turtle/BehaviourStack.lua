@@ -27,14 +27,14 @@ function __BehaviourStack__.prototype.step(self)
     end
     if currentBehaviour and currentBehaviour ~= self.lastBehaviour then
         if currentBehaviour.status == TurtleBehaviourStatus.INIT then
-            local ____currentBehaviour_onStart_result_0 = currentBehaviour.onStart
-            if ____currentBehaviour_onStart_result_0 ~= nil then
-                ____currentBehaviour_onStart_result_0 = ____currentBehaviour_onStart_result_0(currentBehaviour)
+            local ____opt_0 = currentBehaviour.onStart
+            if ____opt_0 ~= nil then
+                ____opt_0(currentBehaviour)
             end
         else
-            local ____currentBehaviour_onResume_result_2 = currentBehaviour.onResume
-            if ____currentBehaviour_onResume_result_2 ~= nil then
-                ____currentBehaviour_onResume_result_2 = ____currentBehaviour_onResume_result_2(currentBehaviour)
+            local ____opt_2 = currentBehaviour.onResume
+            if ____opt_2 ~= nil then
+                ____opt_2(currentBehaviour)
             end
         end
         currentBehaviour.status = TurtleBehaviourStatus.RUNNING
@@ -42,9 +42,9 @@ function __BehaviourStack__.prototype.step(self)
     if self.lastBehaviour and currentBehaviour ~= self.lastBehaviour then
         local ____this_5
         ____this_5 = self.lastBehaviour
-        local ____table_lastBehaviour_onPause_result_4 = ____this_5.onPause
-        if ____table_lastBehaviour_onPause_result_4 ~= nil then
-            ____table_lastBehaviour_onPause_result_4 = ____table_lastBehaviour_onPause_result_4(____this_5)
+        local ____opt_4 = ____this_5.onPause
+        if ____opt_4 ~= nil then
+            ____opt_4(____this_5)
         end
         self.lastBehaviour.status = TurtleBehaviourStatus.PAUSED
     end
@@ -52,15 +52,15 @@ function __BehaviourStack__.prototype.step(self)
     if not currentBehaviour then
         return
     end
-    local done
+    local done = false
     do
         local function ____catch(e)
             Logger:error(e)
             Logger:error(("Behaviour " .. currentBehaviour.name) .. " threw an error")
             currentBehaviour.status = TurtleBehaviourStatus.FAILED
-            local ____currentBehaviour_onError_result_6 = currentBehaviour.onError
-            if ____currentBehaviour_onError_result_6 ~= nil then
-                ____currentBehaviour_onError_result_6 = ____currentBehaviour_onError_result_6(currentBehaviour, e)
+            local ____opt_6 = currentBehaviour.onError
+            if ____opt_6 ~= nil then
+                ____opt_6(currentBehaviour, e)
             end
             self.lastBehaviour = nil
             self.priorityQueue:pop()
@@ -74,9 +74,9 @@ function __BehaviourStack__.prototype.step(self)
     end
     if done then
         currentBehaviour.status = TurtleBehaviourStatus.DONE
-        local ____currentBehaviour_onEnd_result_8 = currentBehaviour.onEnd
-        if ____currentBehaviour_onEnd_result_8 ~= nil then
-            ____currentBehaviour_onEnd_result_8 = ____currentBehaviour_onEnd_result_8(currentBehaviour)
+        local ____opt_8 = currentBehaviour.onEnd
+        if ____opt_8 ~= nil then
+            ____opt_8(currentBehaviour)
         end
         self.lastBehaviour = nil
         if self.priorityQueue:peek() ~= currentBehaviour then

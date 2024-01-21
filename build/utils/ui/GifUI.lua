@@ -67,5 +67,4 @@ function GifUI.prototype.render(self)
     self.frameNum = (self.frameNum + 1) % #self.frames
 end
 GifUI.registered = false
-____exports.default = GifUI
 return ____exports

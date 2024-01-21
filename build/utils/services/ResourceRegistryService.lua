@@ -146,5 +146,4 @@ function ResourceRegistryService.prototype.onMessage(self, message, sender)
         end
     until true
 end
-____exports.default = ResourceRegistryService
 return ____exports

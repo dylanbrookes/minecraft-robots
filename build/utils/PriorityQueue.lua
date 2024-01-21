@@ -98,5 +98,4 @@ function PriorityQueue.prototype._siftDown(self)
         node = maxChild
     end
 end
-____exports.default = PriorityQueue
 return ____exports

@@ -37,5 +37,4 @@ function Miner.prototype.turn(self, direction)
         turtle.turnRight()
     end
 end
-____exports.default = Miner
 return ____exports

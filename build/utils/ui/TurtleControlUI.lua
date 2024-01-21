@@ -183,5 +183,4 @@ function TurtleControlUI.prototype.render(self)
     term.redirect(oldterm)
 end
 TurtleControlUI.ID_COUNTER = 0
-____exports.default = TurtleControlUI
 return ____exports

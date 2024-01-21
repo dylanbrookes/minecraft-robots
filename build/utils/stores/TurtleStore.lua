@@ -137,5 +137,4 @@ function TurtleStore.prototype.update(self, id, record)
     return turtleRecord
 end
 TurtleStore.DEFAULT_STORE_FILE = "/.turtlestore"
-____exports.default = TurtleStore
 return ____exports

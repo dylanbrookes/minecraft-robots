@@ -28,5 +28,4 @@ function Job.prototype.buildBehaviour(self)
         table.unpack(self.record.args)
     )
 end
-____exports.default = Job
 return ____exports

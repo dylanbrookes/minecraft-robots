@@ -85,11 +85,7 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
                 local job = self.jobStore:getById(id)
                 local result = self.jobStore:removeById(id)
                 if result then
-                    local ____job_status_3 = job
-                    if ____job_status_3 ~= nil then
-                        ____job_status_3 = ____job_status_3.status
-                    end
-                    if ____job_status_3 == JobStatus.IN_PROGRESS then
+                    if (job and job.status) == JobStatus.IN_PROGRESS then
                         EventLoop:emit(JobRegistryEvent.JOB_CANCELLED, id)
                     end
                     self.jobStore:save()
@@ -222,5 +218,4 @@ function JobRegistryService.prototype.onMessage(self, message, sender)
         end
     until true
 end
-____exports.default = JobRegistryService
 return ____exports

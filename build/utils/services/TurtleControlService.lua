@@ -21,23 +21,7 @@ ____exports.TurtleControlCommand.TURTLE_SOS = "TURTLE_SOS"
 ____exports.TurtleControlCommand.TURTLE_TERMINATE = "TURTLE_TERMINATE"
 ____exports.TurtleControlCommand.LIST = "LIST"
 local function buildUpdates(____, status, turtleRecord)
-    local ____status_location_2 = status.location
-    if not ____status_location_2 then
-        local ____turtleRecord_location_0 = turtleRecord
-        if ____turtleRecord_location_0 ~= nil then
-            ____turtleRecord_location_0 = ____turtleRecord_location_0.location
-        end
-        ____status_location_2 = ____turtleRecord_location_0
-    end
-    local ____status_location_2_5 = ____status_location_2
-    if not ____status_location_2_5 then
-        local ____turtleRecord_lastKnownLocation_3 = turtleRecord
-        if ____turtleRecord_lastKnownLocation_3 ~= nil then
-            ____turtleRecord_lastKnownLocation_3 = ____turtleRecord_lastKnownLocation_3.lastKnownLocation
-        end
-        ____status_location_2_5 = ____turtleRecord_lastKnownLocation_3
-    end
-    local lastKnownLocation = ____status_location_2_5
+    local lastKnownLocation = status.location or turtleRecord and turtleRecord.location or turtleRecord and turtleRecord.lastKnownLocation
     return {
         lastSeen = os.epoch("utc"),
         location = status.location,
@@ -206,5 +190,4 @@ function TurtleControlService.prototype.onMessage(self, message, sender)
 end
 TurtleControlService.CHECK_TURTLES_EVENT = "TurtleControlService:check_turtles"
 TurtleControlService.STALE_TURTLE_TIMEOUT = 10
-____exports.default = TurtleControlService
 return ____exports

@@ -83,17 +83,7 @@ function __TurtleController__.prototype._dig(self, direction, assertSuccess)
     end
     local occupied, info = turtle[direction == "forward" and "inspect" or (direction == "up" and "inspectUp" or "inspectDown")]()
     if occupied and inspectHasTags(nil, info, {ItemTags.stella_arcanum, ItemTags.turtle}) then
-        local ____temp_2
-        if type(info) == "string" then
-            ____temp_2 = info
-        else
-            local ____info_name_0 = info
-            if ____info_name_0 ~= nil then
-                ____info_name_0 = ____info_name_0.name
-            end
-            ____temp_2 = ____info_name_0
-        end
-        local message = "Dig target is " .. tostring(____temp_2)
+        local message = "Dig target is " .. tostring(type(info) == "string" and info or info and info.name)
         if assertSuccess then
             error(
                 __TS__New(Error, message),

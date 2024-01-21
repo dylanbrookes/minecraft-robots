@@ -47,30 +47,6 @@ function ClearBehaviour.prototype.____constructor(self, startPosition, startHead
     Logger:info((((((("Moving to " .. serializePosition(nil, startPosition)) .. " and clearing w=") .. tostring(w)) .. " d=") .. tostring(d)) .. " h=") .. tostring(h))
     self.startPathfinder = __TS__New(PathfinderBehaviour, startPosition)
 end
-__TS__SetDescriptor(
-    ClearBehaviour.prototype,
-    "w",
-    {get = function(self)
-        return self.dimensions[1]
-    end},
-    true
-)
-__TS__SetDescriptor(
-    ClearBehaviour.prototype,
-    "d",
-    {get = function(self)
-        return self.dimensions[2]
-    end},
-    true
-)
-__TS__SetDescriptor(
-    ClearBehaviour.prototype,
-    "h",
-    {get = function(self)
-        return self.dimensions[3]
-    end},
-    true
-)
 function ClearBehaviour.prototype.onResume(self)
     self.startPathfinder = __TS__New(PathfinderBehaviour, self.pausedPosition or self.startPosition)
 end
@@ -137,4 +113,28 @@ function ClearBehaviour.prototype.step(self)
     Logger:info("Done clearing")
     return true
 end
+__TS__SetDescriptor(
+    ClearBehaviour.prototype,
+    "w",
+    {get = function(self)
+        return self.dimensions[1]
+    end},
+    true
+)
+__TS__SetDescriptor(
+    ClearBehaviour.prototype,
+    "d",
+    {get = function(self)
+        return self.dimensions[2]
+    end},
+    true
+)
+__TS__SetDescriptor(
+    ClearBehaviour.prototype,
+    "h",
+    {get = function(self)
+        return self.dimensions[3]
+    end},
+    true
+)
 return ____exports

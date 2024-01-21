@@ -45,7 +45,7 @@ class __BehaviourStack__ {
       // console.log("Nothing to do...");
       return;
     }
-    let done: boolean | void;
+    let done: boolean | void = false;
     try {
       done = currentBehaviour.step();
     } catch (e) {

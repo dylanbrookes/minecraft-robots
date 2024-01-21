@@ -228,5 +228,4 @@ function JobScheduler.prototype.assignJobToTurtle(self, job, turtleRecord)
 end
 JobScheduler.SCHEDULE_JOBS_EVENT = "JobScheduler:schedule_jobs"
 JobScheduler.SCHEDULE_JOBS_INTERVAL = 5
-____exports.default = JobScheduler
 return ____exports

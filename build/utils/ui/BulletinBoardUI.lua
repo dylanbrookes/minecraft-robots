@@ -95,5 +95,4 @@ function BulletinBoardUI.prototype.render(self)
     term.redirect(oldterm)
 end
 BulletinBoardUI.ID_COUNTER = 0
-____exports.default = BulletinBoardUI
 return ____exports

@@ -11,14 +11,6 @@ function PriorityList.prototype.____constructor(self, comparator)
     self.head = nil
     self._size = 0
 end
-__TS__SetDescriptor(
-    PriorityList.prototype,
-    "size",
-    {get = function(self)
-        return self._size
-    end},
-    true
-)
 function PriorityList.prototype.isEmpty(self)
     return self.size == 0
 end
@@ -60,18 +52,11 @@ function PriorityList.prototype.get(self, idx)
             i = i + 1
         end
     end
-    local ____item_value_2 = item
-    if ____item_value_2 ~= nil then
-        ____item_value_2 = ____item_value_2.value
-    end
-    return ____item_value_2
+    return item and item.value
 end
 function PriorityList.prototype.peek(self)
-    local ____table_head_value_4 = self.head
-    if ____table_head_value_4 ~= nil then
-        ____table_head_value_4 = ____table_head_value_4.value
-    end
-    return ____table_head_value_4
+    local ____opt_4 = self.head
+    return ____opt_4 and ____opt_4.value
 end
 function PriorityList.prototype.push(self, ...)
     local values = {...}
@@ -104,11 +89,7 @@ function PriorityList.prototype.push(self, ...)
                 lastItem.next = vItem
             end
         end
-        local ____item_next_8 = item
-        if ____item_next_8 ~= nil then
-            ____item_next_8 = ____item_next_8.next
-        end
-        item = ____item_next_8
+        item = item and item.next
         lastItem = item
     end
     return self.size
@@ -159,5 +140,12 @@ function PriorityList.prototype.remove(self, idx)
     end
     item.next = nil
 end
-____exports.default = PriorityList
+__TS__SetDescriptor(
+    PriorityList.prototype,
+    "size",
+    {get = function(self)
+        return self._size
+    end},
+    true
+)
 return ____exports

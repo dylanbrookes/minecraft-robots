@@ -190,9 +190,8 @@ function __EventLoop__.prototype.run(self, tick)
                     error(e, 0)
                 end
                 local ____try, ____hasReturned = pcall(function()
-                    local ____tick_result_4 = tick
-                    if ____tick_result_4 ~= nil then
-                        ____tick_result_4 = ____tick_result_4(nil, delta)
+                    if tick ~= nil then
+                        tick(nil, delta)
                     end
                 end)
                 if not ____try then

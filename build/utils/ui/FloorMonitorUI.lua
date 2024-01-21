@@ -108,5 +108,4 @@ function FloorMonitorUI.prototype.render(self)
     term.redirect(oldterm)
 end
 FloorMonitorUI.ID_COUNTER = 0
-____exports.default = FloorMonitorUI
 return ____exports
