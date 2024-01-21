@@ -1,4 +1,4 @@
-1705272760
+1705874356
 /build/require_stub.lua
 /build/models/Miner.lua
 /build/utils/services/ResourceRegistryService.lua
@@ -64,4 +64,5 @@
 /build/bin/turtle-control.lua
 /build/bin/turtle.lua
 /build/bin/tsh.lua
+/build/bin/wheel.lua
 /build/lualib_bundle.lua
